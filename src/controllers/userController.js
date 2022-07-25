@@ -156,9 +156,9 @@ const userLogin = async function (req, res) {
         }, "project-5",
         
      )
-     
-    //  console.log(token)
-        return res.status(200).send({status: true , msg : "succesfully created" , data: token })
+     console.log(token)
+    // res.setAuthorization.Bearer(token)
+     return res.status(200).send({status: true , msg : "succesfully created" , data: token })
     } catch (error)
     {return res.status(500).send({status: false, msg :error.message})}
 }
