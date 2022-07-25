@@ -1,81 +1,7 @@
 const userModel = require("../Models/userModel")
+const valid = require("../validations/validation")
 const mongoose = require('mongoose')
 const aws = require("aws-sdk")
-
-
-
-const createBooks = async function (req, res) {
-    try {
-
-        const data = req.body
-        // console.log(data)
-        let { fname, lname, email, phone, password, address } = data
-        // //check if the body is empty
-
-        if (Object.keys(data).length === 0) {
-            return res.status(400).send({ status: false, message: "Body should  be not Empty please enter some data to create user" })
-        }
-
-        //<-------These validations for Mandatory fields--------->//
-        if (!(fname)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "fname field is mandatory" });
-        }
-
-        if (!(lname)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "lname field is mandatory" });
-        }
-
-        if (!(email)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "email field is mandatory" });
-        }
-
-        // if (!(profileImage)) {
-        //     return res
-        //         .status(400)
-        //         .send({ status: false, msg: "profileImage field is mandatory" });
-        // }
-
-        if (!(phone)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "phone field is mandatory" });
-        }
-
-        if (!(password)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "password field is mandatory" });
-        }
-
-        if (!(address)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "address field is mandatory" });
-        }
-
-        let files = req.files
-        // console.log(files)
-        if (!files || files.length === 0) return res.status(400).send({ status: false, message: "No cover image found." })
-        //upload to s3 and get the uploaded link
-        let profileImage = await uploadFile(files[0])
-        data.profileImage = profileImage
-console.log(data.address["shipping"])
-        let savedData = await userModel.create(data)
-        res.status(201).send({
-            status: true,
-            data: savedData
-        })
-    }
-    catch (err) {
-        return res.status(500).send({ status: false, message: err.message })
-    }
-}
 
 aws.config.update({
     accessKeyId: "AKIAY3L35MCRVFM24Q7U",
@@ -91,7 +17,7 @@ let uploadFile = async (file) => {
         var uploadParams = {
             ACL: "public-read",
             Bucket: "classroom-training-bucket",  //HERE
-            Key: "xyz/" + file.originalname, //HERE 
+            Key: "abc/" + file.originalname, //HERE 
             Body: file.buffer
         }
 
@@ -100,16 +26,85 @@ let uploadFile = async (file) => {
             if (err) {
                 return reject({ "error": err })
             }
-            //  console.log(data)
-            //  console.log("file uploaded succesfully")
+            // console.log("file uploaded succesfully")
             return resolve(data.Location)
         })
-
-        // let data= await s3.upload( uploadParams)
-        // if( data) return data.Location
-        // else return "there is an error"
 
     })
 }
 
-module.exports.createBooks = createBooks
+const createUsers = async function (req, res) {
+    try {
+       
+        let data = req.body
+    
+        let { fname, lname, email, phone, password, address } = data
+        
+
+        let files = req.files
+        // console.log(files)
+        if(!files || files.length === 0) return res.status(400).send({ status: false, message: "No cover image found." })
+            //upload to s3 and get the uploaded link
+        let profileImage= await uploadFile( files[0] )
+        
+       data.profileImage = profileImage 
+
+        // //check if the body is empty
+        
+        if (Object.keys(data).length === 0) {
+            return res.status(400).send({ status: false, message: "Body should  be not Empty please enter some data to create user" })
+        }
+        
+         //<-------These validations for Mandatory fields--------->//
+     if(!valid.isValid(fname)){ 
+        return res
+           .status(400)
+           .send({ status: false, msg: "fname field is mandatory" });
+      }
+
+      if(!valid.isValid(lname)){ 
+        return res
+           .status(400) 
+           .send({ status: false, msg: "lname field is mandatory" });
+      }
+      
+      if(!valid.isValid(email)){ 
+        return res
+           .status(400)
+           .send({ status: false, msg: "email field is mandatory" });
+      }
+
+      if(!valid.isValid(profileImage)){ 
+        return res
+           .status(400)
+           .send({ status: false, msg: "profileImage field is mandatory" });
+      }
+
+      if(!valid.isValid(phone)){ 
+        return res
+           .status(400)
+           .send({ status: false, msg: "phone field is mandatory" });
+      }
+
+      if(!valid.isValid(password)){ 
+        return res
+           .status(400)
+           .send({ status: false, msg: "password field is mandatory" });
+      }
+      
+      if(!valid.isValid(address)){ 
+        return res
+           .status(400)
+           .send({ status: false, msg: "address field is mandatory" });
+      } 
+
+    const userCreated = await userModel.create(data)
+
+       return res.status(201).send({ status: true, message: "User created successfully", data: userCreated })
+    }
+    catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+module.exports.createUsers = createUsers
+

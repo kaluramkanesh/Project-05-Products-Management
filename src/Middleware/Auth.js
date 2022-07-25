@@ -6,8 +6,8 @@ const userModel = require("../Models/userModel")
 
 const jwtvalidation = function (req, res) {
     try {
-        let token = req.headers["x-Api-Key"];
-        if (!token) token = req.headers["x-api-key"];
+        let token = req.headers.Authorization["Bearer Token"];
+        if (!token) token = req.headers["Bearer Token"];
 
         if (!token) return res.status(400).send({ 
             status: false, 
