@@ -1,9 +1,9 @@
 const userModel = require("../Models/userModel")
-const valid = require("../validations/validation")
-const bcrypt = require("bcrypt")
 const mongoose = require('mongoose')
-
+const jwt = require("jsonwebtoken")
+const valid = require("../validations/validation")
 const aws = require("aws-sdk")
+const bcrypt = require("bcrypt")
 
 aws.config.update({
     accessKeyId: "AKIAY3L35MCRVFM24Q7U",
@@ -100,6 +100,7 @@ const createUsers = async function (req, res) {
            .status(400)
            .send({ status: false, msg: "address field is mandatory" });
       } 
+      data.address = JSON.parse(data.address)
 
       const salt = await bcrypt.genSalt(10);
       const hashedPass = await bcrypt.hash(password, salt)
@@ -109,9 +110,60 @@ const createUsers = async function (req, res) {
 
        return res.status(201).send({ status: true, message: "User created successfully", data: userCreated })
     }
-    catch (err) {
-        return res.status(500).send({ status: false, message: err.message })
+
+    catch (error) {
+        return res.status(500).send({ status: false, msg: error.message })
     }
 }
+
+
+//******************user login***********
+
+const userLogin = async function (req, res) {
+    try {
+        let value = req.body
+        let userId = value.email
+        let password = value.password 
+
+    //   const salt = await bcrypt.genSalt(10);
+    //   const hashedPass = await bcrypt.hash(password, salt)
+    //   const password2 = await userModel.findOne({password})
+    //   console.log(password2, "aishu")
+    //    const compared = bcrypt.compare(password2 , hashedPass, function(err, result) {
+    //         if (result) {
+    //           console.log("It matches!", hashedPass)
+    //         }
+    //         else {
+    //           console.log("Invalid password!", err);
+    //         }
+    //       });
+    //       console.log(password,"hii")
+    //       console.log(compared,"hello")
+
+
+        // *******empty attribute******
+
+        // if (!isValid(userId) || !isValid(password)) return res.status(400).send({ status: false, msg: "Pls Provide  Email And Password both" })
+
+        let user = await userModel.findOne({ $and: [{ email: userId, password: password }] })
+        // console.log(user)
+        if (!user) return res.status(400).send({ status: false, msg: "The email or password you are using is wrong" })
+
+        let token = jwt.sign({
+            userId: user._id.toString(),
+            iat: new Date().getTime(),
+            exp: Math.floor(Date.now() / 1000) + 10 * 60 * 60
+        }, "project-5",
+        
+     )
+     
+    //  console.log(token)
+        return res.status(200).send({status: true , msg : "succesfully created" , data: token })
+    } catch (error)
+    {return res.status(500).send({status: false, msg :error.message})}
+}
+
+
+module.exports.userLogin = userLogin
 module.exports.createUsers = createUsers
 
