@@ -23,7 +23,6 @@ let uploadFile = async (file) => {
             Body: file.buffer
         }
 
-
         s3.upload(uploadParams, function (err, data) {
             if (err) {
                 return reject({ "error": err })
@@ -37,79 +36,107 @@ let uploadFile = async (file) => {
 
 const createUsers = async function (req, res) {
     try {
-       
+
         let data = req.body
-    
         let { fname, lname, email, phone, password, address } = data
-        
 
         let files = req.files
         // console.log(files)
-        if(!files || files.length === 0) return res.status(400).send({ status: false, message: "No cover image found." })
-            //upload to s3 and get the uploaded link
-        let profileImage= await uploadFile( files[0] )
-        
-       data.profileImage = profileImage 
+        if (!files || files.length === 0) return res.status(400).send({ 
+            status: false, 
+            message: "No cover image found." 
+        })
+
+        //upload to s3 and get the uploaded link
+        let profileImage = await uploadFile(files[0])
+        data.profileImage = profileImage
 
         // //check if the body is empty
-        
         if (Object.keys(data).length === 0) {
-            return res.status(400).send({ status: false, message: "Body should  be not Empty please enter some data to create user" })
+            return res.status(400).send({ 
+                status: false, 
+                message: "Body should  be not Empty please enter some data to create user" 
+            })
         }
-        
-         //<-------These validations for Mandatory fields--------->//
-     if(!valid.isValid(fname)){ 
-        return res
-           .status(400)
-           .send({ status: false, msg: "fname field is mandatory" });
-      }
 
-      if(!valid.isValid(lname)){ 
-        return res
-           .status(400) 
-           .send({ status: false, msg: "lname field is mandatory" });
-      }
-      
-      if(!valid.isValid(email)){ 
-        return res
-           .status(400)
-           .send({ status: false, msg: "email field is mandatory" });
-      }
+        //<-------These validations for Mandatory fields--------->//
+        if (!valid.isValid(fname)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "fname field is mandatory" 
+            });
+        }
 
-      if(!valid.isValid(profileImage)){ 
-        return res
-           .status(400)
-           .send({ status: false, msg: "profileImage field is mandatory" });
-      }
+        if (!valid.isValid(lname)) {
+            return res.status(400).send({
+                status: false,
+                msg: "lname field is mandatory" 
+            });
+        }
 
-      if(!valid.isValid(phone)){ 
-        return res
-           .status(400)
-           .send({ status: false, msg: "phone field is mandatory" });
-      }
+        if (!valid.isValid(email)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "email field is mandatory" 
+            });
+        }
+        const checkEmail = await userModel.findOne({email:email})
+        if(checkEmail){
+            return res.status(404).send({
+                status: false,
+                message: "email is already present in the DB"
+            })
+        }
 
-      if(!valid.isValid(password)){ 
-        return res
-           .status(400)
-           .send({ status: false, msg: "password field is mandatory" });
-      }
-      
-      if(!valid.isValid(address)){ 
-        return res
-           .status(400)
-           .send({ status: false, msg: "address field is mandatory" });
-      } 
-      data.address = JSON.parse(data.address)
+        if (!valid.isValid(profileImage)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "profileImage field is mandatory" 
+            });
+        }
 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPass = await bcrypt.hash(password, salt)
-      data.password = hashedPass; 
+        if (!valid.isValid(phone)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "phone field is mandatory" 
+            });
+        }
+        const checkPhone = await userModel.findOne({phone: phone})
+        if(checkPhone){
+            return res.status(404).send({
+                status: false,
+                message: "phone is already present in the DB"
+            })
+        }
 
-    const userCreated = await userModel.create(data)
+        if (!valid.isValid(password)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "password field is mandatory" 
+            });
+        }
 
-       return res.status(201).send({ status: true, message: "User created successfully", data: userCreated })
+        if (!valid.isValid(address)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "address field is mandatory" 
+            });
+        }
+        data.address = JSON.parse(data.address)
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPass = await bcrypt.hash(password, salt)
+        data.password = hashedPass
+        // req.hashedPass= password
+        // console.log(password)
+
+        const userCreated = await userModel.create(data)
+        return res.status(201).send({
+            status: true,
+            message: "User created successfully",
+            data: userCreated
+        })
     }
-
     catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
     }
@@ -120,31 +147,12 @@ const createUsers = async function (req, res) {
 
 const userLogin = async function (req, res) {
     try {
-        let value = req.body
-        let userId = value.email
-        let password = value.password 
-
-    //   const salt = await bcrypt.genSalt(10);
-    //   const hashedPass = await bcrypt.hash(password, salt)
-    //   const password2 = await userModel.findOne({password})
-    //   console.log(password2, "aishu")
-    //    const compared = bcrypt.compare(password2 , hashedPass, function(err, result) {
-    //         if (result) {
-    //           console.log("It matches!", hashedPass)
-    //         }
-    //         else {
-    //           console.log("Invalid password!", err);
-    //         }
-    //       });
-    //       console.log(password,"hii")
-    //       console.log(compared,"hello")
+        let data = req.body
+        let email = data.email
+        let password = data.password
 
 
-        // *******empty attribute******
-
-        // if (!isValid(userId) || !isValid(password)) return res.status(400).send({ status: false, msg: "Pls Provide  Email And Password both" })
-
-        let user = await userModel.findOne({ $and: [{ email: userId, password: password }] })
+        let user = await userModel.findOne({ $and: [{ email: email, password: password }] })
         // console.log(user)
         if (!user) return res.status(400).send({ status: false, msg: "The email or password you are using is wrong" })
 
@@ -153,35 +161,35 @@ const userLogin = async function (req, res) {
             iat: new Date().getTime(),
             exp: Math.floor(Date.now() / 1000) + 10 * 60 * 60
         }, "project-5",
-        
-     )
-     console.log(token)
-    // res.setAuthorization.Bearer(token)
-     return res.status(200).send({status: true , msg : "succesfully created" , data: token })
-    } catch (error)
-    {return res.status(500).send({status: false, msg :error.message})}
+
+        )
+        console.log(token)
+        // res.setAuthorization.Bearer(token)
+        return res.status(200).send({ status: true, msg: "succesfully created", data: token })
+    } catch (error) { return res.status(500).send({ status: false, msg: error.message }) }
 }
 
 
 //*****************get api***************************/
 
-const getUserById = async function(req, res){
-    try{
+const getUserById = async function (req, res) {
+    try {
 
-        let getUser = await userModel.find(userId)
-        if(!getUser){
+        userId = req.params.userId
+        let getUser = await userModel.findOne({ userId })
+        if (!getUser) {
             return res.status(404).send({
                 status: false,
                 message: "No user found"
             })
         }
-        return res.status(404).send({
-            status: false,
+        return res.status(200).send({
+            status: true,
             message: "user Details",
-            data : getUser
+            data: getUser
         })
     }
-    catch(err){
+    catch (err) {
         return res.status(500).send({
             status: false,
             message: err.message
