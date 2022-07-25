@@ -7,4 +7,6 @@ Router.get("/testMe", function (req, res) {
     res.status(200).send({ status: true, msg: "Done" })
 })
 
+Router.post("/")
+
 module.exports = Router
