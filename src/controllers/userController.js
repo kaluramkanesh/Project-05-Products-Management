@@ -1,5 +1,6 @@
 const userModel = require("../Models/userModel")
 const valid = require("../validations/validation")
+const bcrypt = require("bcrypt")
 const mongoose = require('mongoose')
 
 const aws = require("aws-sdk")
@@ -99,6 +100,10 @@ const createUsers = async function (req, res) {
            .status(400)
            .send({ status: false, msg: "address field is mandatory" });
       } 
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPass = await bcrypt.hash(password, salt)
+      data.password = hashedPass; 
 
     const userCreated = await userModel.create(data)
 
