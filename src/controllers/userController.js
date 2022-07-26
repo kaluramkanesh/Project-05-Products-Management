@@ -127,8 +127,6 @@ const createUsers = async function (req, res) {
         const salt = await bcrypt.genSalt(10);
         const hashedPass = await bcrypt.hash(password, salt)
         data.password = hashedPass
-        // req.hashedPass= password
-        // console.log(password)
 
         const userCreated = await userModel.create(data)
         return res.status(201).send({
@@ -151,10 +149,32 @@ const userLogin = async function (req, res) {
         let email = data.email
         let password = data.password
 
+        if (Object.keys(data).length == 0) {
+            return res.status(400).send({ 
+                status: false, 
+                message: "login credentials must be presents & only email and password should be inside body" 
+            })
+        }
 
-        let user = await userModel.findOne({ $and: [{ email: email, password: password }] })
-        // console.log(user)
-        if (!user) return res.status(400).send({ status: false, msg: "The email or password you are using is wrong" })
+        if(!email){
+            return res.status(400).send({
+                status: false,
+                message: "email is required"
+            })
+        }
+        if(!password){
+            return res.status(400).send({
+                status: false,
+                message: "password is required"
+            })
+        }
+
+        let user = await userModel.findOne({email: email})
+
+        const compared = await bcrypt.compare(password, user.password);
+        console.log(compared)
+
+        if (!user) return res.status(400).send({ status: false, msg: "incorrect " })
 
         let token = jwt.sign({
             userId: user._id,
@@ -163,10 +183,8 @@ const userLogin = async function (req, res) {
         }, "project-5",
 
         )
-        console.log(token)
-        token.userId = user._id
-        // res.setAuthorization.Bearer(token)
-        return res.status(200).send({ status: true, msg: "succesfully created", data: token })
+        
+        return res.status(200).send({ status: true, msg: "User login successfull", data:  token })
     } catch (error) { return res.status(500).send({ status: false, msg: error.message }) }
 }
 
