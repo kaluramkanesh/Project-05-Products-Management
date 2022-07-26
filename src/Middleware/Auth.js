@@ -1,8 +1,5 @@
 const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose")
-// const cartModel = require("../Models/cartModel")
-// const orderModel = require("../Models/ordertModel")
-// const productModel = require("../Models/productModel")
 const userModel = require("../Models/userModel")
 const validator = require("../validations/validation")
 
