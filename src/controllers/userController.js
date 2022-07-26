@@ -170,11 +170,10 @@ const userLogin = async function (req, res) {
                 message: "password is required"
             })
         }
-        if (password) {
-            if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(password)) {
-                return res.status(400).send({ status: false, message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter` })
-            }
+        if (!valid.passwordValidationRegex(password)) {
+            return res.status(400).send({ status: false, message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter` })
         }
+
 
         let user = await userModel.findOne({ email: email })
 
