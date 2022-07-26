@@ -1,6 +1,7 @@
 const express = require("express")
 const userController = require("../controllers/userController")
 const Router = express.Router()
+const mid = require("../Middleware/Auth")
 
 
 Router.post("/register", userController.createUsers)
@@ -11,12 +12,15 @@ Router.post("/login", userController.userLogin);
 /*------------------------Update User Api's---------------------------------*/
 Router.put("/user/:userId/profile", userController.updateUser)
 
+//*************get User */
+Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserById)
 
-/*-------------------When no Api will run that time this Api will run----------------- */
-Router.all("/**", function (req, res) {
+
+//************ checking your end point valid or not */
+Router.all("/****", function (req, res) {
     res.status(404).send({
         status: false,
-        msg: "The api you request is not available"
+        message: "Make Sure Your Endpoint is Correct or Not!"
     })
 })
 

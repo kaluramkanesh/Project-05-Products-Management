@@ -13,7 +13,6 @@ aws.config.update({
     region: "ap-south-1"
 })
 
-
 let uploadFile = async (file) => {
     return new Promise(function (resolve, reject) {
         // this function will upload file to aws and return the link
@@ -25,7 +24,6 @@ let uploadFile = async (file) => {
             Key: "abc/" + file.originalname, //HERE 
             Body: file.buffer
         }
-
 
         s3.upload(uploadParams, function (err, data) {
             if (err) {
@@ -57,7 +55,10 @@ const createUsers = async function (req, res) {
         // //check if the body is empty
 
         if (Object.keys(data).length === 0) {
-            return res.status(400).send({ status: false, message: "Body should  be not Empty please enter some data to create user" })
+            return res.status(400).send({
+                status: false,
+                message: "Body should  be not Empty please enter some data to create user"
+            })
         }
 
         //<-------These validations for Mandatory fields--------->//
@@ -112,7 +113,6 @@ const createUsers = async function (req, res) {
 
         return res.status(201).send({ status: true, message: "User created successfully", data: userCreated })
     }
-
     catch (error) {
         return res.status(500).send({ status: false, msg: error.message })
     }
@@ -123,33 +123,36 @@ const createUsers = async function (req, res) {
 
 const userLogin = async function (req, res) {
     try {
-        let value = req.body
-        let userId = value.email
-        let password = value.password
+        let data = req.body
+        let email = data.email
+        let password = data.password
 
-        //   const salt = await bcrypt.genSalt(10);
-        //   const hashedPass = await bcrypt.hash(password, salt)
-        //   const password2 = await userModel.findOne({password})
-        //   console.log(password2, "aishu")
-        //    const compared = bcrypt.compare(password2 , hashedPass, function(err, result) {
-        //         if (result) {
-        //           console.log("It matches!", hashedPass)
-        //         }
-        //         else {
-        //           console.log("Invalid password!", err);
-        //         }
-        //       });
-        //       console.log(password,"hii")
-        //       console.log(compared,"hello")
+        if (Object.keys(data).length == 0) {
+            return res.status(400).send({
+                status: false,
+                message: "login credentials must be presents & only email and password should be inside body"
+            })
+        }
 
+        if (!email) {
+            return res.status(400).send({
+                status: false,
+                message: "email is required"
+            })
+        }
+        if (!password) {
+            return res.status(400).send({
+                status: false,
+                message: "password is required"
+            })
+        }
 
-        // *******empty attribute******
+        let user = await userModel.findOne({ email: email })
 
-        // if (!isValid(userId) || !isValid(password)) return res.status(400).send({ status: false, msg: "Pls Provide  Email And Password both" })
+        const compared = await bcrypt.compare(password, user.password);
+        console.log(compared)
 
-        let user = await userModel.findOne({ $and: [{ email: userId, password: password }] })
-        // console.log(user)
-        if (!user) return res.status(400).send({ status: false, msg: "The email or password you are using is wrong" })
+        if (!user) return res.status(400).send({ status: false, msg: "incorrect " })
 
         let token = jwt.sign({
             userId: user._id.toString(),
@@ -159,14 +162,39 @@ const userLogin = async function (req, res) {
 
         )
         console.log(token)
-        // res.setAuthorization.Bearer(token)
-        return res.status(200).send({ status: true, msg: "succesfully created", data: token })
+        return res.status(200).send({ status: true, msg: "User login successfull", data: token })
     } catch (error) { return res.status(500).send({ status: false, msg: error.message }) }
+}
+
+//*****************get api***************************/
+
+const getUserById = async function (req, res) {
+    try {
+
+        userId = req.params.userId
+        let getUser = await userModel.findOne({ userId })
+        if (!getUser) {
+            return res.status(404).send({
+                status: false,
+                message: "No user found"
+            })
+        }
+        return res.status(200).send({
+            status: true,
+            message: "user Details",
+            data: getUser
+        })
+    }
+    catch (err) {
+        return res.status(500).send({
+            status: false,
+            message: err.message
+        })
+    }
 }
 
 
 /*********************************** Start's User Update Api's*********************************/
-
 
 const updateUser = async function (req, res) {
     try {
@@ -217,6 +245,6 @@ const updateUser = async function (req, res) {
 }
 /*********************************** Start's User Update Api's*********************************/
 
-module.exports = { userLogin, createUsers, updateUser }
 
+module.exports = { userLogin, createUsers, getUserById, updateUser }
 
