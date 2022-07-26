@@ -7,7 +7,7 @@ const isValid = function(value) {
 
 const reg = function( value){
  
- return /^[A-Z , a-z]+$/.test(value)
+ return /^[a-zA-Z -._\s]*$/.test(value)
 }
 
 
