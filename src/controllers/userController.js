@@ -36,92 +36,107 @@ let uploadFile = async (file) => {
 
 const createUsers = async function (req, res) {
     try {
-       
+
         let data = req.body
-    
         let { fname, lname, email, phone, password, address } = data
-        
 
         let files = req.files
         // console.log(files)
-        if(!files || files.length === 0) return res.status(400).send({ status: false, message: "No cover image found." })
-            //upload to s3 and get the uploaded link
-        let profileImage= await uploadFile( files[0] )
-        
-       data.profileImage = profileImage 
+        if (!files || files.length === 0) return res.status(400).send({ 
+            status: false, 
+            message: "No cover image found." 
+        })
+
+        //upload to s3 and get the uploaded link
+        let profileImage = await uploadFile(files[0])
+        data.profileImage = profileImage
 
         // //check if the body is empty
-        
         if (Object.keys(data).length === 0) {
-            return res.status(400).send({ status: false, message: "Body should  be not Empty please enter some data to create user" })
-        }
-        
-         //<-------These validations for Mandatory fields--------->//
-     if(!valid.isValid(fname)){ 
-        return res
-           .status(400)
-           .send({ status: false, message: "fname field is mandatory" });
-      }
-
-      if(!valid.isValid(lname)){ 
-        return res
-           .status(400) 
-           .send({ status: false, message: "lname field is mandatory" });
-      }
-      
-      if(!valid.isValid(email)){ 
-        return res
-           .status(400)
-           .send({ status: false, message: "email field is mandatory" });
-      }
-      if (await userModel.findOne({ email: email }))
-            return res.status(400).send({status: false, message: "Email is already exist" })
-        
-        //validate email
-        if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
-            return res.status(400).send({ status: false, message: `Email should be a valid email address` });
+            return res.status(400).send({ 
+                status: false, 
+                message: "Body should  be not Empty please enter some data to create user" 
+            })
         }
 
-      if(!valid.isValid(profileImage)){ 
-        return res
-           .status(400)
-           .send({ status: false, message: "profileImage field is mandatory" });
-      }
+        //<-------These validations for Mandatory fields--------->//
+        if (!valid.isValid(fname)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "fname field is mandatory" 
+            });
+        }
 
-      if(!valid.isValid(phone)){ 
-        return res
-           .status(400)
-           .send({ status: false, message: "phone field is mandatory" });
-      }
-      if (await userModel.findOne({ phone: phone }))
-            return res.status(400).send({status: false, message: "phone is already exist" })
+        if (!valid.isValid(lname)) {
+            return res.status(400).send({
+                status: false,
+                msg: "lname field is mandatory" 
+            });
+        }
 
-      if(!valid.isValid(password)){ 
-        return res
-           .status(400)
-           .send({ status: false, message: "password field is mandatory" });
-      }
-      //password validation
-      if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(password)) {
-        return res.status(400).send({ status: false, message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter` })
-    }  
-      
-      if(!valid.isValid(address)){ 
-        return res
-           .status(400)
-           .send({ status: false, msg: "address field is mandatory" });
-      } 
-      data.address = JSON.parse(data.address)
+        if (!valid.isValid(email)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "email field is mandatory" 
+            });
+        }
+        const checkEmail = await userModel.findOne({email:email})
+        if(checkEmail){
+            return res.status(404).send({
+                status: false,
+                message: "email is already present in the DB"
+            })
+        }
 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPass = await bcrypt.hash(password, salt)
-      data.password = hashedPass; 
+        if (!valid.isValid(profileImage)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "profileImage field is mandatory" 
+            });
+        }
 
-    const userCreated = await userModel.create(data)
+        if (!valid.isValid(phone)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "phone field is mandatory" 
+            });
+        }
+        const checkPhone = await userModel.findOne({phone: phone})
+        if(checkPhone){
+            return res.status(404).send({
+                status: false,
+                message: "phone is already present in the DB"
+            })
+        }
 
-       return res.status(201).send({ status: true, message: "User created successfully", data: userCreated })
+        if (!valid.isValid(password)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "password field is mandatory" 
+            });
+        }
+
+        if (!valid.isValid(address)) {
+            return res.status(400).send({ 
+                status: false, 
+                msg: "address field is mandatory" 
+            });
+        }
+        data.address = JSON.parse(data.address)
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPass = await bcrypt.hash(password, salt)
+        data.password = hashedPass
+        // req.hashedPass= password
+        // console.log(password)
+
+        const userCreated = await userModel.create(data)
+        return res.status(201).send({
+            status: true,
+            message: "User created successfully",
+            data: userCreated
+        })
     }
-
     catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
@@ -132,88 +147,59 @@ const createUsers = async function (req, res) {
 
 const userLogin = async function (req, res) {
     try {
-        let value = req.body
-        let userId = req.body.email;
-        let password = req.body.password;
+        let data = req.body
+        let email = data.email
+        let password = data.password
 
-        //check data is exist | key exist in data
-     if (Object.keys(value).length == 0) {
-        return res.status(400).send({ status: false, message: "Data is required to login" })
-    }
 
-    //   console.log(password) 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPass = await bcrypt.hash(password, salt)
-        const compared = await bcrypt.compare(password, hashedPass);
-        console.log(compared)
-        bcrypt.hash(password, 10, function(err, hashedPass) { // Salt + Hash
-            bcrypt.compare(password, hashedPass, function(err, result) {  // Compare
-                // console.log(password)
-                // console.log(hashedPass)
-              // if passwords match
-              if (result) {
-                    console.log("It matches!")
-              }
-              // if passwords do not match
-              else {
-                    console.log("Invalid password!")
-              }
-            })
-            
-          })
-
-        // *******empty attribute******
-
-        // if (!isValid(userId) || !isValid(password)) return res.status(400).send({ status: false, msg: "Pls Provide  Email And Password both" })
-
-        // console.log(password) 
-        // const salt = await bcrypt.genSalt(10);
-        // const hashedPass = await bcrypt.hash(password, salt)
-        // const compared = await bcrypt.compare(password, hashedPass);
-        // console.log(compared)
-
-        // bcrypt.hash(password, 10, function(err, hashedPass) { // Salt + Hash
-        //     bcrypt.compare(password, hashedPass, function(err, result) {  // Compare
-        //         console.log(password)
-        //         console.log(hashedPass)
-        //       // if passwords match
-        //       if (result) {
-        //             console.log("It matches!")
-        //       }
-        //       // if passwords do not match
-        //       else {
-        //             console.log("Invalid password!")
-        //       }
-        //     })
-            
-        //   })
-         
-        // **empty attribute***
-
-        // if (!isValid(userId) || !isValid(password)) return res.status(400).send({ status: false, msg: "Pls Provide  Email And Password both" })
-
-        //email and password check from db
-     let user = await userModel.findOne({ email: userId, password: password });
-     console.log(user)
-         if (!user)
-        return res.status(400).send({ status: false, message: "credentials are not correct" });
-       
+        let user = await userModel.findOne({ $and: [{ email: email, password: password }] })
+        // console.log(user)
+        if (!user) return res.status(400).send({ status: false, msg: "The email or password you are using is wrong" })
 
         let token = jwt.sign({
             userId: user._id,
             iat: new Date().getTime(),
             exp: Math.floor(Date.now() / 1000) + 10 * 60 * 60
         }, "project-5",
-        
-     )
-    //  console.log(token)
-    // res.setAuthorization.Bearer(token)
-     return res.status(200).send({status: true , message : "succesfully created" , data: token.userId, token })
-    } catch (error)
-    {return res.status(500).send({status: false, message :error.message})}
+
+        )
+        console.log(token)
+        token.userId = user._id
+        // res.setAuthorization.Bearer(token)
+        return res.status(200).send({ status: true, msg: "succesfully created", data: token })
+    } catch (error) { return res.status(500).send({ status: false, msg: error.message }) }
 }
+
+
+//*****************get api***************************/
+
+const getUserById = async function (req, res) {
+    try {
+
+        userId = req.params.userId
+        let getUser = await userModel.findOne({ userId })
+        if (!getUser) {
+            return res.status(404).send({
+                status: false,
+                message: "No user found"
+            })
+        }
+        return res.status(200).send({
+            status: true,
+            message: "user Details",
+            data: getUser
+        })
+    }
+    catch (err) {
+        return res.status(500).send({
+            status: false,
+            message: err.message
+        })
+    }
+}
+
 
 
 module.exports.userLogin = userLogin
 module.exports.createUsers = createUsers
-
+module.exports.getUserById = getUserById
