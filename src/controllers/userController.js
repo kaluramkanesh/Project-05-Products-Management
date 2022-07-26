@@ -1,11 +1,10 @@
 const userModel = require("../Models/userModel")
 const mongoose = require('mongoose')
 const jwt = require("jsonwebtoken")
-const ObjectId = mongoose.Types.ObjectId
 const valid = require("../validations/validation")
 const aws = require("aws-sdk")
 const bcrypt = require("bcrypt")
-const { findOneAndUpdate } = require("../Models/userModel")
+
 
 aws.config.update({
     accessKeyId: "AKIAY3L35MCRVFM24Q7U",
@@ -36,13 +35,13 @@ let uploadFile = async (file) => {
     })
 }
 
+
 const createUsers = async function (req, res) {
     try {
 
         let data = req.body
 
         let { fname, lname, email, phone, password, address } = data
-
 
         let files = req.files
         // console.log(files)
@@ -52,7 +51,7 @@ const createUsers = async function (req, res) {
 
         data.profileImage = profileImage
 
-        // //check if the body is empty
+        //***********check if the body is empty**************//
 
         if (Object.keys(data).length === 0) {
             return res.status(400).send({
@@ -62,10 +61,15 @@ const createUsers = async function (req, res) {
         }
 
         //<-------These validations for Mandatory fields--------->//
+
         if (!valid.isValid(fname)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "fname field is mandatory" });
+            return res.status(400).send({ status: false, message: "fname is required" })
+        }
+
+        //validate name
+        if (!valid.nameValidationRegex(fname)) {
+            return res.status(400).send({ status: false, message: `fname contain only alphabets` })
+
         }
 
         if (!valid.isValid(lname)) {
@@ -74,10 +78,23 @@ const createUsers = async function (req, res) {
                 .send({ status: false, msg: "lname field is mandatory" });
         }
 
+        //validate name
+        if (!valid.nameValidationRegex(lname)) {
+            return res.status(400).send({ status: false, message: `lname contain only alphabets` })
+
+        }
+
         if (!valid.isValid(email)) {
             return res
                 .status(400)
                 .send({ status: false, msg: "email field is mandatory" });
+        }
+
+        if (await userModel.findOne({ email: email }))
+            return res.status(400).send({ message: "Email is already exist" })
+
+        if (!valid.emailValidationRegex(email)) {
+            return res.status(400).send({ status: false, msg: "Enter valid email" })
         }
 
         if (!valid.isValid(profileImage)) {
@@ -90,6 +107,13 @@ const createUsers = async function (req, res) {
             return res
                 .status(400)
                 .send({ status: false, msg: "phone field is mandatory" });
+        }
+
+        if (await userModel.findOne({ phone: phone }))
+            return res.status(400).send({ message: "Phone is already exist" })
+
+        if (!valid.phoneValidationRegex(phone)) {
+            return res.status(400).send({ status: false, msg: "Enter valid Phone No." })
         }
 
         if (!valid.isValid(password)) {
@@ -119,7 +143,7 @@ const createUsers = async function (req, res) {
 }
 
 
-//******************user login***********
+//========================[ User Login ]======================================//
 
 const userLogin = async function (req, res) {
     try {
@@ -146,6 +170,11 @@ const userLogin = async function (req, res) {
                 message: "password is required"
             })
         }
+        if (password) {
+            if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(password)) {
+                return res.status(400).send({ status: false, message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter` })
+            }
+        }
 
         let user = await userModel.findOne({ email: email })
 
@@ -161,12 +190,12 @@ const userLogin = async function (req, res) {
         }, "project-5",
 
         )
-        
-        return res.status(200).send({ status: true, msg: "User login successfull", data:  token })
+
+        return res.status(200).send({ status: true, msg: "User login successfull", data: { userId: user._id, token: token } })
     } catch (error) { return res.status(500).send({ status: false, msg: error.message }) }
 }
 
-//*****************get api***************************/
+//========================[ getUserById Api ]======================================//
 
 const getUserById = async function (req, res) {
     try {
@@ -181,7 +210,7 @@ const getUserById = async function (req, res) {
         }
         return res.status(200).send({
             status: true,
-            message: "user Details",
+            message: "User profile details",
             data: getUser
         })
     }
@@ -193,8 +222,7 @@ const getUserById = async function (req, res) {
     }
 }
 
-
-/*********************************** Start's User Update Api's*********************************/
+//========================[ Start's User Update Api's ]======================================//
 
 const updateUser = async function (req, res) {
     try {
@@ -202,17 +230,18 @@ const updateUser = async function (req, res) {
         let data = req.body
         let { fname, lname, email, phone, password } = data
 
-        let isValidUserId = mongoose.Types.ObjectId.isValid(userId)
-
-        if (!userId) { return res.status(400).send({ status: false, msg: "userId missing in path Params" }) }
-
-        //  if (!isValidUserId(userId)) { return res.status(400).send({ status: false, msg: "User Id incorrect...." }) }
+        if (!valid.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, msg: "User Id incorrect...." })
+        }
 
         if (fname) {
 
             if (!valid.isValid(fname)) { return res.status(400).send({ status: false, msg: `${fname} please enter valid first name` }) }
+            //validate name
+            if (!valid.nameValidationRegex(fname)) {
+                return res.status(400).send({ status: false, message: `fname contain only alphabets` })
 
-            if (!/^[a-zA-Z -._\s]*$/.test(fname)) { return res.status(400).send({ status: false, msg: `${fname} is not valid` }) }
+            }
         }
 
         if (lname) {
@@ -221,11 +250,15 @@ const updateUser = async function (req, res) {
 
             if (!/^[a-zA-Z -._\s]*$/.test(lname)) { return res.status(400).send({ status: false, msg: `${lname} is not valid` }) }
         }
+
         if (email) {
             if (!valid.isValid(email)) { return res.status(400).send({ status: false, msg: `${email} please enter valid email` }) }
-
-            if (!/^([0-9a-z]([-_\\.]*[0-9a-z]+)*)@([a-z]([-_\\.]*[a-z]+)*)[\\.]([a-z]{2,9})+$/.test(email)) { return res.status(400).send(400).send({ status: false, msg: `${email} is not valid email` }) }
         }
+
+        if (!valid.emailValidationRegex(email)) {
+            return res.status(400).send({ status: false, msg: "Enter valid Email" })
+        }
+
         if (phone) {
             if (!/^[6789]\w{9}$/.test(phone)) { return res.status(400).send({ status: false, msg: "Accept only Acording to india" }) }
         }
@@ -234,8 +267,8 @@ const updateUser = async function (req, res) {
                 return res.status(400).send({ status: false, message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter` })
             }
         }
-        let userUpdate = await userModel.findOneAndUpdate({ _id: userId }, { $set: data })
-        console.log(userUpdate)
+        let userUpdate = await userModel.findOneAndUpdate({ _id: userId }, { $set: data }, { new: true })
+        // console.log(userUpdate)
         return res.status(200).send({ status: true, data: userUpdate })
     } catch (Err) {
         console.log(Err)
