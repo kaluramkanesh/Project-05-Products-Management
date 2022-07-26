@@ -4,15 +4,16 @@ const Router = express.Router()
 const mid = require("../Middleware/Auth")
 
 
-//**************create User */
-Router.post("/register",userController.createUsers)
+Router.post("/register", userController.createUsers)
 
-// *************user login */
-Router.post("/login",userController.userLogin);
+/*-----------------------------User Login----------------------------*/
+Router.post("/login", userController.userLogin);
+
+/*------------------------Update User Api's---------------------------------*/
+Router.put("/user/:userId/profile", userController.updateUser)
 
 //*************get User */
 Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserById)
-
 
 
 //************ checking your end point valid or not */
