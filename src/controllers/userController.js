@@ -11,7 +11,6 @@ aws.config.update({
     region: "ap-south-1"
 })
 
-
 let uploadFile = async (file) => {
     return new Promise(function (resolve, reject) {
         // this function will upload file to aws and return the link
@@ -23,7 +22,6 @@ let uploadFile = async (file) => {
             Key: "abc/" + file.originalname, //HERE 
             Body: file.buffer
         }
-
 
         s3.upload(uploadParams, function (err, data) {
             if (err) {
@@ -62,38 +60,51 @@ const createUsers = async function (req, res) {
      if(!valid.isValid(fname)){ 
         return res
            .status(400)
-           .send({ status: false, msg: "fname field is mandatory" });
+           .send({ status: false, message: "fname field is mandatory" });
       }
 
       if(!valid.isValid(lname)){ 
         return res
            .status(400) 
-           .send({ status: false, msg: "lname field is mandatory" });
+           .send({ status: false, message: "lname field is mandatory" });
       }
       
       if(!valid.isValid(email)){ 
         return res
            .status(400)
-           .send({ status: false, msg: "email field is mandatory" });
+           .send({ status: false, message: "email field is mandatory" });
       }
+      if (await userModel.findOne({ email: email }))
+            return res.status(400).send({status: false, message: "Email is already exist" })
+        
+        //validate email
+        if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
+            return res.status(400).send({ status: false, message: `Email should be a valid email address` });
+        }
 
       if(!valid.isValid(profileImage)){ 
         return res
            .status(400)
-           .send({ status: false, msg: "profileImage field is mandatory" });
+           .send({ status: false, message: "profileImage field is mandatory" });
       }
 
       if(!valid.isValid(phone)){ 
         return res
            .status(400)
-           .send({ status: false, msg: "phone field is mandatory" });
+           .send({ status: false, message: "phone field is mandatory" });
       }
+      if (await userModel.findOne({ phone: phone }))
+            return res.status(400).send({status: false, message: "phone is already exist" })
 
       if(!valid.isValid(password)){ 
         return res
            .status(400)
-           .send({ status: false, msg: "password field is mandatory" });
+           .send({ status: false, message: "password field is mandatory" });
       }
+      //password validation
+      if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(password)) {
+        return res.status(400).send({ status: false, message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter` })
+    }  
       
       if(!valid.isValid(address)){ 
         return res
@@ -112,7 +123,7 @@ const createUsers = async function (req, res) {
     }
 
     catch (error) {
-        return res.status(500).send({ status: false, msg: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 
@@ -122,45 +133,84 @@ const createUsers = async function (req, res) {
 const userLogin = async function (req, res) {
     try {
         let value = req.body
-        let userId = value.email
-        let password = value.password 
+        let userId = req.body.email;
+        let password = req.body.password;
 
-    //   const salt = await bcrypt.genSalt(10);
-    //   const hashedPass = await bcrypt.hash(password, salt)
-    //   const password2 = await userModel.findOne({password})
-    //   console.log(password2, "aishu")
-    //    const compared = bcrypt.compare(password2 , hashedPass, function(err, result) {
-    //         if (result) {
-    //           console.log("It matches!", hashedPass)
-    //         }
-    //         else {
-    //           console.log("Invalid password!", err);
-    //         }
-    //       });
-    //       console.log(password,"hii")
-    //       console.log(compared,"hello")
+        //check data is exist | key exist in data
+     if (Object.keys(value).length == 0) {
+        return res.status(400).send({ status: false, message: "Data is required to login" })
+    }
 
+    //   console.log(password) 
+        const salt = await bcrypt.genSalt(10);
+        const hashedPass = await bcrypt.hash(password, salt)
+        const compared = await bcrypt.compare(password, hashedPass);
+        console.log(compared)
+        bcrypt.hash(password, 10, function(err, hashedPass) { // Salt + Hash
+            bcrypt.compare(password, hashedPass, function(err, result) {  // Compare
+                // console.log(password)
+                // console.log(hashedPass)
+              // if passwords match
+              if (result) {
+                    console.log("It matches!")
+              }
+              // if passwords do not match
+              else {
+                    console.log("Invalid password!")
+              }
+            })
+            
+          })
 
         // *******empty attribute******
 
         // if (!isValid(userId) || !isValid(password)) return res.status(400).send({ status: false, msg: "Pls Provide  Email And Password both" })
 
-        let user = await userModel.findOne({ $and: [{ email: userId, password: password }] })
-        // console.log(user)
-        if (!user) return res.status(400).send({ status: false, msg: "The email or password you are using is wrong" })
+        // console.log(password) 
+        // const salt = await bcrypt.genSalt(10);
+        // const hashedPass = await bcrypt.hash(password, salt)
+        // const compared = await bcrypt.compare(password, hashedPass);
+        // console.log(compared)
+
+        // bcrypt.hash(password, 10, function(err, hashedPass) { // Salt + Hash
+        //     bcrypt.compare(password, hashedPass, function(err, result) {  // Compare
+        //         console.log(password)
+        //         console.log(hashedPass)
+        //       // if passwords match
+        //       if (result) {
+        //             console.log("It matches!")
+        //       }
+        //       // if passwords do not match
+        //       else {
+        //             console.log("Invalid password!")
+        //       }
+        //     })
+            
+        //   })
+         
+        // **empty attribute***
+
+        // if (!isValid(userId) || !isValid(password)) return res.status(400).send({ status: false, msg: "Pls Provide  Email And Password both" })
+
+        //email and password check from db
+     let user = await userModel.findOne({ email: userId, password: password });
+     console.log(user)
+         if (!user)
+        return res.status(400).send({ status: false, message: "credentials are not correct" });
+       
 
         let token = jwt.sign({
-            userId: user._id.toString(),
+            userId: user._id,
             iat: new Date().getTime(),
             exp: Math.floor(Date.now() / 1000) + 10 * 60 * 60
         }, "project-5",
         
      )
-     console.log(token)
+    //  console.log(token)
     // res.setAuthorization.Bearer(token)
-     return res.status(200).send({status: true , msg : "succesfully created" , data: token })
+     return res.status(200).send({status: true , message : "succesfully created" , data: token.userId, token })
     } catch (error)
-    {return res.status(500).send({status: false, msg :error.message})}
+    {return res.status(500).send({status: false, message :error.message})}
 }
 
 
