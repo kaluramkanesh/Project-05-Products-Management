@@ -11,7 +11,7 @@ const jwtValidation = async function (req, res, next) {
 
         let token = req.headers["authorization"]
 
-        if (token === undefined) {
+        if (!token) {
             return res.status(401).send({
                 status: false,
                 message: "token is not present"
@@ -50,7 +50,6 @@ const jwtValidation = async function (req, res, next) {
                 message: "authorization failed"
             });
         }
-
         next();
     }
     catch (err) {
@@ -60,6 +59,7 @@ const jwtValidation = async function (req, res, next) {
         })
     }
 }
+
 
 
 module.exports.jwtValidation = jwtValidation
