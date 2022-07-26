@@ -30,7 +30,6 @@ let uploadFile = async (file) => {
             // console.log("file uploaded succesfully")
             return resolve(data.Location)
         })
-
     })
 }
 
@@ -41,30 +40,35 @@ const createUsers = async function (req, res) {
         let { fname, lname, email, phone, password, address } = data
 
         let files = req.files
-        // console.log(files)
         if (!files || files.length === 0) return res.status(400).send({ 
             status: false, 
             message: "No cover image found." 
         })
 
-        //upload to s3 and get the uploaded link
         let profileImage = await uploadFile(files[0])
         data.profileImage = profileImage
 
         // //check if the body is empty
-        if (Object.keys(data).length === 0) {
+        if (Object.keys(data).length == 0) {
             return res.status(400).send({ 
-                status: false, 
-                message: "Body should  be not Empty please enter some data to create user" 
+                status: false,
+                message: "Body should be not Empty please enter some data to create user" 
             })
         }
 
         //<-------These validations for Mandatory fields--------->//
         if (!valid.isValid(fname)) {
-            return res.status(400).send({ 
+            return res.status(400).send({
                 status: false, 
                 msg: "fname field is mandatory" 
             });
+        }
+        if (!isNaN(fname)) {
+            console.log(fname)
+            return res.status(400).send({
+                status: false,
+                message: "fname can't be a number"
+            })
         }
 
         if (!valid.isValid(lname)) {
@@ -72,6 +76,12 @@ const createUsers = async function (req, res) {
                 status: false,
                 msg: "lname field is mandatory" 
             });
+        }
+        if (!isNaN(lname)) {
+            return res.status(400).send({
+                status: false,
+                message: "lname can't be a number"
+            })
         }
 
         if (!valid.isValid(email)) {
@@ -82,7 +92,7 @@ const createUsers = async function (req, res) {
         }
         const checkEmail = await userModel.findOne({email:email})
         if(checkEmail){
-            return res.status(404).send({
+            return res.status(400).send({
                 status: false,
                 message: "email is already present in the DB"
             })
@@ -103,7 +113,7 @@ const createUsers = async function (req, res) {
         }
         const checkPhone = await userModel.findOne({phone: phone})
         if(checkPhone){
-            return res.status(404).send({
+            return res.status(400).send({
                 status: false,
                 message: "phone is already present in the DB"
             })
@@ -136,7 +146,10 @@ const createUsers = async function (req, res) {
         })
     }
     catch (error) {
-        return res.status(500).send({ status: false, msg: error.message })
+        return res.status(500).send({ 
+            status: false, 
+            msg: error.message 
+        })
     }
 }
 
@@ -146,8 +159,7 @@ const createUsers = async function (req, res) {
 const userLogin = async function (req, res) {
     try {
         let data = req.body
-        let email = data.email
-        let password = data.password
+       let { email , password } = data
 
         if (Object.keys(data).length == 0) {
             return res.status(400).send({ 
@@ -170,11 +182,16 @@ const userLogin = async function (req, res) {
         }
 
         let user = await userModel.findOne({email: email})
-
         const compared = await bcrypt.compare(password, user.password);
         console.log(compared)
 
-        if (!user) return res.status(400).send({ status: false, msg: "incorrect " })
+        if(!compared){
+            return res.status(400).send({
+                status: false,
+                message: "password is incorrect"
+            })
+        }
+        if (!user) return res.status(400).send({ status: false, msg: "please check your credentials" })
 
         let token = jwt.sign({
             userId: user._id.toString(),
