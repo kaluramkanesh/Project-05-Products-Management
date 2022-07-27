@@ -30,18 +30,26 @@ const emailValidationRegex = function (value) {
     return /^([0-9a-z]([-_\\.]*[0-9a-z]+)*)@([a-z]([-_\\.]*[a-z]+)*)[\\.]([a-z]{2,9})+$/.test(value)
 }
 
-const phoneValidationRegex = function (phone) {
-    return /^[6789]\w{9}$/.test(phone)
+const phoneValidationRegex = function (value) {
+    return /^[6789]\w{9}$/.test(value)
 }
 
-const passwordValidationRegex = function (password) {
-    return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(password)
+const passwordValidationRegex = function (value) {
+    return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(value)
+}
+
+// -----------------product regex
+const titleValidationRegex = function (value){
+    return /^[A-Za-z0-9_*-]/.test(value)
+}
+
+const priceValidationRegex = function (value){
+    return /^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$/.test(value)
 }
 
 
 
-
-module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex, phoneValidationRegex, passwordValidationRegex }
-
+module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex, phoneValidationRegex, passwordValidationRegex,
+    titleValidationRegex , priceValidationRegex }
 
 
