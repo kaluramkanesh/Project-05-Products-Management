@@ -230,7 +230,7 @@ const updateUser = async function (req, res) {
         let { fname, lname, email, phone, password } = data
 
         if (!valid.isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, msg: "User Id incorrect...." })
+            return res.status(400).send({ status: false, msg: "User Id incorrect" })
         }
 
         if (fname) {
@@ -252,11 +252,14 @@ const updateUser = async function (req, res) {
 
         if (email) {
             if (!valid.isValid(email)) { return res.status(400).send({ status: false, msg: `${email} please enter valid email` }) }
+            if (!valid.emailValidationRegex(email)) {
+                return res.status(400).send({ status: false, msg: "Enter valid Email" })
+            }
         }
 
-        if (!valid.emailValidationRegex(email)) {
-            return res.status(400).send({ status: false, msg: "Enter valid Email" })
-        }
+        // if (!valid.emailValidationRegex(email)) {
+        //     return res.status(400).send({ status: false, msg: "Enter valid Email" })
+        // }
 
         if (phone) {
             if (!/^[6789]\w{9}$/.test(phone)) { return res.status(400).send({ status: false, msg: "Accept only Acording to india" }) }
