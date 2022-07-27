@@ -1,5 +1,4 @@
 const userModel = require("../Models/userModel")
-const mongoose = require('mongoose')
 const jwt = require("jsonwebtoken")
 const valid = require("../validations/validation")
 const aws = require("aws-sdk")
@@ -219,6 +218,13 @@ const userLogin = async function (req, res) {
         }
 
         let user = await userModel.findOne({ email: email })
+        console.log(user)
+        if (!user) {
+            return res.status(400).send({
+                status: false,
+                msg: "please check your email"
+            })
+        }
         let compared = await bcrypt.compare(password, user.password)
         console.log(compared)
 
@@ -228,12 +234,7 @@ const userLogin = async function (req, res) {
                 message: "password is incorrect"
             })
         }
-        if (!user) {
-            return res.status(400).send({
-                status: false,
-                msg: "please check your credentials"
-            })
-        }
+
 
         let token = jwt.sign({
             userId: user._id,
@@ -281,8 +282,7 @@ const updateUser = async function (req, res) {
     try {
         let userId = req.params.userId.trim()
         let data = req.body
-        let { fname, lname, email, phone, password } = data
-        console.log(data)
+        let { fname, lname, email, phone, password, profileImage, address } = data
 
         if (!valid.isValidObjectId(userId)) {
             return res.status(400).send({
@@ -350,6 +350,72 @@ const updateUser = async function (req, res) {
                     status: false,
                     message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter`
                 })
+            }
+        }
+
+        if (profileImage) {
+            let files = req.files
+            if (!files || files.length === 0) return res.status(400).send({
+                status: false,
+                message: "No cover image found."
+            })
+            profileImage = await uploadFile(files[0])
+            data.profileImage = profileImage
+        }
+
+        var parseAddress = JSON.parse(data.address)
+        if (parseAddress) {
+            try {
+                var parseAddress = JSON.parse(data.address) // converting a JSON object in text format to a Javascript object
+                // console.log(parseAddress)
+            }
+            catch (err) {
+                return res.status(400).send({ status: false, error: "pincode should not be starts from 0" })
+            }
+            parseAddress = JSON.parse(data.address)
+            console.log(parseAddress)
+            if (parseAddress.shipping) {
+                // console.log(parseAddress.shipping)
+
+                if (!valid.isValid(parseAddress.shipping.street)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "shipping street address should be in string format"
+                    })
+                }
+                if (!valid.isValid(parseAddress.shipping.city)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "city street address should be in string format"
+                    })
+                }
+                if (!valid.regPincode(parseAddress.shipping.pincode)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "pincode "
+                    })
+                }
+            }
+
+            if (parseAddress.billing) {
+                if (!valid.isValid(parseAddress.billing.street)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "billing street address should be in string format"
+                    })
+                }
+                if (!valid.isValid(parseAddress.billing.city)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "city street address should be in string format"
+                    })
+                }
+                if (!valid.regPincode(parseAddress.billing.pincode)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "pincode street address should be in string format"
+                    })
+                }
             }
         }
 
