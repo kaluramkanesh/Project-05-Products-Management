@@ -47,11 +47,11 @@ const productSchema = new mongoose.Schema({
     },
 
     installments: {
-        type: number
+        type: Number
     },
 
     deletedAt: {
-        type: Date
+        type: Date()
     },
 
     isDeleted: {

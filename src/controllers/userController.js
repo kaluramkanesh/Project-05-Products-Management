@@ -91,7 +91,7 @@ const createUsers = async function (req, res) {
         if (!valid.nameValidationRegex(lname)) {
             return res.status(400).send({
                 status: false,
-                message: `lname contain only alphabets`
+                message: "lname contain only alphabets"
             })
 
         }
@@ -145,7 +145,7 @@ const createUsers = async function (req, res) {
         if (!valid.phoneValidationRegex(phone)) {
             return res.status(400).send({
                 status: false,
-                msg: "Enter valid Phone No."
+                msg: "Please Enter valid Phone No. which is starts from 6,7,8,9"
             })
         }
 
@@ -162,8 +162,52 @@ const createUsers = async function (req, res) {
                 msg: "address field is mandatory"
             });
         }
-        data.address = JSON.parse(data.address)
+       
 
+            if (address.shipping) {
+                if (!valid.isValid(address.shipping.street)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "shipping street address should be in string format"
+                    })
+                }
+                if (!valid.isValid(address.shipping.city)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "city street address should be in string format"
+                    })
+                }
+                if (!valid.regPincode(address.shipping.pincode)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "pincode of shipping address is Invalid"
+                    })
+                }
+            }
+
+            if (address.billing) {
+                if (!valid.isValid(address.billing.street)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "billing street address should be in string format"
+                    })
+                }
+                if (!valid.isValid(address.billing.city)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "city street address should be in string format"
+                    })
+                }
+                if (!valid.regPincode(address.billing.pincode)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "pincode of billing address is Invalid"
+                    })
+                }
+            }
+        // }
+    
+// console.log(address)
         const salt = await bcrypt.genSalt(10);
         const hashedPass = await bcrypt.hash(password, salt)
         data.password = hashedPass;
@@ -178,7 +222,7 @@ const createUsers = async function (req, res) {
     }
     catch (error) {
         return res.status(500).send({
-            status: false,
+            status: false, 
             message: error.message
         })
     }
