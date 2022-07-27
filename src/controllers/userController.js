@@ -31,7 +31,6 @@ let uploadFile = async (file) => {
             // console.log("file uploaded succesfully")
             return resolve(data.Location)
         })
-
     })
 }
 
@@ -44,9 +43,11 @@ const createUsers = async function (req, res) {
         let { fname, lname, email, phone, password, address } = data
 
         let files = req.files
-        // console.log(files)
-        if (!files || files.length === 0) return res.status(400).send({ status: false, message: "No cover image found." })
-        //upload to s3 and get the uploaded link
+        if (!files || files.length === 0) return res.status(400).send({
+            status: false,
+            message: "No cover image found."
+        })
+
         let profileImage = await uploadFile(files[0])
 
         data.profileImage = profileImage
@@ -71,61 +72,95 @@ const createUsers = async function (req, res) {
             return res.status(400).send({ status: false, message: `fname contain only alphabets` })
 
         }
+        if (!isNaN(fname)) {
+            console.log(fname)
+            return res.status(400).send({
+                status: false,
+                message: "fname can't be a number"
+            })
+        }
 
         if (!valid.isValid(lname)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "lname field is mandatory" });
+            return res.status(400).send({
+                status: false,
+                msg: "lname field is mandatory"
+            });
         }
 
         //validate name
         if (!valid.nameValidationRegex(lname)) {
-            return res.status(400).send({ status: false, message: `lname contain only alphabets` })
+            return res.status(400).send({
+                status: false,
+                message: `lname contain only alphabets`
+            })
 
+        }
+        if (!isNaN(lname)) {
+            return res.status(400).send({
+                status: false,
+                message: "lname can't be a number"
+            })
         }
 
         if (!valid.isValid(email)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "email field is mandatory" });
+            return res.status(400).send({
+                status: false,
+                msg: "email field is mandatory"
+            });
         }
 
         if (await userModel.findOne({ email: email }))
-            return res.status(400).send({ message: "Email is already exist" })
+            return res.status(400).send({
+                status: false,
+                message: "Email is already exist"
+            })
 
         if (!valid.emailValidationRegex(email)) {
-            return res.status(400).send({ status: false, msg: "Enter valid email" })
+            return res.status(400).send({
+                status: false,
+                msg: "Enter valid email"
+            })
         }
 
         if (!valid.isValid(profileImage)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "profileImage field is mandatory" });
+            return res.status(400).send({
+                status: false,
+                msg: "profileImage field is mandatory"
+            });
         }
 
         if (!valid.isValid(phone)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "phone field is mandatory" });
+            return res.status(400).send({
+                status: false,
+                msg: "phone field is mandatory"
+            });
         }
 
         if (await userModel.findOne({ phone: phone }))
-            return res.status(400).send({ message: "Phone is already exist" })
+            return res.status(400).send({
+                status: false,
+                message: "Phone is already exist"
+            })
 
         if (!valid.phoneValidationRegex(phone)) {
-            return res.status(400).send({ status: false, msg: "Enter valid Phone No." })
+            return res.status(400).send({
+                status: false,
+                msg: "Enter valid Phone No."
+            })
         }
 
         if (!valid.isValid(password)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "password field is mandatory" });
+            return res.status(400).send({
+                status: false,
+                msg: "password field is mandatory"
+            });
         }
 
         if (!valid.isValid(address)) {
-            return res
-                .status(400)
-                .send({ status: false, msg: "address field is mandatory" });
+            return res.status(400).send({
+                status: false,
+                msg: "address field is mandatory"
+            });
         }
         data.address = JSON.parse(data.address)
 
@@ -135,10 +170,17 @@ const createUsers = async function (req, res) {
 
         const userCreated = await userModel.create(data)
 
-        return res.status(201).send({ status: true, message: "User created successfully", data: userCreated })
+        return res.status(201).send({
+            status: true,
+            message: "User created successfully",
+            data: userCreated
+        })
     }
     catch (error) {
-        return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({
+            status: false,
+            message: error.message
+        })
     }
 }
 
@@ -148,8 +190,7 @@ const createUsers = async function (req, res) {
 const userLogin = async function (req, res) {
     try {
         let data = req.body
-        let email = data.email
-        let password = data.password
+        let { email, password } = data
 
         if (Object.keys(data).length == 0) {
             return res.status(400).send({
@@ -164,23 +205,35 @@ const userLogin = async function (req, res) {
                 message: "email is required"
             })
         }
+        if (!valid.emailValidationRegex(email)) {
+            return res.status(400).send({
+                status: false,
+                message: "the email should not be in format"
+            })
+        }
         if (!password) {
             return res.status(400).send({
                 status: false,
                 message: "password is required"
             })
         }
-        if (!valid.passwordValidationRegex(password)) {
-            return res.status(400).send({ status: false, message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter` })
-        }
-
 
         let user = await userModel.findOne({ email: email })
-
-        const compared = await bcrypt.compare(password, user.password);
+        let compared = await bcrypt.compare(password, user.password)
         console.log(compared)
 
-        if (!user) return res.status(400).send({ status: false, msg: "incorrect " })
+        if (!compared) {
+            return res.status(400).send({
+                status: false,
+                message: "password is incorrect"
+            })
+        }
+        if (!user) {
+            return res.status(400).send({
+                status: false,
+                msg: "please check your credentials"
+            })
+        }
 
         let token = jwt.sign({
             userId: user._id,
@@ -191,7 +244,13 @@ const userLogin = async function (req, res) {
         )
 
         return res.status(200).send({ status: true, msg: "User login successfull", data: { userId: user._id, token: token } })
-    } catch (error) { return res.status(500).send({ status: false, msg: error.message }) }
+    }
+    catch (error) {
+        return res.status(500).send({
+            status: false,
+            msg: error.message
+        })
+    }
 }
 
 //========================[ getUserById Api ]======================================//
@@ -199,14 +258,9 @@ const userLogin = async function (req, res) {
 const getUserById = async function (req, res) {
     try {
 
-        userId = req.params.userId
-        let getUser = await userModel.findOne({ userId })
-        if (!getUser) {
-            return res.status(404).send({
-                status: false,
-                message: "No user found"
-            })
-        }
+        let userId = req.params.userId
+        let getUser = await userModel.findOne({ _id: userId })
+
         return res.status(200).send({
             status: true,
             message: "User profile details",
@@ -228,58 +282,90 @@ const updateUser = async function (req, res) {
         let userId = req.params.userId.trim()
         let data = req.body
         let { fname, lname, email, phone, password } = data
+        console.log(data)
 
         if (!valid.isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, msg: "User Id incorrect" })
+            return res.status(400).send({
+                status: false,
+                msg: "User Id incorrect"
+            })
         }
 
         if (fname) {
-
-            if (!valid.isValid(fname)) { return res.status(400).send({ status: false, msg: `${fname} please enter valid first name` }) }
-            //validate name
+            if (!valid.isValid(fname)) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "fname should be in string format and can't be a any white spaces",
+                })
+            }
             if (!valid.nameValidationRegex(fname)) {
-                return res.status(400).send({ status: false, message: `fname contain only alphabets` })
-
+                return res.status(400).send({
+                    status: false,
+                    message: `fname contain only alphabets`
+                })
             }
         }
 
         if (lname) {
-
-            if (!valid.isValid(lname)) { return res.status(400).send({ status: false, msg: `${lname} please enter valid last name` }) }
-
-            if (!/^[a-zA-Z -._\s]*$/.test(lname)) { return res.status(400).send({ status: false, msg: `${lname} is not valid` }) }
+            if (!valid.isValid(lname)) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "lname should be in string format and can't be a any white spaces",
+                })
+            }
+            if (!valid.nameValidationRegex(lname)) {
+                return res.status(400).send({
+                    status: false,
+                    msg: `lname is not valid`,
+                })
+            }
         }
 
         if (email) {
-            if (!valid.isValid(email)) { return res.status(400).send({ status: false, msg: `${email} please enter valid email` }) }
+            if (!valid.isValid(email)) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "lname should be in string format",
+                })
+            }
             if (!valid.emailValidationRegex(email)) {
-                return res.status(400).send({ status: false, msg: "Enter valid Email" })
+                return res.status(400).send({
+                    status: false,
+                    msg: "Enter valid Email"
+                })
             }
         }
-
-        // if (!valid.emailValidationRegex(email)) {
-        //     return res.status(400).send({ status: false, msg: "Enter valid Email" })
-        // }
 
         if (phone) {
-            if (!/^[6789]\w{9}$/.test(phone)) { return res.status(400).send({ status: false, msg: "Accept only Acording to india" }) }
-        }
-        if (password) {
-            if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(password)) {
-                return res.status(400).send({ status: false, message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter` })
+            if (!valid.phoneValidationRegex(phone)) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "phone no. only 10 digit and also should have Indian No."
+                })
             }
         }
+        if (password) {
+            if (!valid.passwordValidationRegex(password)) {
+                return res.status(400).send({
+                    status: false,
+                    message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter`
+                })
+            }
+        }
+
         let userUpdate = await userModel.findOneAndUpdate({ _id: userId }, { $set: data }, { new: true })
-        // console.log(userUpdate)
-        return res.status(200).send({ status: true, data: userUpdate })
+        return res.status(200).send({
+            status: true,
+            data: userUpdate
+        })
     } catch (Err) {
-        console.log(Err)
-        res.status(500).send({ status: false, msg: Err.message })
+        return res.status(500).send({
+            status: false,
+            msg: Err.message
+        })
     }
 
 }
-/*********************************** Start's User Update Api's*********************************/
 
 
 module.exports = { userLogin, createUsers, getUserById, updateUser }
-
