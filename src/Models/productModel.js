@@ -51,7 +51,7 @@ const productSchema = new mongoose.Schema({
     },
 
     deletedAt: {
-        type: Date
+        type: Date()
     },
 
     isDeleted: {
