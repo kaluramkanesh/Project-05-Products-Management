@@ -14,16 +14,13 @@ const isValid = function (value) {
     return true
 }
 
-
 const isValidObjectId = function (value) {
     return mongoose.Types.ObjectId.isValid(value)
 
 }
 
 const nameValidationRegex = function (value) {
-
     return /^[a-zA-Z -._\s]*$/.test(value)
-
 }
 
 const emailValidationRegex = function (value) {
@@ -38,20 +35,23 @@ const passwordValidationRegex = function (value) {
     return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(value)
 }
 
+// -----------------product regex
+const titleValidationRegex = function (value){
+    return /^[A-Za-z0-9_*-]/.test(value)
+}
+
+const priceValidationRegex = function (value){
+    return /^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$/.test(value)
+}
+
 const regPincode = function (value){
-    // return /^([^0][0-9]){6}$/.test(value)
-    // return /^[1-9][0-9]{5}*$/.test(value)
     return /^[1-9][0-9]{5}$/.test(value)
-    // return ^[1-9][0-9]{6}*$.test(value)
-
 }
 
 
-
-module.exports = { isValid, nameValidationRegex, isValidObjectId, 
-    emailValidationRegex, phoneValidationRegex, passwordValidationRegex, 
-    regPincode 
-}
+module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
+     phoneValidationRegex, passwordValidationRegex,
+     regPincode,titleValidationRegex,priceValidationRegex }
 
 
 

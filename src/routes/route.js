@@ -1,5 +1,6 @@
 const express = require("express")
 const userController = require("../controllers/userController")
+const productController = require("../controllers/productController")
 const Router = express.Router()
 const mid = require("../Middleware/Auth")
 
@@ -14,6 +15,10 @@ Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserByI
 
 /*------------------------Update User Api's---------------------------------*/
 Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
+
+
+Router.post("/products" ,productController.createProduct)
+
 
 
 //************ checking your end point valid or not */
