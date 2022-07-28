@@ -1,6 +1,7 @@
 const mongoose = require("mongoose")
+const ObjectId = mongoose.Schema.Types.ObjectId
 const productSchema = new mongoose.Schema({
-
+    
     title: {
         type: String,
         required: true,
@@ -51,7 +52,7 @@ const productSchema = new mongoose.Schema({
     },
 
     deletedAt: {
-        type: Date()
+        type: Date
     },
 
     isDeleted: {

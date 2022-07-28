@@ -16,10 +16,10 @@ Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserByI
 /*------------------------Update User Api's---------------------------------*/
 Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
 
-
+//------product-------------------------------------------
 Router.post("/products" ,productController.createProduct)
 
-
+Router.get("/products/:productId" ,productController.getproductbyId)
 
 //************ checking your end point valid or not */
 Router.all("/****", function (req, res) {
