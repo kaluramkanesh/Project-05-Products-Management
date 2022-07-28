@@ -16,10 +16,16 @@ Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserByI
 /*------------------------Update User Api's---------------------------------*/
 Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
 
-
+//------product-------------------------------------------
 Router.post("/products" ,productController.createProduct)
 
+<<<<<<< HEAD
 Router.get("/products", productController.getProduct)
+=======
+Router.get("/products/:productId" ,productController.getproductbyId)
+
+Router.delete("/products/:productId" ,productController.deletProductById)
+>>>>>>> fbdd10a711ef88d975369f67d4db6a9252658fbf
 
 
 
