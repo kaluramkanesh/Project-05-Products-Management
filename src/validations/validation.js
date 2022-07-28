@@ -59,10 +59,6 @@ const isValidSize = (Size) => {
 
 module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
      phoneValidationRegex, passwordValidationRegex,
-<<<<<<< HEAD
-     regPincode,titleValidationRegex,priceValidationRegex}
-
-=======
      regPincode,titleValidationRegex,priceValidationRegex, isValidSize}
 
 // ^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$
@@ -100,6 +96,5 @@ module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidatio
 // ^\d+(()|(\.\d+)?)$      =========================
 
 // ^[0-9]\d{0,9}(\.\d{1,3})?%?$    ==================
->>>>>>> ddc3430da06d877134c3cecbb91e5f0efe20946e
 
 
