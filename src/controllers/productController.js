@@ -1,7 +1,7 @@
 // const aws1 = require ('../util/aws')
 const productModel = require("../Models/productModel")
 const valid = require("../validations/validation")
-const aws = require ("aws-sdk")
+const aws = require("aws-sdk")
 
 
 aws.config.update({
@@ -34,14 +34,14 @@ let uploadFile = async (file) => {
 
 //******************* POST /products */
 
-const createProduct = async function (req, res){
-    try{
+const createProduct = async function (req, res) {
+    try {
         let data = req.body
-        let { title, description, price, currencyId, currencyFormat, isFreeShipping, style } = data
-       
+        let { title, description, price, currencyId, currencyFormat, availableSizes, style } = data
+
         let files = req.files
-        if (!files || files. length==0) return res.status(400).send({
-            status: false , message:"no cover image found"
+        if (!files || files.length == 0) return res.status(400).send({
+            status: false, message: "no cover image found"
         })
 
         let productImage = await uploadFile(files[0])
@@ -50,74 +50,138 @@ const createProduct = async function (req, res){
 
         // ----------check if body empty
 
-        if (Object.keys(data).length===0){
-            return res.status(400).send({status:false, 
-            message:"Body should not be empty please provide some data for create product"})
+        if (Object.keys(data).length === 0) {
+            return res.status(400).send({
+                status: false,
+                message: "Body should not be empty please provide some data for create product"
+            })
         }
 
         // --------------------------the validation for mendatory field
 
-        if (!valid.isValid(title)){
-            return res.status(400).send({status:false ,message:"title is required"})
+        if (!valid.isValid(title)) {
+            return res.status(400).send({ status: false, message: "title is required" })
         }
 
-        if (await productModel.findOne({ title: title})) {
-        return res.status(400).send({status: false , message: "title is allready exist"})
+        if (await productModel.findOne({ title: title })) {
+            return res.status(400).send({ status: false, message: "title is allready exist" })
 
         }
-         
-        if (!valid.titleValidationRegex(title)){
-            return res.status(400).send({status: false , message : "please enter valid title"}) //** check
-        }
-        
-        if (!valid.isValid(description)){
-            return res.status(400).send({status:false , message : " description is required"}) //**check
 
-         }
-
-        if (!valid.isValid(price)){
-            return res.status(400).send({status:false , message : "price is required"})
+        if (!valid.titleValidationRegex(title)) {
+            return res.status(400).send({ status: false, message: "please enter valid title" }) //** check
         }
 
-        // if (!valid.priceValidationRegex(price)){
-        //     return res.status(400).send({status: false , message : "please enter valid price"})
-        // }
+        if (!valid.isValid(description)) {
+            return res.status(400).send({ status: false, message: " description is required" }) //**check
 
-  
-        if (!valid.isValid(currencyId)){
-            return res.status(400).send({status: false , message : "currencyId is required"})  //**check
         }
 
-        if (!valid.isValid(currencyFormat)){
-            return res.status(400).send({status: false , message: " currency format required "}) //**check
+        if (!valid.isValid(price)) {
+            return res.status(400).send({ status: false, message: "price is required" })
         }
 
-    //   if (!valid.isValid(isFreeShipping)){
-    //     return res.status(400).send({status: false , message: "this freeshipping  is required "}) //**check
-    //   }
+        if (!valid.priceValidationRegex(price)) {
+            return res.status(400).send({ status: false, message: "please enter valid price" })
+        }
 
-       if(!valid.isValid(productImage)){
-        return res.status(400).send({status: false , message : " product image required"}) //** cheack
-      }
 
-    //   if(!valid.isValid(availableSizes)){
-    //     return res.status(400).send({status: false , message : "please select size"})
-    //   }
+        if (!valid.isValid(currencyId)) {
+            return res.status(400).send({ status: false, message: "currencyId is required" })  //**check
+        }
 
-      const productCreated = await productModel.create(data)
-       return res.status(201).send({status: true , message : " product created successfully" , 
-       data: productCreated })
-      
-      
-}
-    catch(err){
+        if (!valid.isValid(currencyFormat)) {
+            return res.status(400).send({ status: false, message: " currency format required " }) //**check
+        }
+
+        if (!valid.isValid(productImage)) {
+            return res.status(400).send({ status: false, message: " product image required" }) //** cheack
+        }
+
+        if (!valid.isValid(availableSizes)) {
+            return res.status(400).send({ status: false, message: "please select size" })
+        }
+
+        data.availableSizes = availableSizes.split(',').map(x => x.trim().toUpperCase())
+
+        //   if (availableSizes.map(x => valid.isValidSize(x)).filter(x => x === false).length !== 0){
+        //   return res.status(400).send({ status:false, msg: "Size should be Among  S, XS, M, X, L, XXL, XL"})
+        //   }
+        //   data.availableSizes = availableSizes
+
+        const productCreated = await productModel.create(data)
+        return res.status(201).send({
+            status: true, message: " product created successfully",
+            data: productCreated
+        })
+
+
+    }
+    catch (err) {
         return res.status(500).send({
             status: false,
-            error : err.message
+            error: err.message
         })
     }
 }
 
-    
+const getProduct = async function (req, res) {
+    try {
+        let body = req.query
 
-module.exports={createProduct}
+        let { title, availableSizes, } = body
+        // let filterQuery = { isDeleted: true }
+        //check the title is valid
+        if (title !== undefined) {
+            if (!valid.titleValidationRegex(title)) {
+                return res.status(400).send({ status: false, message: "please enter valid name" }) //** check
+            }
+        }
+        //check the size value is present
+        if (availableSizes !== undefined) {
+            if (!valid.isValidSize(availableSizes)) {
+                return res.status(400).send({ status: false, message: "please enter valid size" }) //** check
+            }
+        }
+        
+        let filter = {
+            ...body,
+            isDeleted: false
+        };
+        
+        const Getbooks = await productModel.find(filter)
+            // console.log(findFilterProduct)
+
+            if (Getbooks.length == 0)
+            return res.status(404).send({ status: false, message: "No product is found" });
+            
+        //sort alphabetically
+        Getbooks.sort(function (a, b) {
+            const nameA = a.title;
+            const nameB = b.title;
+            if (nameA < nameB) { return -1; }
+            if (nameA > nameB) { return 1; }
+            return 0;
+        });
+        let findFilterProduct = await productModel.find({ isDeleted: false })
+        
+        if (findFilterProduct.length == 0) { return res.status(404).send({ status: false, Products: "Product's not available.... cool down, we will add product's soon........😎😎😎😎😎😎😎😎" }) }
+        let arr = []
+        for (let i = 0; i < findFilterProduct.length; i++) {
+            if (findFilterProduct[i].price >= 1000 && findFilterProduct[i].price <= 1000) {
+                arr.push(findFilterProduct[i])
+            }
+        }
+        body.findFilterProduct = findFilterProduct
+
+        return res.status(200).send({ status: true, Products: Getbooks })
+    }
+    catch (err) {
+        return res.status(500).send({
+            status: false,
+            error: err.message
+        })
+    }
+}
+
+module.exports = { createProduct, getProduct }

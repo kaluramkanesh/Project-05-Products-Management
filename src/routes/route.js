@@ -19,6 +19,8 @@ Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
 
 Router.post("/products" ,productController.createProduct)
 
+Router.get("/products", productController.getProduct)
+
 
 
 //************ checking your end point valid or not */
