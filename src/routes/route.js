@@ -32,7 +32,7 @@ Router.get("/products/:productId" ,productController.getproductbyId)
 Router.put("/products/:productId" ,productController.updateProductById)
 
 //------ delete product by Id-------------------------------------------
-// Router.delete("/products/:productId" ,productController.deletProductById)
+Router.delete("/products/:productId" ,productController.deletProductById)
 
 
 

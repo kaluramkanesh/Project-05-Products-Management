@@ -1,6 +1,8 @@
 const productModel = require("../Models/productModel")
 const valid = require("../validations/validation")
 const aws = require("aws-sdk")
+const mongoose = require("mongoose")
+const ObjectId = mongoose.Types.ObjectId
 
 
 aws.config.update({
@@ -123,6 +125,10 @@ const createProduct = async function (req, res) {
             }) //**check
         }
 
+        //   if (!valid.isValid(isFreeShipping)){
+        //     return res.status(400).send({status: false , message: "this freeshipping  is required "}) //**check
+        //   }
+
         if (!valid.isValid(productImage)) {
             return res.status(400).send({
                 status: false,
@@ -142,7 +148,6 @@ const createProduct = async function (req, res) {
         //   if (availableSizes.map(x => valid.isValidSize(x)).filter(x => x === false).length !== 0){
         //   return res.status(400).send({ status:false, msg: "Size should be Among  S, XS, M, X, L, XXL, XL"})
         //   }
-        //   data.availableSizes = availableSizes
 
         if (!valid.isValid(style)) {
             return res.status(400).send({
@@ -165,6 +170,9 @@ const createProduct = async function (req, res) {
     }
 }
 
+
+//-----------------------getproduct
+
 const getProduct = async function (req, res) {
     try {
         let body = req.query
@@ -174,32 +182,26 @@ const getProduct = async function (req, res) {
         //check the title is valid
         if (title !== undefined) {
             if (!valid.titleValidationRegex(title)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "please enter valid name"   //** check
-                })
+                return res.status(400).send({ status: false, message: "please enter valid name" }) //** check
             }
         }
         //check the size value is present
         if (availableSizes !== undefined) {
             if (!valid.isValidSize(availableSizes)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "please enter valid size"  //** check
-                })
+                return res.status(400).send({ status: false, message: "please enter valid size" }) //** check
             }
         }
 
-        let filter = { ...body, isDeleted: false }
+        let filter = {
+            ...body,
+            isDeleted: false
+        };
 
         const Getbooks = await productModel.find(filter)
-        // console.log(findFilterProduct)
+            // console.log(findFilterProduct)
 
-        if (Getbooks.length == 0)
-            return res.status(404).send({
-                status: false,
-                message: "No product is found"
-            });
+            if (Getbooks.length == 0)
+            return res.status(404).send({ status: false, message: "No product is found" });
 
         //sort alphabetically
         Getbooks.sort(function (a, b) {
@@ -211,20 +213,13 @@ const getProduct = async function (req, res) {
         });
         let findFilterProduct = await productModel.find({ isDeleted: false })
 
-        if (findFilterProduct.length == 0) {
-            return res.status(404).send({
-                status: false,
-                Products: "Product's not available.... cool down, we will add product's soon........😎😎😎😎😎😎😎😎"
-            })
-        }
-
+        if (findFilterProduct.length == 0) { return res.status(404).send({ status: false, Products: "Product's not available.... cool down, we will add product's soon........😎😎😎😎😎😎😎😎" }) }
         let arr = []
         for (let i = 0; i < findFilterProduct.length; i++) {
             if (findFilterProduct[i].price >= 1000 && findFilterProduct[i].price <= 1000) {
                 arr.push(findFilterProduct[i])
             }
         }
-
         body.findFilterProduct = findFilterProduct
 
         return res.status(200).send({ status: true, Products: Getbooks })
@@ -236,6 +231,7 @@ const getProduct = async function (req, res) {
         })
     }
 }
+
 
 //*******get product by Id */
 
@@ -422,6 +418,13 @@ const updateProductById = async function (req, res) {
         }
 
         const updatedProduct = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, { $set: data }, {new : true})
+        if(!updatedProduct){
+            return res.status(404).send({
+                status: false,
+                message: "product is already deleted or not found",
+                data: updatedProduct
+            })
+        }
         // console.log(updatedProduct)
         return res.status(400).send({
             status: false,
@@ -436,5 +439,38 @@ const updateProductById = async function (req, res) {
 }
 
 
-module.exports = { createProduct, getProduct, getproductbyId, updateProductById }
+//----------------------deletProduct------------------------
+
+const deletProductById = async function (req, res) {
+
+    try {
+        let productId = req.params.productId;
+        
+       if (!valid.isValidObjectId(productId) ) {
+            return res.status(400).send({ 
+                status: false, 
+                message: "productId not valid" 
+            })
+        }
+
+        let findProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false },{ $set: { isDeleted: true } })  //{ new: true 
+
+        if (!findProduct) {
+            return res.status(404).send({ 
+                status: false, 
+                message: " product is already deleted or not found" 
+            })
+        }
+
+        return res.status(200).send({ status: true, message: " successfully deleted" })
+
+
+    } catch (error) {
+
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+
+module.exports = { createProduct, getProduct, getproductbyId, updateProductById , deletProductById}
 
