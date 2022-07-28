@@ -1,7 +1,6 @@
 const mongoose = require("mongoose")
-
 const productSchema = new mongoose.Schema({
-
+    
     title: {
         type: String,
         required: true,
@@ -59,7 +58,7 @@ const productSchema = new mongoose.Schema({
     },
 
     deletedAt: {
-        type: Date,
+        type: Date, 
         default: null
     },
 

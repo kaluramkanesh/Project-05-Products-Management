@@ -1,6 +1,8 @@
 const productModel = require("../Models/productModel")
 const valid = require("../validations/validation")
 const aws = require("aws-sdk")
+const mongoose = require("mongoose")
+const ObjectId = mongoose.Types.ObjectId
 
 
 aws.config.update({
@@ -40,8 +42,7 @@ const createProduct = async function (req, res) {
 
         let files = req.files
         if (!files || files.length == 0) return res.status(400).send({
-            status: false, 
-            message: "no cover image found"
+            status: false, message: "no cover image found"
         })
 
         let productImage = await uploadFile(files[0])
@@ -60,40 +61,25 @@ const createProduct = async function (req, res) {
         // --------------------------the validation for mendatory field
 
         if (!valid.isValid(title)) {
-            return res.status(400).send({ 
-                status: false, 
-                message: "title is required" 
-            })
+            return res.status(400).send({ status: false, message: "title is required" })
         }
 
-        let aalu = await productModel.findOne({ title: title })
-        if (aalu) {
-            return res.status(400).send({ 
-                status: false, 
-                message: "title is allready exist" 
-            })
+        if (await productModel.findOne({ title: title })) {
+            return res.status(400).send({ status: false, message: "title is allready exist" })
 
         }
 
         if (!valid.titleValidationRegex(title)) {
-            return res.status(400).send({ 
-                status: false, 
-                message: "please enter valid title" 
-            }) //** check
+            return res.status(400).send({ status: false, message: "please enter valid title" }) //** check
         }
 
         if (!valid.isValid(description)) {
-            return res.status(400).send({ 
-                status: false, message: " description is required" 
-            }) //**check
+            return res.status(400).send({ status: false, message: " description is required" }) //**check
 
         }
 
         if (!valid.isValid(price)) {
-            return res.status(400).send({ 
-                status: false, 
-                message: "price is required" 
-            })
+            return res.status(400).send({ status: false, message: "price is required" })
         }
 
         // if (!valid.priceValidationRegex(price)){
@@ -102,16 +88,11 @@ const createProduct = async function (req, res) {
 
 
         if (!valid.isValid(currencyId)) {
-            return res.status(400).send({ 
-                status: false, 
-                message: "currencyId is required" 
-            })  //**check
+            return res.status(400).send({ status: false, message: "currencyId is required" })  //**check
         }
 
         if (!valid.isValid(currencyFormat)) {
-            return res.status(400).send({ 
-                status: false, message: " currency format required " 
-            }) //**check
+            return res.status(400).send({ status: false, message: " currency format required " }) //**check
         }
 
         //   if (!valid.isValid(isFreeShipping)){
@@ -119,9 +100,7 @@ const createProduct = async function (req, res) {
         //   }
 
         if (!valid.isValid(productImage)) {
-            return res.status(400).send({ 
-                status: false, message: " product image required" 
-            }) //** cheack
+            return res.status(400).send({ status: false, message: " product image required" }) //** cheack
         }
 
         //   if(!valid.isValid(availableSizes)){
@@ -134,59 +113,34 @@ const createProduct = async function (req, res) {
             data: productCreated
         })
     }
-    catch (err) {
-        return res.status(500).send({
-            status: false,
-            error: err.message
-        })
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 
 
-// *********************** GET /products  */
-
-
-const getProduct = async function (res, req) {
-    try {
-
-        let data = req.body
-        let { size, name, price } = data
-
-        if(size){
-            let findSize = await productModel.find({size : availableSizes})
-            return res.status(200).send({
-                status : true,
-                message : "the filtered size is",
-                data: findSize
-            })
-        }
-        // if(name){
-
-        // }
-        // if(price){
-
-        // }
-
-    }
-    catch (Err) {
-        return res.status(500).send({
-            status: false,
-            msg: Err.message
-        })
-    }
-}
 
 //-----------------------getproductbyId
 
 const getproductbyId = async function (req, res) {
 
     try {
-        let productId = req.param.productId
+        let productId = req.params.productId
+
+        let isValidProductId = mongoose.Types.ObjectId.isValid(productId)
+        if (!isValidProductId) {
+            return res.status(400).send({ status: false, message: "productId not valid" })
+        }
         let getProduct = await productModel.findOne({ _id: productId })
 
+        if (!getProduct) {
+            return res.status(404).send({ status: false, message: " product not found" })
+        }
+
+
         return res.status(200).send({
-            status: true, message: "product details" ,
-            data: getProduct
+            status: true, message: "product details",
+            product: getProduct
         })
 
     }
@@ -199,131 +153,152 @@ const getproductbyId = async function (req, res) {
 //**************put api */
 
 
-const updateProductById = async function (req, res){
-    try{
-    
+const updateProductById = async function (req, res) {
+    try {
+
         let data = req.body
         let productId = req.params.productId
+        
+        let obj = {}
 
-        let checkProductId =await productModel.findById({_id: productId})
-        if(!checkProductId){
+        let checkProductId = await productModel.findById({ _id: productId, isDeleted: false })
+        if (!checkProductId) {
             return res.status(404).send({
                 status: false,
                 message: "productId not find"
             })
         }
 
-        let {title, description, price, currencyId, currencyFormat, productImage, style, availableSizes, installments} = data
+        let { title, description, price, currencyId, currencyFormat, productImage, style, availableSizes, installments } = data
 
-        if(Object.keys(data).length==0){
+        if (Object.keys(data).length == 0) {
             return res.status(400).send({
                 status: false,
                 message: "please put atleast one key for updating"
             })
         }
 
-        if(!valid.isValidObjectId(productId)){
+        if (!valid.isValidObjectId(productId)) {
             return res.status(400).send({
                 status: false,
                 message: "invalid product Id"
             })
         }
 
-        if(title){
-            if(!valid.isValid(title)){
+        if (title) {
+            if (!valid.isValid(title)) {
                 return res.status(400).send({
                     status: false,
                     message: "title should be in string format and can't be a any white spaces"
                 })
             }
-            if(!valid.titleValidationRegex(title)){
+            if (!valid.titleValidationRegex(title)) {
                 return res.status(400).send({
                     status: false,
                     message: "title "
                 })
             }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
         }
 
-        if(description){
-            if(!valid.isValid(description)){
+        if (description) {
+            if (!valid.isValid(description)) {
                 return res.status(400).send({
                     status: false,
                     message: "description should be in string format and can't be a any white spaces"
                 })
             }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
         }
 
-        if(price){
-            if(!valid.isValid(price)){
+        if (price) {
+            if (!valid.isValid(price)) {
                 return res.status(400).send({
                     status: false,
                     message: "description should be in string format and can't be a any white spaces"
                 })
             }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
         }
 
-        if(currencyId){
-            if(!valid.isValid(currencyId)){
+        if (currencyId) {
+            if (!valid.isValid(currencyId)) {
                 return res.status(400).send({
                     status: false,
                     message: "currencyId should be in string format and can't be a any white spaces"
                 })
             }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
         }
 
-        if(currencyFormat){
-            if(!valid.isValid(currencyFormat)){
+        if (currencyFormat) {
+            if (!valid.isValid(currencyFormat)) {
                 return res.status(400).send({
                     status: false,
                     message: "currencyFormat should be in string format and can't be a any white spaces"
                 })
             }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
         }
 
-        if(productImage){
-            if(!valid.isValid(productImage)){
+        if (productImage) {
+            if (!valid.isValid(productImage)) {
                 return res.status(400).send({
                     status: false,
                     message: "productImage should be in string format and can't be a any white spaces"
                 })
             }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
         }
 
-        if(style){
-            if(!valid.isValid(style)){
+        if (style) {
+            if (!valid.isValid(style)) {
                 return res.status(400).send({
                     status: false,
                     message: "style should be in string format and can't be a any white spaces"
                 })
             }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
         }
 
-        if(availableSizes){
-            if(!valid.isValid(availableSizes)){
+        if (availableSizes) {
+            if (!valid.isValid(availableSizes)) {
                 return res.status(400).send({
                     status: false,
                     message: "style should be in string format and can't be a any white spaces"
                 })
             }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
         }
 
-        if(installments){
-            if(!valid.isValid(installments)){
+        if (installments) {
+            if (!valid.isValid(installments)) {
                 return res.status(400).send({
                     status: false,
                     message: "installments should be in string format and can't be a any white spaces"
                 })
             }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
         }
 
-        const updatedProduct = await productModel.findByIdAndUpdate({_id: productId, isDeleted : false}, {$set: data})
+        if (installments) {
+            if (!valid.isValid(installments)) {
+                return res.status(400).send({
+                    status: false,
+                    message: "installments should be in string format and can't be a any white spaces"
+                })
+            }
+            obj["title"] = title.trim().split(" ").filter(x=>x).join(" ")
+        }
+
+        const updatedProduct = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, { $set: data })
         // console.log(updatedProduct)
         return res.status(400).send({
             status: false,
             message: "successfully updated data",
             data: updatedProduct
         })
-        
+
     }
     catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -331,5 +306,5 @@ const updateProductById = async function (req, res){
 }
 
 
-module.exports = { createProduct ,getProduct, getproductbyId , updateProductById}
+module.exports = { createProduct,  getproductbyId, updateProductById }
 
