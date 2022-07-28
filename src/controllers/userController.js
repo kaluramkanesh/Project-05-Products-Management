@@ -161,52 +161,52 @@ const createUsers = async function (req, res) {
                 msg: "address field is mandatory"
             });
         }
-       
 
-            if (address.shipping) {
-                if (!valid.isValid(address.shipping.street)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: "shipping street address should be in string format"
-                    })
-                }
-                if (!valid.isValid(address.shipping.city)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: "city street address should be in string format"
-                    })
-                }
-                if (!valid.regPincode(address.shipping.pincode)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: "pincode of shipping address is Invalid"
-                    })
-                }
-            }
 
-            if (address.billing) {
-                if (!valid.isValid(address.billing.street)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: "billing street address should be in string format"
-                    })
-                }
-                if (!valid.isValid(address.billing.city)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: "city street address should be in string format"
-                    })
-                }
-                if (!valid.regPincode(address.billing.pincode)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: "pincode of billing address is Invalid"
-                    })
-                }
+        if (address.shipping) {
+            if (!valid.isValid(address.shipping.street)) {
+                return res.status(400).send({
+                    status: false,
+                    message: "shipping street address should be in string format"
+                })
             }
-        
-    
-// console.log(address)
+            if (!valid.isValid(address.shipping.city)) {
+                return res.status(400).send({
+                    status: false,
+                    message: "city street address should be in string format"
+                })
+            }
+            if (!valid.regPincode(address.shipping.pincode)) {
+                return res.status(400).send({
+                    status: false,
+                    message: "pincode of shipping address is Invalid"
+                })
+            }
+        }
+
+        if (address.billing) {
+            if (!valid.isValid(address.billing.street)) {
+                return res.status(400).send({
+                    status: false,
+                    message: "billing street address should be in string format"
+                })
+            }
+            if (!valid.isValid(address.billing.city)) {
+                return res.status(400).send({
+                    status: false,
+                    message: "city street address should be in string format"
+                })
+            }
+            if (!valid.regPincode(address.billing.pincode)) {
+                return res.status(400).send({
+                    status: false,
+                    message: "pincode of billing address is Invalid"
+                })
+            }
+        }
+
+
+        // console.log(address)
         const salt = await bcrypt.genSalt(10);
         const hashedPass = await bcrypt.hash(password, salt)
         data.password = hashedPass;
@@ -221,7 +221,7 @@ const createUsers = async function (req, res) {
     }
     catch (error) {
         return res.status(500).send({
-            status: false, 
+            status: false,
             message: error.message
         })
     }
@@ -406,34 +406,32 @@ const updateUser = async function (req, res) {
             profileImage = await uploadFile(files[0])
             data.profileImage = profileImage
         }
-        
-        if (address.billing.street) {
-        if (address.shipping) {
+
+        if (address.shipping.street) {
             if (!valid.isValid(address.shipping.street)) {
                 return res.status(400).send({
                     status: false,
                     message: "shipping street address should be in string format"
                 })
             }
-        }
-        if (address.billing.street) {
-            if (!valid.isValid(address.shipping.city)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "city street address should be in string format"
-                })
+            if (address.shipping.city) {
+                if (!valid.isValid(address.shipping.city)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "city street address should be in string format 1"
+                    })
+                }
+            }
+            if (address.shipping.pincode) {
+                if (!valid.regPincode(address.shipping.pincode)) {
+                    return res.status(400).send({
+                        status: false,
+                        message: "pincode of shipping address is Invalid"
+                    })
+                }
             }
         }
-        if (address.billing.street) {
-            if (!valid.regPincode(address.shipping.pincode)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "pincode of shipping address is Invalid"
-                })
-            }
-        }
-    }
-    //    if(address)
+        //    if(address)
         if (address.billing.street) {
             if (!valid.isValid(address.billing.street)) {
                 return res.status(400).send({
@@ -450,7 +448,7 @@ const updateUser = async function (req, res) {
                 })
             }
         }
-            if (address.billing.pincode) {
+        if (address.billing.pincode) {
             if (!valid.regPincode(address.billing.pincode)) {
                 return res.status(400).send({
                     status: false,
@@ -458,19 +456,22 @@ const updateUser = async function (req, res) {
                 })
             }
         }
-        let userUpdate = await userModel.findOneAndUpdate({ _id: userId }, { $set: data })
-        console.log(data)
+// console.log(address)
+console.log(data)
+        let userUpdate = await userModel.findOneAndUpdate({ _id: userId }, { $set: data }, {new:true})
+        console.log(userUpdate)
+
         return res.status(200).send({
             status: true,
             data: userUpdate
         })
-    } catch (Err) {  
+    } catch (Err) {
         return res.status(500).send({
             status: false,
             msg: Err.message
         })
     }
-
+  
 }
 
 module.exports = { userLogin, createUsers, getUserById, updateUser }
