@@ -1,19 +1,24 @@
 const express = require("express")
 const userController = require("../controllers/userController")
+const productController = require("../controllers/productController")
 const Router = express.Router()
 const mid = require("../Middleware/Auth")
 
-
+/*-----------------------------User Register----------------------------*/
 Router.post("/register", userController.createUsers)
 
 /*-----------------------------User Login----------------------------*/
 Router.post("/login", userController.userLogin);
 
-/*------------------------Update User Api's---------------------------------*/
-Router.put("/user/:userId/profile", userController.updateUser)
-
-//*************get User */
+/*------------------------Get User Api's---------------------------------*/
 Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserById)
+
+/*------------------------Update User Api's---------------------------------*/
+Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
+
+
+Router.post("/products" ,productController.createProduct)
+
 
 
 //************ checking your end point valid or not */

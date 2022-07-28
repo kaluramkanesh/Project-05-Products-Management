@@ -1,8 +1,5 @@
 const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose")
-// const cartModel = require("../Models/cartModel")
-// const orderModel = require("../Models/ordertModel")
-// const productModel = require("../Models/productModel")
 const userModel = require("../Models/userModel")
 const validator = require("../validations/validation")
 
@@ -14,7 +11,7 @@ const jwtValidation = async function (req, res, next) {
 
         let token = req.headers["authorization"]
 
-        if (token === undefined) {
+        if (!token) {
             return res.status(401).send({
                 status: false,
                 message: "token is not present"
@@ -53,7 +50,6 @@ const jwtValidation = async function (req, res, next) {
                 message: "authorization failed"
             });
         }
-
         next();
     }
     catch (err) {
@@ -63,6 +59,7 @@ const jwtValidation = async function (req, res, next) {
         })
     }
 }
+
 
 
 module.exports.jwtValidation = jwtValidation

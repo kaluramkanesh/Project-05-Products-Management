@@ -19,7 +19,7 @@ const productSchema = new mongoose.Schema({
 
     currencyId: {
         type: String,
-        required: true
+        required: true //INR
     },
 
     currencyFormat: {
@@ -33,7 +33,7 @@ const productSchema = new mongoose.Schema({
     },
 
     productImage: {
-        type: string,
+        type: String,
         required: true
     },  // s3 link
 
@@ -47,11 +47,11 @@ const productSchema = new mongoose.Schema({
     },
 
     installments: {
-        type: number
+        type: Number
     },
 
     deletedAt: {
-        type: Date
+        type: Date()
     },
 
     isDeleted: {
