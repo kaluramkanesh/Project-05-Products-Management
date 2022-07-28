@@ -417,7 +417,7 @@ const updateProductById = async function (req, res) {
             obj["installments"] = installments.trim().split(" ").filter(x => x).join(" ")
         }
 
-        const updatedProduct = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, { $set: data }, {new : true})
+        const updatedProduct = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, { $set: obj }, {new : true})
         if(!updatedProduct){
             return res.status(404).send({
                 status: false,
