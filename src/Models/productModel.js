@@ -58,7 +58,7 @@ const productSchema = new mongoose.Schema({
     isDeleted: {
         type: Boolean,
         default: false
-    }
+    }   
 },{ timestimes: true })
 
 module.exports= mongoose.model("product", productSchema ) 
