@@ -31,6 +31,10 @@ const phoneValidationRegex = function (value) {
     return /^[6789]\w{9}$/.test(value)
 }
 
+// const regCurrencyId = function (value){
+//     return /^[I]{1}[N]{1}[R]{1}$/.text(value)
+// }
+
 const passwordValidationRegex = function (value) {
     return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(value)
 }
@@ -47,8 +51,8 @@ const priceValidationRegex = function (value){
 const regPincode = function (value){
     return /^[1-9][0-9]{5}$/.test(value)
 }
-// const regTitle = function(value){
-//     return /^[a-zA-Z0-9.'\-_\s]$/.test(value)
+// const regCurrency = function(value){
+//     return /^[₹]{1}$/.test(value)
 // }
 
 const isValidSize = (Size) => {
@@ -63,7 +67,7 @@ module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidatio
 
 // ^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$
 
-// /^\d*\.?\d*$/
+// /^\d*\.?\d*$/                              
 
 // /\d+\.?\d*/
 

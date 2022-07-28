@@ -4,6 +4,7 @@ const productController = require("../controllers/productController")
 const Router = express.Router()
 const mid = require("../Middleware/Auth")
 
+
 /*-----------------------------User Register----------------------------*/
 Router.post("/register", userController.createUsers)
 
@@ -16,12 +17,22 @@ Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserByI
 /*------------------------Update User Api's---------------------------------*/
 Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
 
-//------product-------------------------------------------
+
+
+//------ create product-------------------------------------------
 Router.post("/products" ,productController.createProduct)
 
+//------ get product-------------------------------------------
+Router.get("/products" ,productController.getProduct)
+
+//------ get product by Id-------------------------------------------
 Router.get("/products/:productId" ,productController.getproductbyId)
 
-Router.delete("/products/:productId" ,productController.deletProductById)
+//------ update product by Id-------------------------------------------
+Router.put("/products/:productId" ,productController.updateProductById)
+
+//------ delete product by Id-------------------------------------------
+// Router.delete("/products/:productId" ,productController.deletProductById)
 
 
 

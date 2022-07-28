@@ -28,8 +28,9 @@ const productSchema = new mongoose.Schema({
 
     currencyFormat: {
         type: String,
-        required: true,
+        required: true, // ₹
         trim: true
+        // enum: "₹"
     },
 
     isFreeShipping: {
