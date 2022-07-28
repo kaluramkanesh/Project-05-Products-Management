@@ -41,7 +41,7 @@ const titleValidationRegex = function (value){
 }
 
 const priceValidationRegex = function (value){
-    return /^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$/.test(value)
+    return /^[+-]?([0-9]+(\.[0-9]+)?|\.[0-9]+)$/.test(value)
 }
 
 const regPincode = function (value){
@@ -51,9 +51,55 @@ const regPincode = function (value){
 //     return /^[a-zA-Z0-9.'\-_\s]$/.test(value)
 // }
 
+const isValidSize = (Size) => {
+    let correctSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+    return (correctSize.includes(Size))
+}
+
+
 module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
      phoneValidationRegex, passwordValidationRegex,
+<<<<<<< HEAD
      regPincode,titleValidationRegex,priceValidationRegex}
 
+=======
+     regPincode,titleValidationRegex,priceValidationRegex, isValidSize}
+
+// ^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$
+
+// /^\d*\.?\d*$/
+
+// /\d+\.?\d*/
+
+//       /^\d*\.?\d*$/
+
+// /\d+\.?\d*/
+
+// /^[+-]?((\d+(\.\d*)?)|(\.\d+))$/ ========
+
+// ^\d+(\.\d+)?$\  =======
+
+// \d+\.?\d*
+
+// ^\d*\.?\d+$
+
+// ^\d+(\.\d)?\d*$   =============
+
+// ^0$|^[1-9]\d*$|^\.\d+$|^0\.\d* =======
+
+// ^[+-]?(([1-9][0-9]*)?[0-9]
+
+// '^[+-]?(([1-9][0-9]*)?[0-9]
+
+// ^\d+(\.\d*)?$
+
+// ^\d+(\.\d{2})?$
+
+// (?<![^d])\d+(?:\.\d+)?(?![^d])  ==========================
+
+// ^\d+(()|(\.\d+)?)$      =========================
+
+// ^[0-9]\d{0,9}(\.\d{1,3})?%?$    ==================
+>>>>>>> ddc3430da06d877134c3cecbb91e5f0efe20946e
 
 
