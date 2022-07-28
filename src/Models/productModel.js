@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+
 const productSchema = new mongoose.Schema({
 
     title: {
@@ -51,13 +52,13 @@ const productSchema = new mongoose.Schema({
     },
 
     deletedAt: {
-        type: Date()
+        type: Date
     },
 
     isDeleted: {
         type: Boolean,
         default: false
-    }
+    }   
 },{ timestimes: true })
 
 module.exports= mongoose.model("product", productSchema ) 
