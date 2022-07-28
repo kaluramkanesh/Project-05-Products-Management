@@ -153,24 +153,183 @@ const getProduct = async function (res, req) {
         let { size, name, price } = data
 
         if(size){
-            
+            let findSize = await productModel.find({size : availableSizes})
+            return res.status(200).send({
+                status : true,
+                message : "the filtered size is",
+                data: findSize
+            })
         }
-        if(name){
+        // if(name){
 
-        }
-        if(price){
+        // }
+        // if(price){
 
-        }
+        // }
 
     }
-    catch (err) {
+    catch (Err) {
         return res.status(500).send({
-            ststus: false,
-            error: err.message
+            status: false,
+            msg: Err.message
         })
     }
 }
 
+//-----------------------getproductbyId
+
+const getproductbyId = async function (req, res) {
+
+    try {
+        let productId = req.param.productId
+        let getProduct = await productModel.findOne({ _id: productId })
+
+        return res.status(200).send({
+            status: true, message: "product details" ,
+            data: getProduct
+        })
+
+    }
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
 
 
-module.exports = { createProduct, getProduct }
+//**************put api */
+
+
+const updateProductById = async function (req, res){
+    try{
+    
+        let data = req.body
+        let productId = req.params.productId
+
+        let checkProductId =await productModel.findById({_id: productId})
+        if(!checkProductId){
+            return res.status(404).send({
+                status: false,
+                message: "productId not find"
+            })
+        }
+
+        let {title, description, price, currencyId, currencyFormat, productImage, style, availableSizes, installments} = data
+
+        if(Object.keys(data).length==0){
+            return res.status(400).send({
+                status: false,
+                message: "please put atleast one key for updating"
+            })
+        }
+
+        if(!valid.isValidObjectId(productId)){
+            return res.status(400).send({
+                status: false,
+                message: "invalid product Id"
+            })
+        }
+
+        if(title){
+            if(!valid.isValid(title)){
+                return res.status(400).send({
+                    status: false,
+                    message: "title should be in string format and can't be a any white spaces"
+                })
+            }
+            if(!valid.titleValidationRegex(title)){
+                return res.status(400).send({
+                    status: false,
+                    message: "title "
+                })
+            }
+        }
+
+        if(description){
+            if(!valid.isValid(description)){
+                return res.status(400).send({
+                    status: false,
+                    message: "description should be in string format and can't be a any white spaces"
+                })
+            }
+        }
+
+        if(price){
+            if(!valid.isValid(price)){
+                return res.status(400).send({
+                    status: false,
+                    message: "description should be in string format and can't be a any white spaces"
+                })
+            }
+        }
+
+        if(currencyId){
+            if(!valid.isValid(currencyId)){
+                return res.status(400).send({
+                    status: false,
+                    message: "currencyId should be in string format and can't be a any white spaces"
+                })
+            }
+        }
+
+        if(currencyFormat){
+            if(!valid.isValid(currencyFormat)){
+                return res.status(400).send({
+                    status: false,
+                    message: "currencyFormat should be in string format and can't be a any white spaces"
+                })
+            }
+        }
+
+        if(productImage){
+            if(!valid.isValid(productImage)){
+                return res.status(400).send({
+                    status: false,
+                    message: "productImage should be in string format and can't be a any white spaces"
+                })
+            }
+        }
+
+        if(style){
+            if(!valid.isValid(style)){
+                return res.status(400).send({
+                    status: false,
+                    message: "style should be in string format and can't be a any white spaces"
+                })
+            }
+        }
+
+        if(availableSizes){
+            if(!valid.isValid(availableSizes)){
+                return res.status(400).send({
+                    status: false,
+                    message: "style should be in string format and can't be a any white spaces"
+                })
+            }
+        }
+
+        if(installments){
+            if(!valid.isValid(installments)){
+                return res.status(400).send({
+                    status: false,
+                    message: "installments should be in string format and can't be a any white spaces"
+                })
+            }
+        }
+
+        const updatedProduct = await productModel.findByIdAndUpdate({_id: productId, isDeleted : false}, {$set: data})
+        // console.log(updatedProduct)
+        return res.status(400).send({
+            status: false,
+            message: "successfully updated data",
+            data: updatedProduct
+        })
+        
+    }
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+
+module.exports = { createProduct ,getProduct, getproductbyId , updateProductById}
+

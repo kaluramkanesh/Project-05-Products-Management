@@ -47,10 +47,13 @@ const priceValidationRegex = function (value){
 const regPincode = function (value){
     return /^[1-9][0-9]{5}$/.test(value)
 }
+// const regTitle = function(value){
+//     return /^[a-zA-Z0-9.'\-_\s]$/.test(value)
+// }
 
 module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
      phoneValidationRegex, passwordValidationRegex,
-     regPincode,titleValidationRegex,priceValidationRegex }
+     regPincode,titleValidationRegex,priceValidationRegex}
 
 
 
