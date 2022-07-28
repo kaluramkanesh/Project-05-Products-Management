@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-const ObjectId = mongoose.Schema.Types.ObjectId
 const productSchema = new mongoose.Schema({
     
     title: {
@@ -43,8 +42,8 @@ const productSchema = new mongoose.Schema({
     },
 
     availableSizes: {
-        type: String,
-        enum: ["S", "XS", "M", "X", "L", "XXL", "XL"]
+        type: [String],
+        // enum: ["S", "XS", "M", "X", "L", "XXL", "XL"]
     },
 
     installments: {
@@ -52,13 +51,14 @@ const productSchema = new mongoose.Schema({
     },
 
     deletedAt: {
-        type: Date
+        type: Date, 
+        default: null
     },
 
     isDeleted: {
         type: Boolean,
         default: false
-    }
+    }   
 },{ timestimes: true })
 
 module.exports= mongoose.model("product", productSchema ) 

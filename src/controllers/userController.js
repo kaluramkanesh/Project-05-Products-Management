@@ -44,6 +44,7 @@ const createUsers = async function (req, res) {
 
         let { fname, lname, email, phone, password, address } = data
 
+
         let files = req.files
         if (!files || files.length === 0) return res.status(400).send({
             status: false,
@@ -64,24 +65,17 @@ const createUsers = async function (req, res) {
         }
 
         //<-------These validations for Mandatory fields--------->//
-
+       
         if (!valid.isValid(fname)) {
-            return res.status(400).send({ status: false, message: "fname is required" })
+            return res.status(400).send({ status: false, message: "fname is required and should not be empty string" })
         }
-
+    
         //validate name
         if (!valid.nameValidationRegex(fname)) {
             return res.status(400).send({ status: false, message: `fname contain only alphabets` })
 
         }
-        if (!isNaN(fname)) {
-            console.log(fname)
-            return res.status(400).send({
-                status: false,
-                message: "fname can't be a number"
-            })
-        }
-
+    
         if (!valid.isValid(lname)) {
             return res.status(400).send({
                 status: false,
@@ -97,13 +91,7 @@ const createUsers = async function (req, res) {
             })
 
         }
-        if (!isNaN(lname)) {
-            return res.status(400).send({
-                status: false,
-                message: "lname can't be a number"
-            })
-        }
-
+        
         if (!valid.isValid(email)) {
             return res.status(400).send({
                 status: false,
@@ -166,48 +154,58 @@ const createUsers = async function (req, res) {
         }
 
 
-        if (address.shipping) {
-            if (!valid.isValid(address.shipping.street)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "shipping street address should be in string format"
-                })
-            }
-            if (!valid.isValid(address.shipping.city)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "city street address should be in string format"
-                })
-            }
-            if (!valid.regPincode(address.shipping.pincode)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "pincode of shipping address is Invalid"
-                })
-            }
-        }
+        if (address == "") return res.status(400).send({ status: false, message: "Don't leave address Empty" })
+        if (data.address) {
 
-        if (address.billing) {
-            if (!valid.isValid(address.billing.street)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "billing street address should be in string format"
-                })
+            if (!address || Object.keys(address).length === 0) {
+                return res.status(400).send({ status: false, message: "Please enter address and it should be in object!!" })
             }
-            if (!valid.isValid(address.billing.city)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "city street address should be in string format"
-                })
-            }
-            if (!valid.regPincode(address.billing.pincode)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "pincode of billing address is Invalid"
-                })
-            }
-        }
 
+            let addresss = JSON.parse(address)
+
+            const { shipping, billing } = addresss
+
+            if (address.shipping) {
+                const { street, city, pincode } = shipping
+                if (shipping.street) {
+                    if (!valid.isValid(street)) {
+                        return res.status(400).send({ status: false, message: "street is not valid" })
+                    }
+                    data["addresss.shipping.street"] = street
+                }
+                if (shipping.city) {
+                    if (!valid.isValid(city)) return res.status(400).send({ status: false, message: "city is not valid" })
+                    if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
+
+                    data["addresss.shipping.city"] = city
+                }
+                if (shipping.pincode) {
+                    if (!valid.isValid(pincode)) return res.status(400).send({ status: false, message: "pincode is not valid" })
+                    if (!valid.regPincode(pincode)) return res.status(400).send({ status: false, message: "pincode is not in valid format" })
+                    data["addresss.shipping.pincode"] = pincode
+                }
+            }
+
+            if (addresss.billing) {
+                const { street, city, pincode } = billing
+                if (billing.street) {
+                    if (!valid.isValid(street)) return res.status(400).send({ status: false, message: "street is not valid" })
+                    data["addresss.billing.street"] = street
+                }
+
+                if (billing.city) {
+                    if (!valid.isValid(city)) return res.status(400).send({ status: false, message: "city is not valid" })
+                    if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
+                    data["addresss.billing.city"] = city
+                }
+                if (billing.pincode) {
+                    if (!valid.isValid(pincode)) return res.status(400).send({ status: false, message: "shipping pincode is not valid" })
+                    if (!valid.regPincode(pincode)) return res.status(400).send({ status: false, message: "pincode is not in valid format" })
+                    data["addresss.billing.pincode"] = pincode
+                }
+            }
+            data["address"] = addresss
+        }
 
         // console.log(address)
         const salt = await bcrypt.genSalt(10);
@@ -282,7 +280,6 @@ const userLogin = async function (req, res) {
             })
         }
 
-
         let token = jwt.sign({
             userId: user._id,
             iat: new Date().getTime(),
@@ -330,173 +327,166 @@ const updateUser = async function (req, res) {
         let userId = req.params.userId.trim()
         let data = req.body
         let { fname, lname, email, phone, password, profileImage, address } = data
+       
+        let obj = {};
 
+        if (Object.keys(data).length == 0) {
+            return res.status(400).send({
+                status: false,
+                msg: "For updating please put atleast one key"
+            })
+        }
 
-
-        if (!userId) { return res.status(400).send({ status: false, msg: "userId missing in path Params" }) }
-
-        if (!valid.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "User Id incorrect...." }) }
+        if (!valid.isValidObjectId(userId)) {
+            return res.status(400).send({
+                status: false,
+                msg: "User Id incorrect"
+            })
+        }
 
         if (fname) {
-
-            if (!valid.isValid(fname)) { return res.status(400).send({ status: false, msg: `${fname} please enter valid first name` }) }
-
-            if (!valid.nameValidation(fname)) { return res.status(400).send({ status: false, msg: `${fname} is not valid` }) }
+            if (!valid.isValid(fname)) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "fname should be in string format and can't be a any white spaces",
+                })
+            }
+            if (!valid.nameValidationRegex(fname)) {
+                return res.status(400).send({
+                    status: false,
+                    message: `fname contain only alphabets`
+                })
+            }
+            obj["fname"] = fname.trim().split(" ").filter(word=>word).join(" ")
         }
 
         if (lname) {
-
-            if (!valid.isValid(lname)) { return res.status(400).send({ status: false, msg: `${lname} please enter valid last name` }) }
-
-            if (!valid.nameValidation(lname)) { return res.status(400).send({ status: false, msg: `${lname} is not valid` }) }
-            if (!valid.isValidObjectId(userId)) {
+            if (!valid.isValid(lname)) {
                 return res.status(400).send({
                     status: false,
-                    msg: "User Id incorrect"
+                    msg: "lname should be in string format and can't be a any white spaces",
                 })
             }
-
-            if (fname) {
-                if (!valid.isValid(fname)) {
-                    return res.status(400).send({
-                        status: false,
-                        msg: "fname should be in string format and can't be a any white spaces",
-                    })
-                }
-                if (!valid.nameValidationRegex(fname)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: `fname contain only alphabets`
-                    })
-                }
-            }
-
-            if (lname) {
-                if (!valid.isValid(lname)) {
-                    return res.status(400).send({
-                        status: false,
-                        msg: "lname should be in string format and can't be a any white spaces",
-                    })
-                }
-                if (!valid.nameValidationRegex(lname)) {
-                    return res.status(400).send({
-                        status: false,
-                        msg: `lname is not valid`,
-                    })
-                }
-            }
-
-            if (email) {
-                if (!valid.isValid(email)) { return res.status(400).send({ status: false, msg: `${email} please enter valid email` }) }
-
-                if (!valid.emailValidationRegex(email)) { return res.status(400).send(400).send({ status: false, msg: `${email} is not valid email` }) }
-                if (!valid.isValid(email)) {
-                    return res.status(400).send({
-                        status: false,
-                        msg: "lname should be in string format",
-                    })
-                }
-                if (!valid.emailValidationRegex(email)) {
-                    return res.status(400).send({
-                        status: false,
-                        msg: "Enter valid Email"
-                    })
-                }
-            }
-
-            if (phone) {
-                if (!valid.phoneValidationRegex(phone)) {
-                    return res.status(400).send({
-                        status: false,
-                        msg: "phone no. only 10 digit and also should have Indian No."
-                    })
-                }
-            }
-            if (password) {
-                if (!valid.passwordValidationRegex(password)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter`
-                    })
-                }
-            }
-
-            if (profileImage) {
-                let files = req.files
-                if (!files || files.length === 0) return res.status(400).send({
+            if (!valid.nameValidationRegex(lname)) {
+                return res.status(400).send({
                     status: false,
-                    message: "No cover image found."
+                    msg: `lname is not valid`,
                 })
-                profileImage = await uploadFile(files[0])
-                data.profileImage = profileImage
             }
+            obj["lnmae"] = lname.trim().split(" ").filter(word=>word).join(" ")
+        } 
 
-            if (address.billing.street) {
-                if (address.shipping) {
-                    if (!valid.isValid(address.shipping.street)) {
-                        return res.status(400).send({
-                            status: false,
-                            message: "shipping street address should be in string format"
-                        })
-                    }
-                }
-                if (address.billing.street) {
-                    if (!valid.isValid(address.shipping.city)) {
-                        return res.status(400).send({
-                            status: false,
-                            message: "city street address should be in string format"
-                        })
-                    }
-                }
-                if (address.billing.street) {
-                    if (!valid.regPincode(address.shipping.pincode)) {
-                        return res.status(400).send({
-                            status: false,
-                            message: "pincode of shipping address is Invalid"
-                        })
-                    }
-                }
+        if (email) {
+            if (!valid.isValid(email)) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "lname should be in string format",
+                })
             }
-            //    if(address)
-            if (address.billing.street) {
-                if (!valid.isValid(address.billing.street)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: "billing street address should be in string format"
-                    })
-                }
+            if (!valid.emailValidationRegex(email)) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "Enter valid Email"
+                })
             }
-            if (address.billing.city) {
-                if (!valid.isValid(address.billing.city)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: "city street address should be in string format"
-                    })
-                }
+            obj["email"] = email
+        }
+        
+        if (password) {
+            if (!valid.passwordValidationRegex(password)) {
+                return res.status(400).send({
+                    status: false,
+                    message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter`
+                })
             }
-            if (address.billing.pincode) {
-                if (!valid.regPincode(address.billing.pincode)) {
-                    return res.status(400).send({
-                        status: false,
-                        message: "pincode of billing address is Invalid"
-                    })
-                }
-            }
-            let userUpdate = await userModel.findOneAndUpdate({ _id: userId }, { $set: data })
-            console.log(data)
-            return res.status(200).send({
-                status: true,
-                data: userUpdate
+            obj["password"] = password.trim().split(" ").filter(word=>word).join("")
+        }
+        
+        if (profileImage) {
+            let files = req.files
+            if (!files || files.length === 0) return res.status(400).send({
+                status: false,
+                message: "No cover image found."
+            })
+            profileImage = await uploadFile(files[0])
+            obj.profileImage = profileImage
+
+        }
+        if(phone){
+        if (!valid.phoneValidationRegex(phone)) {
+            return res.status(400).send({
+                status: false,
+                msg: "Please Enter valid Phone No. which is starts from 6,7,8,9"
             })
         }
+        obj["phone"] = phone.trim().split(" ").filter(word=>word).join("")
+    }
+        
+        if (address == "") return res.status(400).send({ status: false, message: "Don't leave address Empty" })
+        if (data.address) {
+
+            if (!address || Object.keys(address).length === 0) {
+                return res.status(400).send({ status: false, message: "Please enter address and it should be in object!!" })
+            }
+
+            let addresss = JSON.parse(address)
+
+            const { shipping, billing } = addresss
+
+            if (address.shipping) {
+                const { street, city, pincode } = shipping
+                if (shipping.street) {
+                    if (!valid.isValid(street)) {
+                        return res.status(400).send({ status: false, message: "street is not valid" })
+                    }
+                    obj["addresss.shipping.street"] = street
+                    
+                }
+                console.log(obj)
+                if (shipping.city) {
+                    if (!valid.isValid(city)) return res.status(400).send({ status: false, message: "city is not valid" })
+                    if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
+
+                    obj["addresss.shipping.city"] = city
+                }
+                if (shipping.pincode) {
+                    if (!valid.isValid(pincode)) return res.status(400).send({ status: false, message: "pincode is not valid" })
+                    if (!valid.regPincode(pincode)) return res.status(400).send({ status: false, message: "pincode is not in valid format" })
+                    obj["addresss.shipping.pincode"] = pincode
+                }
+            }
+
+            if (addresss.billing) {
+                const { street, city, pincode } = billing
+                if (billing.street) {
+                    if (!valid.isValid(street)) return res.status(400).send({ status: false, message: "street is not valid" })
+                    obj["addresss.billing.street"] = street
+                }
+
+                if (billing.city) {
+                    if (!valid.isValid(city)) return res.status(400).send({ status: false, message: "city is not valid" })
+                    if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
+                    obj["addresss.billing.city"] = city
+                }
+                if (billing.pincode) {
+                    if (!valid.isValid(pincode)) return res.status(400).send({ status: false, message: "shipping pincode is not valid" })
+                    if (!valid.regPincode(pincode)) return res.status(400).send({ status: false, message: "pincode is not in valid format" })
+                    obj["addresss.billing.pincode"] = pincode
+                }
+            }
+           
+            obj["address"] = addresss
+        }
+
+        let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { $set: obj }, { new: true })
+        res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
     } catch (Err) {
         return res.status(500).send({
             status: false,
             msg: Err.message
         })
-
-
     }
 }
+
 
 module.exports = { userLogin, createUsers, getUserById, updateUser }
