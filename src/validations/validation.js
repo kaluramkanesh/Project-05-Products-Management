@@ -48,7 +48,6 @@ const regPincode = function (value){
     return /^[1-9][0-9]{5}$/.test(value)
 }
 
-
 module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
      phoneValidationRegex, passwordValidationRegex,
      regPincode,titleValidationRegex,priceValidationRegex }

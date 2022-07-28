@@ -6,6 +6,8 @@ const aws = require("aws-sdk")
 const bcrypt = require("bcrypt")
 
 
+
+
 aws.config.update({
     accessKeyId: "AKIAY3L35MCRVFM24Q7U",
     secretAccessKey: "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",
@@ -327,9 +329,9 @@ const updateUser = async function (req, res) {
         let { fname, lname, email, phone, password, profileImage, address } = data
         let obj = {};
 
-        if(Object.keys(data).length == 0){
+        if (Object.keys(data).length == 0) {
             return res.status(400).send({
-                status:false,
+                status: false,
                 msg: "For updating please put atleast one key"
             })
         }
@@ -339,7 +341,7 @@ const updateUser = async function (req, res) {
                 status: false,
                 msg: "User Id incorrect"
             })
-        } 
+        }
 
         if (fname) {
             if (!valid.isValid(fname)) {
@@ -356,7 +358,7 @@ const updateUser = async function (req, res) {
             }
             obj["fname"] = fname
         }
-       
+
         if (lname) {
             if (!valid.isValid(lname)) {
                 return res.status(400).send({
@@ -389,15 +391,15 @@ const updateUser = async function (req, res) {
             obj["email"] = email
         }
 
-        if (phone) {
-            if (!valid.phoneValidationRegex(phone)) {
-                return res.status(400).send({
-                    status: false,
-                    msg: "phone no. only 10 digit and also should have Indian No."
-                })
-            }
-            obj["phone"] = phone
+        if (!valid.nameValidationRegex(lname)) { return res.status(400).send({ status: false, msg: `${lname} is not valid` }) }
+        if (!valid.isValidObjectId(userId)) {
+            return res.status(400).send({
+                status: false,
+                msg: "User Id incorrect"
+            })
         }
+        obj["phone"] = phone
+
         if (password) {
             if (!valid.passwordValidationRegex(password)) {
                 return res.status(400).send({
@@ -416,18 +418,18 @@ const updateUser = async function (req, res) {
             })
             profileImage = await uploadFile(files[0])
             obj.profileImage = profileImage
-            
+
         }
-      
-          if(address =="") return res.status(400).send({status:false, message: "Don't leave address Empty"})
-            if (data.address) {
-            
+
+        if (address == "") return res.status(400).send({ status: false, message: "Don't leave address Empty" })
+        if (data.address) {
+
             if (!address || Object.keys(address).length === 0) {
                 return res.status(400).send({ status: false, message: "Please enter address and it should be in object!!" })
             }
-           
-            let addresss = JSON.parse(address)  
-               
+
+            let addresss = JSON.parse(address)
+
             const { shipping, billing } = addresss
 
             if (address.shipping) {
@@ -438,10 +440,10 @@ const updateUser = async function (req, res) {
                     }
                     obj["addresss.shipping.street"] = street
                 }
-                if (shipping.city) {  
+                if (shipping.city) {
                     if (!valid.isValid(city)) return res.status(400).send({ status: false, message: "city is not valid" })
-                    if(!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
-                    
+                    if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
+
                     obj["addresss.shipping.city"] = city
                 }
                 if (shipping.pincode) {
@@ -460,7 +462,7 @@ const updateUser = async function (req, res) {
 
                 if (billing.city) {
                     if (!valid.isValid(city)) return res.status(400).send({ status: false, message: "city is not valid" })
-                    if(!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
+                    if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
                     obj["addresss.billing.city"] = city
                 }
                 if (billing.pincode) {
@@ -480,7 +482,7 @@ const updateUser = async function (req, res) {
             msg: Err.message
         })
     }
-
 }
+
 
 module.exports = { userLogin, createUsers, getUserById, updateUser }
