@@ -7,6 +7,8 @@ const aws = require("aws-sdk")
 const bcrypt = require("bcrypt")
 const { findOneAndUpdate } = require("../Models/userModel")
 
+
+
 aws.config.update({
     accessKeyId: "AKIAY3L35MCRVFM24Q7U",
     secretAccessKey: "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",
@@ -202,40 +204,40 @@ const updateUser = async function (req, res) {
         let data = req.body
         let { fname, lname, email, phone, password } = data
 
-        let isValidUserId = mongoose.Types.ObjectId.isValid(userId)
+
 
         if (!userId) { return res.status(400).send({ status: false, msg: "userId missing in path Params" }) }
 
-        //  if (!isValidUserId(userId)) { return res.status(400).send({ status: false, msg: "User Id incorrect...." }) }
+        if (!valid.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "User Id incorrect...." }) }
 
         if (fname) {
 
             if (!valid.isValid(fname)) { return res.status(400).send({ status: false, msg: `${fname} please enter valid first name` }) }
 
-            if (!/^[a-zA-Z -._\s]*$/.test(fname)) { return res.status(400).send({ status: false, msg: `${fname} is not valid` }) }
+            if (!valid.nameValidation(fname)) { return res.status(400).send({ status: false, msg: `${fname} is not valid` }) }
         }
 
         if (lname) {
 
             if (!valid.isValid(lname)) { return res.status(400).send({ status: false, msg: `${lname} please enter valid last name` }) }
 
-            if (!/^[a-zA-Z -._\s]*$/.test(lname)) { return res.status(400).send({ status: false, msg: `${lname} is not valid` }) }
+            if (!valid.nameValidation(lname)) { return res.status(400).send({ status: false, msg: `${lname} is not valid` }) }
         }
         if (email) {
             if (!valid.isValid(email)) { return res.status(400).send({ status: false, msg: `${email} please enter valid email` }) }
 
-            if (!/^([0-9a-z]([-_\\.]*[0-9a-z]+)*)@([a-z]([-_\\.]*[a-z]+)*)[\\.]([a-z]{2,9})+$/.test(email)) { return res.status(400).send(400).send({ status: false, msg: `${email} is not valid email` }) }
+            if (!valid.emailValidationRegex(email)) { return res.status(400).send(400).send({ status: false, msg: `${email} is not valid email` }) }
         }
         if (phone) {
-            if (!/^[6789]\w{9}$/.test(phone)) { return res.status(400).send({ status: false, msg: "Accept only Acording to india" }) }
+            if (!valid.phoneValidationRegex(phone)) { return res.status(400).send({ status: false, msg: "Accept only Acording to india" }) }
         }
         if (password) {
-            if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(password)) {
+            if (!valid.passwordValidationRegex(password)) {
                 return res.status(400).send({ status: false, message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter` })
             }
         }
-        let userUpdate = await userModel.findOneAndUpdate({ _id: userId }, { $set: data })
-        console.log(userUpdate)
+        let userUpdate = await userModel.findOneAndUpdate({ _id: userId }, { $set: data }, { new: true })
+
         return res.status(200).send({ status: true, data: userUpdate })
     } catch (Err) {
         console.log(Err)
