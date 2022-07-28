@@ -133,18 +133,19 @@ const getproductbyId = async function (req, res) {
         let productId = req.params.productId
 
         let isValidProductId = mongoose.Types.ObjectId.isValid(productId)
-         if (!isValidProductId){
-            return res.status(400).send({status: false , message: "productId not valid"})
-         }
-        let getProduct = await productModel.findOne({ _id: productId })
 
-        if (!getProduct){
-            return res.status(404).send({status:false , message:" product not found"})
+        if (!isValidProductId) {
+            return res.status(400).send({ status: false, message: "productId not valid" })
         }
-       
+        let getProduct = await productModel.findById({ _id: productId })
+
+        if (!getProduct) {
+            return res.status(404).send({ status: false, message: " product not found" })
+        }
+
 
         return res.status(200).send({
-            status: true, message: "product details" ,
+            status: true, message: "product details",
             product: getProduct
         })
 
@@ -154,6 +155,31 @@ const getproductbyId = async function (req, res) {
     }
 }
 
+//----------------------deletProduct------------------------
+const deletProductById = async function (req, res) {
+
+    try {
+        let productId = req.params.productId;
+        
+       if (!valid.isValidObjectId(productId) ) {
+            return res.status(400).send({ status: false, message: "productId not valid" })
+        }
+
+        let findProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false },
+            { $set: { isDeleted: true } })  //{ new: true 
+
+        if (!findProduct) {
+            return res.status(400).send({ status: false, message: " product is already deleted or not found" })
+        }
+
+        return res.status(200).send({ status: true, message: " successfully deleted" })
 
 
-module.exports = { createProduct ,getproductbyId }
+    } catch (error) {
+
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+
+module.exports = { createProduct, getproductbyId ,deletProductById }
