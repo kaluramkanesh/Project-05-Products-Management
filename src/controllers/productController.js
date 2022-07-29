@@ -125,63 +125,117 @@ const createProduct = async function (req, res) {
     }
 }
 
-const getProduct = async function (req, res) {
+// const getProduct = async function (req, res) {
+//     try {
+//         let body = req.query
+
+//         let { title, availableSizes, } = body
+//         // let filterQuery = { isDeleted: true }
+//         //check the title is valid
+//         if (title !== undefined) {
+//             if (!valid.titleValidationRegex(title)) {
+//                 return res.status(400).send({ status: false, message: "please enter valid name" }) //** check
+//             }
+//         }
+//         //check the size value is present
+//         if (availableSizes !== undefined) {
+//             if (!valid.isValidSize(availableSizes)) {
+//                 return res.status(400).send({ status: false, message: "please enter valid size" }) //** check
+//             }
+//         }
+
+//         let filter = {
+//             ...body,
+//             isDeleted: false
+//         };
+
+//         const Getbooks = await productModel.find(filter)
+//             // console.log(findFilterProduct)
+
+//             if (Getbooks.length == 0)
+//             return res.status(404).send({ status: false, message: "No product is found" });
+
+//         //sort alphabetically
+//         Getbooks.sort(function (a, b) {
+//             const nameA = a.title;
+//             const nameB = b.title;
+//             if (nameA < nameB) { return -1; }
+//             if (nameA > nameB) { return 1; }
+//             return 0;
+//         });
+//         let findFilterProduct = await productModel.find({ isDeleted: false })
+
+//         if (findFilterProduct.length == 0) { return res.status(404).send({ status: false, Products: "Product's not available.... cool down, we will add product's soon........😎😎😎😎😎😎😎😎" }) }
+//         let arr = []
+//         for (let i = 0; i < findFilterProduct.length; i++) {
+//             if (findFilterProduct[i].price >= 1000 && findFilterProduct[i].price <= 1000) {
+//                 arr.push(findFilterProduct[i])
+//             }
+//         }
+//         body.findFilterProduct = findFilterProduct
+
+//         return res.status(200).send({ status: true, Products: Getbooks })
+//     }
+//     catch (err) {
+//         return res.status(500).send({
+//             status: false,
+//             error: err.message
+//         })
+//     }
+// }
+
+
+const getProductByQuery = async (req, res) => {
     try {
-        let body = req.query
-
-        let { title, availableSizes, } = body
-        // let filterQuery = { isDeleted: true }
-        //check the title is valid
-        if (title !== undefined) {
-            if (!valid.titleValidationRegex(title)) {
-                return res.status(400).send({ status: false, message: "please enter valid name" }) //** check
+        const filterQuery = { isDeleted: false }
+        const data = req.query
+        // -----------------DESTRUCTURING requestBody---------------------
+        let { size, name, priceGreaterThan, priceLessThan, priceSort } = data
+        
+        // ------------CHECKING and VALIDATING every key to get the product details------------
+        if (size) {
+            if (!valid.isValidSize(size)) return res.status(400).send({ status: false, message: `Size should be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
+            filterQuery['availableSizes'] = size
+        }
+        if (name) {
+            if (!valid.nameValidationRegex(name)) return res.status(400).send({ status: false, message: 'name is invalid' })
+            filterQuery['title'] = name
+        }
+        if (priceGreaterThan && priceLessThan) {
+            if (!(valid.priceValidationRegex(priceGreaterThan) || valid.priceValidationRegex(priceLessThan))) return res.status(400).send({ status: false, message: "Price must be a valid number" })
+            filterQuery['price'] = { $gte: priceGreaterThan, $lte: priceLessThan }
+        }
+        else if (priceGreaterThan) {
+            if (!valid.priceValidationRegex(priceGreaterThan)) return res.status(400).send({ status: false, message: "Price must be a valid number" })
+            filterQuery['price'] = { $gte: priceGreaterThan }
+        }
+        else if (priceLessThan) {
+            if (!valid.priceValidationRegex(priceLessThan)) return res.status(400).send({ status: false, message: "Price must be a valid number" })
+            filterQuery['price'] = { $lte: priceLessThan }
+        }
+        if (priceSort) {
+            if (priceSort != 1 && priceSort != -1)
+                return res.status(400).send({ status: false, message: "Please provide only 1 for ascending or -1 for descending" })
+            if (priceSort == 1) {
+                const products = await productModel.find(filterQuery).sort({ price: 1 })
+                if (products.length == 0) return res.status(404).send({ status: false, message: 'No products found' })
+                return res.status(200).send({ status: true, message: 'Success', data: products })
+            }
+            if (priceSort == -1) {
+                const products = await productModel.find(filterQuery).sort({ price: -1 })
+                if (!products.length) return res.status(404).send({ status: false, message: 'No products found' })
+                return res.status(200).send({ status: true, message: 'Success', data: products })
             }
         }
-        //check the size value is present
-        if (availableSizes !== undefined) {
-            if (!valid.isValidSize(availableSizes)) {
-                return res.status(400).send({ status: false, message: "please enter valid size" }) //** check
-            }
-        }
-        
-        let filter = {
-            ...body,
-            isDeleted: false
-        };
-        
-        const Getbooks = await productModel.find(filter)
-            // console.log(findFilterProduct)
+        // -------------------------VALIDATION ends here-------------------------
 
-            if (Getbooks.length == 0)
-            return res.status(404).send({ status: false, message: "No product is found" });
-            
-        //sort alphabetically
-        Getbooks.sort(function (a, b) {
-            const nameA = a.title;
-            const nameB = b.title;
-            if (nameA < nameB) { return -1; }
-            if (nameA > nameB) { return 1; }
-            return 0;
-        });
-        let findFilterProduct = await productModel.find({ isDeleted: false })
-        
-        if (findFilterProduct.length == 0) { return res.status(404).send({ status: false, Products: "Product's not available.... cool down, we will add product's soon........😎😎😎😎😎😎😎😎" }) }
-        let arr = []
-        for (let i = 0; i < findFilterProduct.length; i++) {
-            if (findFilterProduct[i].price >= 1000 && findFilterProduct[i].price <= 1000) {
-                arr.push(findFilterProduct[i])
-            }
-        }
-        body.findFilterProduct = findFilterProduct
-
-        return res.status(200).send({ status: true, Products: Getbooks })
+        const products = await productModel.find(filterQuery)
+        if (!products) return res.status(404).send({ status: false, message: 'No products found' })
+        return res.status(200).send({ status: true, message: "Success", data: products })
     }
     catch (err) {
-        return res.status(500).send({
-            status: false,
-            error: err.message
-        })
+        return res.status(500).send({ Error: err.message })
     }
 }
 
-module.exports = { createProduct, getProduct }
+module.exports = { createProduct, /*getProduct*/   getProductByQuery }
