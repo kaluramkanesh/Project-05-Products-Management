@@ -19,19 +19,21 @@ Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
 
 
 
-//------ create product-------------------------------------------
+//------ Create Product-------------------------------------------
 Router.post("/products" ,productController.createProduct)
 
-//------ get product-------------------------------------------
-Router.get("/products" ,productController.getProduct)
+Router.get("/products",productController.getProductByQuery)
 
-//------ get product by Id-------------------------------------------
+//------ Get Product-------------------------------------------
+Router.get("/products" ,productController.getProductByQuery)
+
+//------ Get Product By Id-------------------------------------------
 Router.get("/products/:productId" ,productController.getproductbyId)
 
-//------ update product by Id-------------------------------------------
+//------ Update Product By Id-------------------------------------------
 Router.put("/products/:productId" ,productController.updateProductById)
 
-//------ delete product by Id-------------------------------------------
+//------ Delete Product By Id-------------------------------------------
 Router.delete("/products/:productId" ,productController.deletProductById)
 
 

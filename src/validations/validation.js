@@ -45,6 +45,7 @@ const titleValidationRegex = function (value){
 }
 
 const priceValidationRegex = function (value){
+    // return /^[+-]?([0-9]+(\.[0-9]+)?|\.[0-9]+)$/.test(value)
     return /^\d{0,8}[.]?\d{1,4}$/.test(value)
 }
 
