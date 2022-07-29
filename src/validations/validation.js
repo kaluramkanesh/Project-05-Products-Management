@@ -45,25 +45,25 @@ const titleValidationRegex = function (value){
 }
 
 const priceValidationRegex = function (value){
-    return /^[+-]?([0-9]+(\.[0-9]+)?|\.[0-9]+)$/.test(value)
+    return /^\d{0,8}[.]?\d{1,4}$/.test(value)
 }
 
 const regPincode = function (value){
-    return /^[1-9][0-9]{5}$/.test(value)
+    return /^\d+(\.\d{2})?$/.test(value)
 }
-// const regCurrency = function(value){
-//     return /^[₹]{1}$/.test(value)
-// }
+const regCurrency = function(value){
+    return /^[₹]{1}$/.test(value)
+}
 
-const isValidSize = (Size) => {
+const isValidSize = (value) => {
     let correctSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-    return (correctSize.includes(Size))
+    return (correctSize.includes(value))
 }
 
 
 module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
      phoneValidationRegex, passwordValidationRegex,
-     regPincode,titleValidationRegex,priceValidationRegex, isValidSize}
+     regPincode,regCurrency,titleValidationRegex,priceValidationRegex, isValidSize}
 
 // ^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$
 

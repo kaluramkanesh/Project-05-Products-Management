@@ -38,7 +38,7 @@ let uploadFile = async (file) => {
 const createProduct = async function (req, res) {
     try {
         let data = req.body
-        let { title, description, price, currencyId, currencyFormat, availableSizes, style } = data
+        let { title, description, price, currencyId, currencyFormat, availableSizes, style, installments } = data
 
         let files = req.files
 
@@ -73,13 +73,6 @@ const createProduct = async function (req, res) {
             return res.status(400).send({
                 status: false,
                 message: "title is already present in the DB"
-            })
-        }
-
-        if (await productModel.findOne({ title: title })) {
-            return res.status(400).send({
-                status: false,
-                message: "title is allready exist"
             })
         }
 
@@ -154,6 +147,13 @@ const createProduct = async function (req, res) {
             return res.status(400).send({
                 status: false,
                 message: "style is in string format"
+            })
+        }
+
+        if (!valid.isValid(installments)) {
+            return res.status(400).send({
+                status: false,
+                message: "installments is in string format"
             })
         }
 
@@ -348,12 +348,13 @@ const updateProductById = async function (req, res) {
                     message: "currencyId should be in string format and can't be a any white spaces"
                 })
             }
-            // if(!valid.regCurrencyId(currencyId)){
-            //     return res.status(400).send({
-            //         status: false,
-            //         message: "you have to put only one currencyId : INR, or it is already present"
-            //     })
-            // }
+            if (currencyId !== "INR" || currencyId === "undifined") {
+                return res.status(400).send({
+                    status: false,
+                    msg: "you have to put only one currencyId : INR, or it is already present"
+                })
+            }
+            
             obj["currencyId"] = currencyId.trim().split(" ").filter(x => x).join(" ")
         }
 
@@ -364,18 +365,13 @@ const updateProductById = async function (req, res) {
                     message: "currencyFormat should be in string format and can't be a any white spaces"
                 })
             }
-            // if (currencyFormat !== "₹" && currencyFormat === "undifined") {
-            //     return res.status(400).send({
-            //         status: false,
-            //         msg: "you have to put only one currencyFormat : ₹, or it is already present"
-            //     })
-            // }
-            // if (!valid.regCurrency(currencyFormat)) {
-            //     return res.status(400).send({
-            //         status: false,
-            //         message: " "
-            //     })
-            // }
+            if (currencyFormat !== "₹" || currencyFormat === "undifined") {
+                return res.status(400).send({
+                    status: false,
+                    msg: "you have to put only one currencyFormat : ₹, or it is already present"
+                })
+            }
+            
             obj["currencyFormat"] = currencyFormat.trim().split(" ").filter(x => x).join(" ")
         }
 
@@ -405,8 +401,14 @@ const updateProductById = async function (req, res) {
                     message: "style should be in string format and can't be a any white spaces"
                 })
             }
-            obj["availableSizes"] = availableSizes.trim().split(" ").filter(x => x).join(" ")
+            obj["availableSizes"] = availableSizes.trim().toUpperCase().split(" ").filter(x => x).join(" ")
         }
+        
+        //   obj["availableSizes"] = availableSizes.split(',').map(x => x.trim().toUpperCase())
+        // if (availableSizes.map(x => valid.isValidSize(x)).filter(x => x === false).length !== 0){
+        //     console.log(availableSizes)
+        //     return res.status(400).send({ status:false, msg: "Size should be Among  S, XS, M, X, L, XXL, XL"})
+        // }
 
         if (installments) {
             if (!valid.isValid(installments)) {
@@ -454,7 +456,7 @@ const deletProductById = async function (req, res) {
             })
         }
 
-        let findProduct = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false },{ $set: { isDeleted: true } })  //{ new: true 
+        let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })  //{ new: true 
 
         if (!findProduct) {
             return res.status(404).send({ 
@@ -463,8 +465,10 @@ const deletProductById = async function (req, res) {
             })
         }
 
-        return res.status(200).send({ status: true, message: " successfully deleted" })
+        let updatedProduct = await productModel.findOneAndUpdate({ _id: productId }, { isDeleted: true, deletedAt:new Date() }, { new: true })
 
+
+        return res.status(200).send({ status: true, message: " successfully deleted" })
 
     } catch (error) {
 
