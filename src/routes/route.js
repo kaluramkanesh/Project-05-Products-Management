@@ -4,6 +4,7 @@ const productController = require("../controllers/productController")
 const Router = express.Router()
 const mid = require("../Middleware/Auth")
 
+
 /*-----------------------------User Register----------------------------*/
 Router.post("/register", userController.createUsers)
 
@@ -16,15 +17,27 @@ Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserByI
 /*------------------------Update User Api's---------------------------------*/
 Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
 
-//------product-------------------------------------------
+
+
+//------ create product-------------------------------------------
 Router.post("/products" ,productController.createProduct)
 
-Router.get("/products", productController.getProduct)
+//------ get product-------------------------------------------
+Router.get("/products" ,productController.getProduct)
+
+//------ get product by Id-------------------------------------------
+Router.get("/products/:productId" ,productController.getproductbyId)
+
+//------ update product by Id-------------------------------------------
+Router.put("/products/:productId" ,productController.updateProductById)
+
+//------ delete product by Id-------------------------------------------
+Router.delete("/products/:productId" ,productController.deletProductById)
 
 
 
 //************ checking your end point valid or not */
-Router.all("/****", function (req, res) {
+Router.all("/**", function (req, res) {
     res.status(404).send({
         status: false,
         message: "Make Sure Your Endpoint is Correct or Not!"
