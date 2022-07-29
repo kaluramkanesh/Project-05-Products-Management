@@ -4,27 +4,33 @@ const productSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim : true
     },
 
     description: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
 
     price: {
         type: Number,
-        required: true
+        required: true,
+        trim: true
     },
 
     currencyId: {
         type: String,
-        required: true //INR
+        required: true, //INR
+        trim: true
     },
 
     currencyFormat: {
         type: String,
-        required: true,
+        required: true, // ₹
+        trim: true
+        // enum: "₹"
     },
 
     isFreeShipping: {
@@ -38,7 +44,8 @@ const productSchema = new mongoose.Schema({
     },  // s3 link
 
     style: {
-        type: String
+        type: String,
+        trim: true
     },
 
     availableSizes: {
@@ -46,7 +53,8 @@ const productSchema = new mongoose.Schema({
     },
 
     installments: {
-        type: Number
+        type: Number,
+        trim: true
     },
 
     deletedAt: {

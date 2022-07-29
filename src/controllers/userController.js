@@ -1,5 +1,4 @@
 const userModel = require("../Models/userModel")
-const mongoose = require('mongoose')
 const jwt = require("jsonwebtoken")
 const valid = require("../validations/validation")
 const aws = require("aws-sdk")
@@ -486,6 +485,7 @@ const updateUser = async function (req, res) {
             msg: Err.message
         })
     }
+  
 }
 
 
