@@ -1,4 +1,3 @@
-// const aws1 = require ('../util/aws')
 const productModel = require("../Models/productModel")
 const valid = require("../validations/validation")
 const aws = require("aws-sdk")
@@ -40,6 +39,7 @@ const createProduct = async function (req, res) {
         let { title, description, price, currencyId, currencyFormat, availableSizes, style } = data
 
         let files = req.files
+
         if (!files || files.length == 0) return res.status(400).send({
             status: false, message: "no cover image found"
         })
@@ -129,7 +129,7 @@ const getProduct = async function (req, res) {
     try {
         let body = req.query
 
-        let { title, availableSizes, } = body
+        let { title, availableSizes } = body
         // let filterQuery = { isDeleted: true }
         //check the title is valid
         if (title !== undefined) {
