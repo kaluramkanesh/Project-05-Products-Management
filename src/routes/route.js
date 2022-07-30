@@ -22,6 +22,8 @@ Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
 //------ Create Product-------------------------------------------
 Router.post("/products" ,productController.createProduct)
 
+// Router.get("/products",productController.getProductByQuery)
+
 //------ Get Product-------------------------------------------
 Router.get("/products" ,productController.getProduct)
 

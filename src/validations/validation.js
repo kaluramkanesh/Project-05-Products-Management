@@ -31,9 +31,9 @@ const phoneValidationRegex = function (value) {
     return /^[6789]\w{9}$/.test(value)
 }
 
-// const regCurrencyId = function (value){
-//     return /^[I]{1}[N]{1}[R]{1}$/.text(value)
-// }
+const regCurrencyId = function (value){
+    return /^[I]{1}[N]{1}[R]{1}$/.text(value)
+}
 
 const passwordValidationRegex = function (value) {
     return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$/.test(value)
@@ -52,6 +52,7 @@ const priceValidationRegex = function (value){
 const regPincode = function (value){
     return /^\d+(\.\d{2})?$/.test(value)
 }
+
 const regCurrency = function(value){
     return /^[₹]{1}$/.test(value)
 }
@@ -63,8 +64,8 @@ const isValidSize = (value) => {
 
 
 module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
-     phoneValidationRegex, passwordValidationRegex,
-     regPincode,regCurrency,titleValidationRegex,priceValidationRegex, isValidSize}
+     phoneValidationRegex, passwordValidationRegex,regCurrency,
+     regPincode,titleValidationRegex,priceValidationRegex, isValidSize}
 
 // ^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$
 
