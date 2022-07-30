@@ -281,8 +281,8 @@ const getProduct = async function (req, res) {
             filter.availableSizes = size
         }
 
-        const getBooks = await productModel.find(filter)
-        if (getBooks.length == 0) {
+        const getProducts = await productModel.find(filter)
+        if (getProducts.length == 0) {
             return res.status(404).send({
                 status: false,
                 message: "product not found"
@@ -322,7 +322,7 @@ const getProduct = async function (req, res) {
         }
         return res.status(200).send({ 
             status: true, 
-            Products: getBooks 
+            Products: getProducts 
         })
     }
     catch (err) {
