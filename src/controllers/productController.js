@@ -33,7 +33,8 @@ let uploadFile = async (file) => {
     })
 }
 
-// ******************* POST /products */
+
+/*********************************Start's Create Product  Function *****************************************/
 
 const createProduct = async function (req, res) {
     try {
@@ -181,100 +182,105 @@ const createProduct = async function (req, res) {
     }
 }
 
+/*********************************End Create Product  Function *****************************************/
 
-//-----------------------getproduct
 
-const getProduct = async function (req, res) {
+/************************************Start's Get Product By Query Function****************************/
+
+const getProductByQuery = async (req, res) => {
     try {
-        let body = req.query
+        const filterQuery = { isDeleted: false }
 
-        let filter = {isDeleted: false};
+        const data = req.query
+        // -----------------DESTRUCTURING requestBody---------------------
+        let { size, name, priceGreaterThan, priceLessThan, priceSort } = data
 
-        let { name, size, priceGreaterThan, priceLessThan ,priceSort } = body
+        // ------------CHECKING and VALIDATING every key to get the product details------------
+        if (size) {
 
-        if (name !== undefined) {
-            const regName = new RegExp(name, "i")
-            filter.title = {$regex: regName}
+            if (!valid.isValidSize(size)) return res.status(400).send({ status: false, message: `Size should be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}` })
+
+            filterQuery['availableSizes'] = size
         }
 
-        if(priceGreaterThan){
-            filter.price = {$gt : priceGreaterThan}
-        }
-        if(priceLessThan){
-            filter.price = {$lt : priceLessThan}
-        }
+        if (name) {
 
-        if(size){
-            filter.availableSizes = size
+            if (!valid.nameValidationRegex(name)) return res.status(400).send({ status: false, message: 'name is invalid' })
+
+            filterQuery['title'] = name
         }
 
-        // if(priceSort){
-        //     console.log(priceSort)
-        //     filter.price = price
-        //     if(priceSort=="1"){
-        //         filter.price = price.sort(1) 
-        //     }
-        //     if(priceSort=="-1"){
-        //         filter.priceSort = price.sort(-1) 
-        //     }
-        //     return res.status(400).send({
-        //         status: false,
-        //         message: "this is wrong input in priceSort, put 1 for ascending order and put -1 for descending"
-        //     })
-        // } 
+        if (priceGreaterThan && priceLessThan) {
 
-        // if(priceSort){
-        //     console.log(priceSort);
+            if (!(valid.priceValidationRegex(priceGreaterThan) || valid.priceValidationRegex(priceLessThan)))
 
-        //    let sort = priceSort.sort((a, b) => {
-        //         if (a.price < b.price)
-        //           return -1;
-        //         if (a.region > b.region)
-        //           return 1;
-        //         return 0;
-        //       })
-        // }
+                return res.status(400).send({ status: false, message: "Price must be a valid number" })
 
-        const getBooks = await productModel.find(filter)
-        if(getBooks.length ==0){
-            return res.status(404).send({
-                status: false,
-                message: "product not found"
-            })
+            filterQuery['price'] = { $gte: priceGreaterThan, $lte: priceLessThan }
+
         }
-        if (getBooks.length == 0)
-            return res.status(404).send({ status: false, message: "No product is found" });
 
-        //sort alphabetically
-        // if(priceSort){
-        //     if(priceSort=="1"){
-                
-        //         getBooks.sort(function (a, b) {
-                    
-        //             if (a.price < b.price) { 
-        //                 console.log(priceSort)
-        //                 return getBooks; 
-        //             }
-        //             if (a.price > b.price) { 
-        //                 return getBooks; 
-        //             }
-        //             return "aalu";
-        //         });
-        //     }
-        // }
+        else if (priceGreaterThan) {
 
-        return res.status(200).send({ status: true, Products: getBooks })
+            if (!valid.priceValidationRegex(priceGreaterThan)) return res.status(400).send({ status: false, message: "Price must be a valid number" })
+
+            filterQuery['price'] = { $gte: priceGreaterThan }
+
+        }
+
+        else if (priceLessThan) {
+
+            if (!valid.priceValidationRegex(priceLessThan)) return res.status(400).send({ status: false, message: "Price must be a valid number" })
+
+            filterQuery['price'] = { $lte: priceLessThan }
+
+        }
+
+        if (priceSort) {
+
+            if (priceSort != 1 && priceSort != -1)
+
+                return res.status(400).send({ status: false, message: "Please provide only 1 for ascending or -1 for descending" })
+
+            if (priceSort == 1) {
+
+                const products = await productModel.find(filterQuery).sort({ price: 1 })
+
+                if (products.length == 0) return res.status(404).send({ status: false, message: 'No products found' })
+
+                return res.status(200).send({ status: true, message: 'Success', data: products })
+
+            }
+            if (priceSort == -1) {
+
+                const products = await productModel.find(filterQuery).sort({ price: -1 })
+
+                if (!products.length) return res.status(404).send({ status: false, message: 'No products found' })
+
+                return res.status(200).send({ status: true, message: 'Success', data: products })
+
+            }
+        }
+        // -------------------------VALIDATION ends here-------------------------
+
+        const products = await productModel.find(filterQuery)
+
+        if (!products) return res.status(404).send({ status: false, message: 'No products found' })
+
+        return res.status(200).send({ status: true, message: "Success", data: products })
+
     }
     catch (err) {
-        return res.status(500).send({
-            status: false,
-            error: err.message
-        })
+
+        return res.status(500).send({ Error: err.message })
+
     }
 }
 
+/****************************************End Get Product By Query Function************************************/
 
-//*******get product by Id */
+
+/*********************************Start's Get Product ById Function *****************************************/
 
 const getproductbyId = async function (req, res) {
     try {
@@ -309,9 +315,11 @@ const getproductbyId = async function (req, res) {
     }
 }
 
+/*********************************End Get Product ById Function *****************************************/
 
-//**************put api */
 
+
+/*********************************Start's Update Product ById Function *****************************************/
 
 const updateProductById = async function (req, res) {
     try {
@@ -473,8 +481,11 @@ const updateProductById = async function (req, res) {
     }
 }
 
+/*********************************End Update Product ById Function *****************************************/
 
-//----------------------deletProduct------------------------
+
+
+/*********************************Start's Delete Product ById Function *****************************************/
 
 const deletProductById = async function (req, res) {
 
@@ -510,6 +521,7 @@ const deletProductById = async function (req, res) {
     }
 }
 
+/*********************************Start's Delete Product ById Function *****************************************/
 
-module.exports = { createProduct, getProduct, getproductbyId, updateProductById, deletProductById }
+module.exports = { createProduct, getProductByQuery, getproductbyId, updateProductById, deletProductById }
 
