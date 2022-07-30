@@ -351,7 +351,7 @@ const updateProductById = async function (req, res) {
             if (currencyId !== "INR" || currencyId === "undifined") {
                 return res.status(400).send({
                     status: false,
-                    msg: "you have to put only one currencyId : , or it is already present"
+                    msg: "you have to put only one currencyId : INR, or it is already present"
                 })
             }
             

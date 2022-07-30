@@ -22,10 +22,8 @@ Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
 //------ Create Product-------------------------------------------
 Router.post("/products" ,productController.createProduct)
 
-Router.get("/products",productController.getProductByQuery)
-
 //------ Get Product-------------------------------------------
-Router.get("/products" ,productController.getProductByQuery)
+Router.get("/products" ,productController.getProduct)
 
 //------ Get Product By Id-------------------------------------------
 Router.get("/products/:productId" ,productController.getproductbyId)
@@ -35,7 +33,6 @@ Router.put("/products/:productId" ,productController.updateProductById)
 
 //------ Delete Product By Id-------------------------------------------
 Router.delete("/products/:productId" ,productController.deletProductById)
-
 
 
 //************ checking your end point valid or not */
