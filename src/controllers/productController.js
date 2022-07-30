@@ -144,21 +144,65 @@ const createProduct = async function (req, res) {
         }
 
         data.availableSizes = availableSizes.split(',').map(x => x.trim().toUpperCase())
+        // console.log(availableSizes, "tam")
+
+
+        
+        let sizes = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+        let withoutSpacesSizes = [];
+        availableSizes.trim().split(",").map(x => x.trim()).forEach(x => {if (valid.isValid(x)) withoutSpacesSizes.push(x) })
+        data.availableSizes = [...withoutSpacesSizes]
+        console.log(withoutSpacesSizes, "111")
+
+        let wrongSizes = []
+        for (let size of data.availableSizes){
+            if (!sizes.includes(size)) wrongSizes.push(size)
+            console.log(wrongSizes,"222")
+        }
+
+        if (wrongSizes.length > 0)
+        return res.status(400).send({ status:false, message: `${wrongSizes} sizes not [${sizes}].`})
+        data.availableSizes = availableSizes.toUpperCase()
+        console.log(availableSizes,"333")
+
+
+
+
+
+
+
+        // if(availableSizes){
+        // console.log(availableSizes, "mehta")
+
+        //     if((availableSizes !== ["S", "XS", "M", "X", "L", "XXL", "XL"]//&& availableSizes !== "XS" && availableSizes !== "M" && availableSizes !== "X" && availableSizes !== "L" && availableSizes !== "XXL" && availableSizes !== "XL"
+        //     )){
+        //         console.log(availableSizes, "GAU")
+        //         return res.status(400).send({
+        //             status: false,
+        //             message: `Size should be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}`
+        //         })
+        //     }
+        // }
+        // console.log(availableSizes, "tam")
+
+//         data.availableSizes = availableSizes.split(',').map(x => x.trim().toUpperCase())
+// console.log(availableSizes, " gau")
 
         // if (availableSizes.map(x => valid.isValidSize(x)).filter(x => x === false).length !== 0) {
+        //     console.log(availableSizes)
         //     return res.status(400).send({ status: false, msg: "Size should be Among  S, XS, M, X, L, XXL, XL" })
         // }
 
-        if (valid.isValidSize(availableSizes)) {
-            console.log(availableSizes)
+        // if (valid.isValidSize(availableSizes)) {
+        //     console.log(availableSizes)
 
-            return res.status(400).send({
-                status: false,
-                message: `Size should be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}`
-            })
-        }
+        //     return res.status(400).send({
+        //         status: false,
+        //         message: `Size should be among ${["S", "XS", "M", "X", "L", "XXL", "XL"]}`
+        //     })
+        // }
 
-        data.availableSizes = availableSizes.split(',').map(x => x.trim().toUpperCase())
+        // data.availableSizes = availableSizes.split(',').map(x => x.trim().toUpperCase())
 
 
         if (!valid.isValid(style)) {

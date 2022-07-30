@@ -56,9 +56,9 @@ const regCurrency = function(value){
     return /^[₹]{1}$/.test(value)
 }
 
-const isValidSize = (Size) => {
+const isValidSize = (value) => {
     let correctSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-    return (correctSize.includes(Size))
+    return (correctSize.includes(value))
 }
 
 
