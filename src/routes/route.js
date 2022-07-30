@@ -37,7 +37,6 @@ Router.put("/products/:productId" ,productController.updateProductById)
 Router.delete("/products/:productId" ,productController.deletProductById)
 
 
-
 //************ checking your end point valid or not */
 Router.all("/**", function (req, res) {
     res.status(404).send({

@@ -52,6 +52,7 @@ const priceValidationRegex = function (value){
 const regPincode = function (value){
     return /^[1-9][0-9]{5}$/.test(value)
 }
+
 const regCurrency = function(value){
     return /^[₹]{1}$/.test(value)
 }

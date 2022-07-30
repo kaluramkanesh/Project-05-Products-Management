@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+
 const productSchema = new mongoose.Schema({
     
     title: {
@@ -51,8 +52,7 @@ const productSchema = new mongoose.Schema({
 
     availableSizes: {
         type: [String],
-        //  enum: ["S", "XS", "M", "X", "L", "XXL", "XL"],
-        trim: true
+         trim: true
     },
 
     installments: {
