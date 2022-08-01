@@ -31,7 +31,7 @@ let uploadFile = async (file) => {
     })
 }
 
-// ******************* POST /products */
+/*********************************Start's Create Product  Function *****************************************/
 
 const createProduct = async function (req, res) {
     try {
@@ -184,9 +184,10 @@ const createProduct = async function (req, res) {
     }
 }
 
+/*********************************End Create Product  Function *****************************************/
 
 
-/************************************Start's Get Product ****************************/
+/************************************Start's Get Product By Query Function****************************/
 
 const getProduct = async function (req, res) {
     try {
@@ -264,6 +265,8 @@ const getProduct = async function (req, res) {
     }
 }
 
+/****************************************End Get Product By Query Function************************************/
+
 
 /*********************************Start's Get Product ById Function *****************************************/
 
@@ -300,8 +303,10 @@ const getproductbyId = async function (req, res) {
     }
 }
 
+/*********************************End Get Product ById Function *****************************************/
 
-//**************put api */
+
+/*********************************Start's Update Product ById Function *****************************************/
 
 
 const updateProductById = async function (req, res) {
@@ -484,7 +489,10 @@ const updateProductById = async function (req, res) {
 }
 
 
-//----------------------deletProduct------------------------
+/*********************************End Update Product ById Function *****************************************/
+
+
+/*********************************Start's Delete Product ById Function *****************************************/
 
 const deletProductById = async function (req, res) {
 
@@ -517,6 +525,7 @@ const deletProductById = async function (req, res) {
     }
 }
 
+/*********************************Start's Delete Product ById Function *****************************************/
 
 module.exports = { createProduct, getProduct, getproductbyId, updateProductById, deletProductById }
 
