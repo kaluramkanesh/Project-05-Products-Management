@@ -47,7 +47,7 @@ const createUsers = async function (req, res) {
         let files = req.files
         if (!files || files.length === 0) return res.status(400).send({
             status: false,
-            message: "No cover image found."
+            message: "profileImage field is mandatory"
         })
 
         let profileImage = await uploadFile(files[0])
@@ -101,7 +101,7 @@ const createUsers = async function (req, res) {
         if (await userModel.findOne({ email: email }))
             return res.status(400).send({
                 status: false,
-                message: "Email is already exist"
+                message: "Email is already exist in the DB"
             })
 
         if (!valid.emailValidationRegex(email)) {
@@ -111,12 +111,12 @@ const createUsers = async function (req, res) {
             })
         }
 
-        if (!valid.isValid(profileImage)) {
-            return res.status(400).send({
-                status: false,
-                msg: "profileImage field is mandatory"
-            });
-        }
+        // if (!valid.isValid(profileImage)) {
+        //     return res.status(400).send({
+        //         status: false,
+        //         msg: "profileImage field is mandatory"
+        //     });
+        // }
 
         if (!valid.isValid(phone)) {
             return res.status(400).send({
@@ -128,7 +128,7 @@ const createUsers = async function (req, res) {
         if (await userModel.findOne({ phone: phone }))
             return res.status(400).send({
                 status: false,
-                message: "Phone is already exist"
+                message: "Phone is already exist in the DB"
             })
 
         if (!valid.phoneValidationRegex(phone)) {
@@ -144,6 +144,14 @@ const createUsers = async function (req, res) {
                 msg: "password field is mandatory"
             });
         }
+
+        //password validation
+        if (!valid.passwordValidationRegex(password)) {
+            return res.status(400).send({ 
+                status: false,
+                message: "password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter"
+             })
+        }  
 
         if (!valid.isValid(address)) {
             return res.status(400).send({

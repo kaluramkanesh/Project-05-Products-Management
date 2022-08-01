@@ -142,21 +142,20 @@ const createProduct = async function (req, res) {
                 message: "please provide atleast one size among [S, XS, M, X, L, XXL, XL]"
             })
         }
-        console.log(availableSizes)
-        if (availableSizes) {
-            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
-            if (Array.isArray(availableSizes)) {
-                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-                let uniqueSizes = [...new Set(availableSizes)]
-                for (let i; i < uniqueSizes.length; i++) {
-                    if (enumArr.indexOf(i) == -1) {
-                        return res.status(400).send({ status: false, message: `'${i}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
-                    }
+    //  console.log(availableSizes,"1")
+     if (availableSizes) {
+        availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
+        if (Array.isArray(availableSizes)) {
+            let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+            let uniqueSizes = [...new Set(availableSizes)]
+            for (let ele of uniqueSizes) {
+                if (enumArr.indexOf(ele) == -1) {
+                    return res.status(400).send({ status: false, message: `'${ele}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
                 }
-                data.availableSizes = uniqueSizes
             }
+            data.availableSizes = uniqueSizes
         }
-        
+    }
         if (!valid.isValid(style)) {
             return res.status(400).send({
                 status: false,
@@ -177,7 +176,7 @@ const createProduct = async function (req, res) {
             data: productCreated
         })
     }
-
+    
     catch (err) {
         return res.status(500).send({
             status: false,
@@ -185,7 +184,7 @@ const createProduct = async function (req, res) {
         })
     }
 }
-
+  
 
 //-----------------------getproduct
 
@@ -306,7 +305,7 @@ const getProduct = async function (req, res) {
             }
             if (priceSort == -1) {
                 const products = await productModel.find(filter).sort({ price: -1 })
-                if (!products.length) return res.status(404).send({
+                if (products.length == 0) return res.status(404).send({
                     status: false,
                     message: 'No products found'
                 })
@@ -529,7 +528,7 @@ const updateProductById = async function (req, res) {
             if (!valid.isValid(price)) {
                 return res.status(400).send({
                     status: false,
-                    message: "description should be in string format and can't be a any white spaces"
+                    message: "price should be in string format and can't be a any white spaces"
                 })
             }
             obj["price"] = price.trim().split(" ").filter(x => x).join(" ")
@@ -586,21 +585,30 @@ const updateProductById = async function (req, res) {
             obj["style"] = style.trim().split(" ").filter(x => x).join(" ")
         }
 
+        console.log(availableSizes,"1")
         if (availableSizes) {
             if (!valid.isValid(availableSizes)) {
                 return res.status(400).send({
                     status: false,
-                    message: "style should be in string format and can't be a any white spaces"
+                    message: "availableSizes should be in string format and can't be a any white spaces"
                 })
             }
             obj["availableSizes"] = availableSizes.trim().toUpperCase().split(" ").filter(x => x).join(" ")
+            console.log(availableSizes,"2")
         }
-
-        //   obj["availableSizes"] = availableSizes.split(',').map(x => x.trim().toUpperCase())
-        // if (availableSizes.map(x => valid.isValidSize(x)).filter(x => x === false).length !== 0){
-        //     console.log(availableSizes)
-        //     return res.status(400).send({ status:false, msg: "Size should be Among  S, XS, M, X, L, XXL, XL"})
-        // }
+        if (availableSizes) {
+            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
+            if (Array.isArray(availableSizes)) {
+                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+                let uniqueSizes = [...new Set([...availableSizes])]
+                for (let ele; ele<uniqueSizes.length; ele++) {
+                    if (enumArr.indexOf(ele) == -1) {
+                        return res.status(400).send({ status: false, message: `'${ele}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
+                    }
+                }
+                
+                obj["availableSizes"] = uniqueSizes
+            } 
 
         if (installments) {
             if (!valid.isValid(installments)) {
@@ -621,13 +629,14 @@ const updateProductById = async function (req, res) {
             })
         }
         // console.log(updatedProduct)
-        return res.status(400).send({
-            status: false,
+        return res.status(200).send({
+            status: true,
             message: "successfully updated data",
             data: updatedProduct
         })
 
     }
+}
     catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
@@ -663,8 +672,6 @@ const deletProductById = async function (req, res) {
 
         return res.status(200).send({ status: true, message: " successfully deleted" })
 
-
-        return res.status(200).send({ status: true, message: " successfully deleted" })
 
     } catch (error) {
 
