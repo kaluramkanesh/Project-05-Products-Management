@@ -151,7 +151,7 @@ const createProduct = async function (req, res) {
             if (Array.isArray(availableSizes)) {
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set(availableSizes)]
-                for (let i; i < uniqueSizes.length; i++) {
+                for (let i of uniqueSizes) {
                     if (enumArr.indexOf(i) == -1) {
                         return res.status(400).send({ status: false, message: `'${i}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
                     }
@@ -422,12 +422,12 @@ const updateProductById = async function (req, res) {
         }
 
         if (productImage) {
-            if (Object.keys(productImage).length ==0) {
-                return res.status(400).send({
-                    status: false,
-                    message: "it is a file format"
-                })
-            }
+            // if (Object.keys(productImage).length ==0) {
+            //     return res.status(400).send({
+            //         status: false,
+            //         message: "it is a file format"
+            //     })
+            // }
             let files = req.files
             if (!files || files.length == 0) return res.status(400).send({
                 status: false, message: "no cover image found"
