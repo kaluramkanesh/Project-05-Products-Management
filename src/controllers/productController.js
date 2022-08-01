@@ -31,14 +31,14 @@ let uploadFile = async (file) => {
     })
 }
 
-/*********************************Start's Create Product  Function *****************************************/
+/************Start's Create Product  Function **************/
 
 const createProduct = async function (req, res) {
     try {
         let data = req.body
         let { title, description, price, currencyId, currencyFormat, availableSizes, style, installments } = data
 
-        //******for product image inserting */
+        //****for product image inserting */
         let files = req.files
 
         if (!files || files.length == 0) return res.status(400).send({
@@ -184,10 +184,10 @@ const createProduct = async function (req, res) {
     }
 }
 
-/*********************************End Create Product  Function *****************************************/
+/************End Create Product  Function **************/
 
 
-/************************************Start's Get Product By Query Function****************************/
+/*************Start's Get Product By Query Function*********/
 
 const getProduct = async function (req, res) {
     try {
@@ -265,10 +265,10 @@ const getProduct = async function (req, res) {
     }
 }
 
-/****************************************End Get Product By Query Function************************************/
+/*************End Get Product By Query Function*************/
 
 
-/*********************************Start's Get Product ById Function *****************************************/
+/************Start's Get Product ById Function **************/
 
 const getproductbyId = async function (req, res) {
     try {
@@ -303,10 +303,10 @@ const getproductbyId = async function (req, res) {
     }
 }
 
-/*********************************End Get Product ById Function *****************************************/
+/************End Get Product ById Function **************/
 
 
-/*********************************Start's Update Product ById Function *****************************************/
+/************Start's Update Product ById Function **************/
 
 
 const updateProductById = async function (req, res) {
@@ -489,10 +489,10 @@ const updateProductById = async function (req, res) {
 }
 
 
-/*********************************End Update Product ById Function *****************************************/
+/************End Update Product ById Function **************/
 
 
-/*********************************Start's Delete Product ById Function *****************************************/
+/************Start's Delete Product ById Function **************/
 
 const deletProductById = async function (req, res) {
 
@@ -525,7 +525,6 @@ const deletProductById = async function (req, res) {
     }
 }
 
-/*********************************Start's Delete Product ById Function *****************************************/
+/************Start's Delete Product ById Function **************/
 
 module.exports = { createProduct, getProduct, getproductbyId, updateProductById, deletProductById }
-
