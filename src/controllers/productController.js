@@ -430,6 +430,7 @@ const updateProductById = async function (req, res) {
             let productImage = await uploadFile(files[0])
             data.productImage = productImage
         }
+        
 
         if (style) {
             if (!valid.isValid(style)) {
