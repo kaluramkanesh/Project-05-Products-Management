@@ -1,39 +1,40 @@
 const userModel = require("../Models/userModel")
 const jwt = require("jsonwebtoken")
 const valid = require("../validations/validation")
-const aws = require("aws-sdk")
+// const aws = require("aws-sdk")
 const bcrypt = require("bcrypt")
+const aws = require("../util/aws")
 
 
 
 
-aws.config.update({
-    accessKeyId: "AKIAY3L35MCRVFM24Q7U",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
+// aws.config.update({
+//     accessKeyId: "AKIAY3L35MCRVFM24Q7U",
+//     secretAccessKey: "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",
+//     region: "ap-south-1"
+// })
 
-let uploadFile = async (file) => {
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
-        let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
+// let uploadFile = async (file) => {
+//     return new Promise(function (resolve, reject) {
+//         // this function will upload file to aws and return the link
+//         let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
 
-        var uploadParams = {
-            ACL: "public-read",
-            Bucket: "classroom-training-bucket",  //HERE
-            Key: "abc/" + file.originalname, //HERE 
-            Body: file.buffer
-        }
+//         var uploadParams = {
+//             ACL: "public-read",
+//             Bucket: "classroom-training-bucket",  //HERE
+//             Key: "abc/" + file.originalname, //HERE 
+//             Body: file.buffer
+//         }
 
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            // console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
-    })
-}
+//         s3.upload(uploadParams, function (err, data) {
+//             if (err) {
+//                 return reject({ "error": err })
+//             }
+//             // console.log("file uploaded succesfully")
+//             return resolve(data.Location)
+//         })
+//     })
+// }
 
 
 const createUsers = async function (req, res) {
@@ -50,7 +51,7 @@ const createUsers = async function (req, res) {
             message: "profileImage field is mandatory"
         })
 
-        let profileImage = await uploadFile(files[0])
+        let profileImage = await aws.uploadFile(files[0])
 
         data.profileImage = profileImage
 
@@ -396,11 +397,11 @@ const updateUser = async function (req, res) {
     try {
         let userId = req.params.userId.trim()
         let data = req.body
-        let { fname, lname, email, phone, password, profileImage, address } = data
+        let { fname, lname, email, phone, password, address } = data
        
         let obj = {};
 
-        if (Object.keys(data).length == 0) {
+        if (Object.keys(data).length == 0 && req.files.length == 0) {
             return res.status(400).send({
                 status: false,
                 msg: "For updating please put atleast one key"
@@ -472,16 +473,16 @@ const updateUser = async function (req, res) {
             obj["password"] = password.trim().split(" ").filter(word=>word).join("")
         }
         
-        if (profileImage) {
+        // if (profileImage) {
             let files = req.files
             if (!files || files.length === 0) return res.status(400).send({
                 status: false,
                 message: "No cover image found."
             })
-            profileImage = await uploadFile(files[0])
+            profileImage = await aws.uploadFile(files[0])
             obj.profileImage = profileImage
 
-        }
+        // }
         if(phone){
         if (!valid.phoneValidationRegex(phone)) {
             return res.status(400).send({

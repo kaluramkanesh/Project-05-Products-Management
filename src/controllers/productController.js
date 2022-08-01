@@ -1,35 +1,9 @@
 const productModel = require("../Models/productModel")
 const valid = require("../validations/validation")
-const aws = require("aws-sdk")
+const aws = require("../util/aws")
 
 
-aws.config.update({
-    accessKeyId: "AKIAY3L35MCRVFM24Q7U",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
 
-let uploadFile = async (file) => {
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
-        let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
-
-        var uploadParams = {
-            ACL: "public-read",
-            Bucket: "classroom-training-bucket",  //HERE
-            Key: "abc/" + file.originalname, //HERE 
-            Body: file.buffer
-        }
-
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            // console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
-    })
-}
 
 /*********************************Start's Create Product  Function *****************************************/
 
@@ -44,7 +18,7 @@ const createProduct = async function (req, res) {
         if (!files || files.length == 0) return res.status(400).send({
             status: false, message: "no cover image found"
         })
-        let productImage = await uploadFile(files[0])
+        let productImage = await aws.uploadFile(files[0])
         data.productImage = productImage
 
 
@@ -179,7 +153,7 @@ const createProduct = async function (req, res) {
             data: productCreated
         })
     }
-    
+
     catch (err) {
         return res.status(500).send({
             status: false,
@@ -311,15 +285,11 @@ const getproductbyId = async function (req, res) {
 
 
 /*********************************Start's Update Product ById Function *****************************************/
-
-
 const updateProductById = async function (req, res) {
     try {
 
         let data = req.body
         let productId = req.params.productId
-
-         
 
         let obj = {}
 
@@ -328,20 +298,19 @@ const updateProductById = async function (req, res) {
             return res.status(404).send({
                 status: false,
                 message: "productId not find"
-            })
+            }) 
         }
 
-        let { title, description, price, currencyId, currencyFormat,productImage, style, availableSizes, installments } = data
-        console.log(data.productImage)
+        let { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
 
-        if (Object.keys(data).length == 0) {
+        if (Object.keys(data).length == 0 && req.files.length == 0) {
             return res.status(400).send({
                 status: false,
                 message: "please put atleast one key for updating"
             })
         }
 
-        if (!valid.isValidObjectId(productId)) {    
+        if (!valid.isValidObjectId(productId)) {
             return res.status(400).send({
                 status: false,
                 message: "invalid product Id"
@@ -385,7 +354,7 @@ const updateProductById = async function (req, res) {
             if (!valid.isValid(price)) {
                 return res.status(400).send({
                     status: false,
-                    message: "price should be in string format and can't be a any white spaces"
+                    message: "description should be in string format and can't be a any white spaces"
                 })
             }
             obj["price"] = price.trim().split(" ").filter(x => x).join(" ")
@@ -422,20 +391,21 @@ const updateProductById = async function (req, res) {
             }
             obj["currencyFormat"] = currencyFormat.trim().split(" ").filter(x => x).join(" ")
         }
-       console.log(productImage,"1")
-        if (productImage) {
-            console.log(productImage,"2")
+
+        // if (productImage) {
+            // if (Object.keys(productImage).length ==0) {
+            //     return res.status(400).send({
+            //         status: false,
+            //         message: "it is a file format"
+            //     })
+            // }
             let files = req.files
             if (!files || files.length == 0) return res.status(400).send({
                 status: false, message: "no cover image found"
             })
-            let productImage = await uploadFile(files[0])
+            let productImage = await aws.uploadFile(files[0])
             obj.productImage = productImage
-        }
-
-        // let file = req.files
-        // let productImage1 = await uploadFile(file[0])
-        // data.productImage = productImage1
+        // }
 
         if (style) {
             if (!valid.isValid(style)) {
@@ -447,30 +417,21 @@ const updateProductById = async function (req, res) {
             obj["style"] = style.trim().split(" ").filter(x => x).join(" ")
         }
 
-        // console.log(availableSizes,"1")
         if (availableSizes) {
             if (!valid.isValid(availableSizes)) {
                 return res.status(400).send({
                     status: false,
-                    message: "availableSizes should be in string format and can't be a any white spaces"
+                    message: "style should be in string format and can't be a any white spaces"
                 })
             }
             obj["availableSizes"] = availableSizes.trim().toUpperCase().split(" ").filter(x => x).join(" ")
-            // console.log(availableSizes,"2")
         }
-        if (availableSizes) {
-            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
-            if (Array.isArray(availableSizes)) {
-                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-                let uniqueSizes = [...new Set([...availableSizes])]
-                for (let i; i < uniqueSizes.length; i++) {
-                    if (enumArr.indexOf(i) == -1) {
-                        return res.status(400).send({ status: false, message: `'${i}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
-                    }
-                }
-                
-                obj["availableSizes"] = uniqueSizes
-            } 
+
+        //   obj["availableSizes"] = availableSizes.split(',').map(x => x.trim().toUpperCase())
+        // if (availableSizes.map(x => valid.isValidSize(x)).filter(x => x === false).length !== 0){
+        //     console.log(availableSizes)
+        //     return res.status(400).send({ status:false, msg: "Size should be Among  S, XS, M, X, L, XXL, XL"})
+        // }
 
         if (installments) {
             if (!valid.isValid(installments)) {
@@ -491,18 +452,19 @@ const updateProductById = async function (req, res) {
             })
         }
         // console.log(updatedProduct)
-        return res.status(200).send({
-            status: true,
+        return res.status(400).send({
+            status: false,
             message: "successfully updated data",
             data: updatedProduct
         })
 
     }
-}
     catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
+
+
 
 
 /*********************************End Update Product ById Function *****************************************/
