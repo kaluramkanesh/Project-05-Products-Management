@@ -5,25 +5,16 @@ const aws = require("../util/aws")
 
 
 
-/*********************************Start's Create Product  Function *****************************************/
+/************Start's Create Product  Function **************/
 
 const createProduct = async function (req, res) {
     try {
         let data = req.body
         let { title, description, price, currencyId, currencyFormat, availableSizes, style, installments } = data
 
-        //******for product image inserting */
-        let files = req.files
-
-        if (!files || files.length == 0) return res.status(400).send({
-            status: false, message: "no cover image found"
-        })
-        let productImage = await aws.uploadFile(files[0])
-        data.productImage = productImage
-
 
         // ----------check if body is empty
-        if (Object.keys(data).length === 0) {
+        if (Object.keys(data).length == 0 && req.files.length == 0) {
             return res.status(400).send({
                 status: false,
                 message: "Body should not be empty please provide some data for create product"
@@ -100,18 +91,17 @@ const createProduct = async function (req, res) {
                 msg: "you have to put only one currencyFormat : ₹, or it is already present"
             })
         }
+        
+         //****for product image inserting */
+         let files = req.files
 
-        if (!valid.isValid(productImage)) {
-            return res.status(400).send({
-                status: false,
-                message: " product image required"
-            }) //** cheack
-        }
-        let file = req.files;
-        if (file && file.length > 0) {
-            data.productImage = await uploadFile(files[0]);
-        }
+         if (!files || files.length == 0) return res.status(400).send({
+             status: false, message: "product image is required and also insert product Image"
+         })
+         let productImage = await aws.uploadFile(files[0])
+         data.productImage = productImage
 
+       
         if (!valid.isValid(availableSizes)) {
             return res.status(400).send({
                 status: false,
@@ -162,10 +152,10 @@ const createProduct = async function (req, res) {
     }
 }
 
-/*********************************End Create Product  Function *****************************************/
+/************End Create Product  Function **************/
 
 
-/************************************Start's Get Product By Query Function****************************/
+/*************Start's Get Product By Query Function*********/
 
 const getProduct = async function (req, res) {
     try {
@@ -243,10 +233,10 @@ const getProduct = async function (req, res) {
     }
 }
 
-/****************************************End Get Product By Query Function************************************/
+/*************End Get Product By Query Function*************/
 
 
-/*********************************Start's Get Product ById Function *****************************************/
+/************Start's Get Product ById Function **************/
 
 const getproductbyId = async function (req, res) {
     try {
@@ -281,10 +271,12 @@ const getproductbyId = async function (req, res) {
     }
 }
 
-/*********************************End Get Product ById Function *****************************************/
+/************End Get Product ById Function **************/
 
 
-/*********************************Start's Update Product ById Function *****************************************/
+/************Start's Update Product ById Function **************/
+
+
 const updateProductById = async function (req, res) {
     try {
 
@@ -298,7 +290,7 @@ const updateProductById = async function (req, res) {
             return res.status(404).send({
                 status: false,
                 message: "productId not find"
-            }) 
+            })
         }
 
         let { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
@@ -392,20 +384,14 @@ const updateProductById = async function (req, res) {
             obj["currencyFormat"] = currencyFormat.trim().split(" ").filter(x => x).join(" ")
         }
 
-        // if (productImage) {
-            // if (Object.keys(productImage).length ==0) {
-            //     return res.status(400).send({
-            //         status: false,
-            //         message: "it is a file format"
-            //     })
-            // }
-            let files = req.files
-            if (!files || files.length == 0) return res.status(400).send({
-                status: false, message: "no cover image found"
-            })
-            let productImage = await aws.uploadFile(files[0])
-            obj.productImage = productImage
-        // }
+        //  Update productImage
+        let files = req.files
+        if (!files || files.length == 0) return res.status(400).send({
+            status: false, message: "Product Image not found"
+        })
+        let productImage = await aws.uploadFile(files[0])
+        obj.productImage = productImage
+
 
         if (style) {
             if (!valid.isValid(style)) {
@@ -465,12 +451,10 @@ const updateProductById = async function (req, res) {
 }
 
 
+/************End Update Product ById Function **************/
 
 
-/*********************************End Update Product ById Function *****************************************/
-
-
-/*********************************Start's Delete Product ById Function *****************************************/
+/************Start's Delete Product ById Function **************/
 
 const deletProductById = async function (req, res) {
 
@@ -503,7 +487,6 @@ const deletProductById = async function (req, res) {
     }
 }
 
-/*********************************Start's Delete Product ById Function *****************************************/
+/************Start's Delete Product ById Function **************/
 
 module.exports = { createProduct, getProduct, getproductbyId, updateProductById, deletProductById }
-

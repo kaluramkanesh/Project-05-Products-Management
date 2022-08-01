@@ -45,6 +45,15 @@ Router.post("/users/:userId/cart",mid.jwtValidation, cartController.createCart)
 //------ Delete cart By Id-------------------------------------------
 // Router.delete("/users/:userId/cart",mid.jwtValidation, cartController.deleteCartBYId)
 
+//*******************cartController */
+
+// ------createcart-------------------------------------
+
+Router.post("/users/:userId/cart",mid.jwtValidation,cartController.createCart)
+
+
+
+
 //************ checking your end point valid or not */
 Router.all("/**", function (req, res) {
     res.status(404).send({
