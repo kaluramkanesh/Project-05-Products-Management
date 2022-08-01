@@ -412,12 +412,12 @@ const updateProductById = async function (req, res) {
         }
 
         if (productImage) {
-            if (Object.keys(productImage).length ==0) {
-                return res.status(400).send({
-                    status: false,
-                    message: "it is a file format"
-                })
-            }
+            // if (Object.keys(productImage).length ==0) {
+            //     return res.status(400).send({
+            //         status: false,
+            //         message: "it is a file format"
+            //     })
+            // }
             let files = req.files
             if (!files || files.length == 0) return res.status(400).send({
                 status: false, message: "no cover image found"
