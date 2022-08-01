@@ -322,10 +322,10 @@ const updateProductById = async function (req, res) {
             return res.status(404).send({
                 status: false,
                 message: "productId not find"
-            })
+            }) 
         }
 
-        let { title, description, price, currencyId, currencyFormat, productImage, style, availableSizes, installments } = data
+        let { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
 
         if (Object.keys(data).length == 0) {
             return res.status(400).send({
@@ -416,7 +416,7 @@ const updateProductById = async function (req, res) {
             obj["currencyFormat"] = currencyFormat.trim().split(" ").filter(x => x).join(" ")
         }
 
-        if (productImage) {
+        // if (productImage) {
             // if (Object.keys(productImage).length ==0) {
             //     return res.status(400).send({
             //         status: false,
@@ -429,7 +429,7 @@ const updateProductById = async function (req, res) {
             })
             let productImage = await uploadFile(files[0])
             data.productImage = productImage
-        }
+        // }
 
         if (style) {
             if (!valid.isValid(style)) {

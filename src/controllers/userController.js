@@ -388,7 +388,7 @@ const updateUser = async function (req, res) {
     try {
         let userId = req.params.userId.trim()
         let data = req.body
-        let { fname, lname, email, phone, password, profileImage, address } = data
+        let { fname, lname, email, phone, password, address } = data
        
         let obj = {};
 
@@ -464,8 +464,18 @@ const updateUser = async function (req, res) {
             obj["password"] = password.trim().split(" ").filter(word=>word).join("")
         }
         
-        if (profileImage) {
-            let files = req.files
+        // if (profileImage) {
+        //     let files = req.files
+        //     if (!files || files.length === 0) return res.status(400).send({
+        //         status: false,
+        //         message: "No cover image found."
+        //     })
+        //     profileImage = await uploadFile(files[0])
+        //     obj.profileImage = profileImage
+        // }
+
+
+        let files = req.files
             if (!files || files.length === 0) return res.status(400).send({
                 status: false,
                 message: "No cover image found."
@@ -473,7 +483,8 @@ const updateUser = async function (req, res) {
             profileImage = await uploadFile(files[0])
             obj.profileImage = profileImage
 
-        }
+
+            
         if(phone){
         if (!valid.phoneValidationRegex(phone)) {
             return res.status(400).send({
