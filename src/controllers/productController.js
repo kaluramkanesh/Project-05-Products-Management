@@ -133,11 +133,10 @@ const createProduct = async function (req, res) {
                 message: " product image required"
             }) //** cheack
         }
-        // let file = req.files;
-        // if (file && file.length > 0) {
-        //     data.productImage = await uploadFile(files[0]);
-            
-        // }
+        let file = req.files;
+        if (file && file.length > 0) {
+            data.productImage = await uploadFile(files[0]);
+        }
 
         if (!valid.isValid(availableSizes)) {
             return res.status(400).send({
@@ -320,6 +319,8 @@ const updateProductById = async function (req, res) {
         let data = req.body
         let productId = req.params.productId
 
+         
+
         let obj = {}
 
         let checkProductId = await productModel.findById({ _id: productId, isDeleted: false })
@@ -330,7 +331,8 @@ const updateProductById = async function (req, res) {
             })
         }
 
-        let { title, description, price, currencyId, currencyFormat, productImage, style, availableSizes, installments } = data
+        let { title, description, price, currencyId, currencyFormat,productImage, style, availableSizes, installments } = data
+        console.log(data.productImage)
 
         if (Object.keys(data).length == 0) {
             return res.status(400).send({
@@ -339,7 +341,7 @@ const updateProductById = async function (req, res) {
             })
         }
 
-        if (!valid.isValidObjectId(productId)) {
+        if (!valid.isValidObjectId(productId)) {    
             return res.status(400).send({
                 status: false,
                 message: "invalid product Id"
@@ -420,21 +422,20 @@ const updateProductById = async function (req, res) {
             }
             obj["currencyFormat"] = currencyFormat.trim().split(" ").filter(x => x).join(" ")
         }
-
+       console.log(productImage,"1")
         if (productImage) {
-            // if (Object.keys(productImage).length ==0) {
-            //     return res.status(400).send({
-            //         status: false,
-            //         message: "it is a file format"
-            //     })
-            // }
+            console.log(productImage,"2")
             let files = req.files
             if (!files || files.length == 0) return res.status(400).send({
                 status: false, message: "no cover image found"
             })
             let productImage = await uploadFile(files[0])
-            data.productImage = productImage
+            obj.productImage = productImage
         }
+
+        // let file = req.files
+        // let productImage1 = await uploadFile(file[0])
+        // data.productImage = productImage1
 
         if (style) {
             if (!valid.isValid(style)) {
@@ -446,7 +447,7 @@ const updateProductById = async function (req, res) {
             obj["style"] = style.trim().split(" ").filter(x => x).join(" ")
         }
 
-        console.log(availableSizes,"1")
+        // console.log(availableSizes,"1")
         if (availableSizes) {
             if (!valid.isValid(availableSizes)) {
                 return res.status(400).send({
@@ -455,7 +456,7 @@ const updateProductById = async function (req, res) {
                 })
             }
             obj["availableSizes"] = availableSizes.trim().toUpperCase().split(" ").filter(x => x).join(" ")
-            console.log(availableSizes,"2")
+            // console.log(availableSizes,"2")
         }
         if (availableSizes) {
             availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
