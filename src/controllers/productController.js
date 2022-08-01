@@ -146,7 +146,7 @@ const createProduct = async function (req, res) {
             if (Array.isArray(availableSizes)) {
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set(availableSizes)]
-                for (let i; i < uniqueSizes.length; i++) {
+                for (let i of uniqueSizes) {
                     if (enumArr.indexOf(i) == -1) {
                         return res.status(400).send({ status: false, message: `'${i}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
                     }
