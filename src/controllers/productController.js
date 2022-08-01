@@ -133,6 +133,11 @@ const createProduct = async function (req, res) {
                 message: " product image required"
             }) //** cheack
         }
+        // let file = req.files;
+        // if (file && file.length > 0) {
+        //     data.productImage = await uploadFile(files[0]);
+            
+        // }
 
         if (!valid.isValid(availableSizes)) {
             return res.status(400).send({
@@ -151,9 +156,10 @@ const createProduct = async function (req, res) {
                         return res.status(400).send({ status: false, message: `'${i}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
                     }
                 }
+                data.availableSizes = uniqueSizes
             }
-            data.availableSizes = uniqueSizes
         }
+
         if (!valid.isValid(style)) {
             return res.status(400).send({
                 status: false,
@@ -456,9 +462,9 @@ const updateProductById = async function (req, res) {
             if (Array.isArray(availableSizes)) {
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set([...availableSizes])]
-                for (let ele; ele<uniqueSizes.length; ele++) {
-                    if (enumArr.indexOf(ele) == -1) {
-                        return res.status(400).send({ status: false, message: `'${ele}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
+                for (let i; i < uniqueSizes.length; i++) {
+                    if (enumArr.indexOf(i) == -1) {
+                        return res.status(400).send({ status: false, message: `'${i}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
                     }
                 }
                 
