@@ -38,8 +38,19 @@ Router.put("/products/:productId" ,productController.updateProductById)
 Router.delete("/products/:productId" ,productController.deletProductById)
 
 
+
 /*--------------------------Update Cart Api's-------------------------*/
 Router.put("/users/:userId/cart",mid.jwtValidation,cartController.updateCart)
+//*******************cartController */
+
+//------ Create Cart-------------------------------------------
+Router.post("/users/:userId/cart",mid.jwtValidation, cartController.createCart)
+
+//------ Delete cart By Id-------------------------------------------
+Router.delete("/users/:userId/cart",cartController.deleteCartBYId)
+
+
+
 
 
 //************ checking your end point valid or not */
