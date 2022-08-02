@@ -91,17 +91,17 @@ const createProduct = async function (req, res) {
                 msg: "you have to put only one currencyFormat : ₹, or it is already present"
             })
         }
-        
-         //****for product image inserting */
-         let files = req.files
 
-         if (!files || files.length == 0) return res.status(400).send({
-             status: false, message: "product image is required and also insert product Image"
-         })
-         let productImage = await aws.uploadFile(files[0])
-         data.productImage = productImage
+        //****for product image inserting */
+        let files = req.files
 
-       
+        if (!files || files.length == 0) return res.status(400).send({
+            status: false, message: "product image is required and also insert product Image"
+        })
+        let productImage = await aws.uploadFile(files[0])
+        data.productImage = productImage
+
+
         if (!valid.isValid(availableSizes)) {
             return res.status(400).send({
                 status: false,

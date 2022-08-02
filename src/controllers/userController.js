@@ -360,7 +360,6 @@ const updateUser = async function (req, res) {
         let userId = req.params.userId.trim()
         let data = req.body
         let { fname, lname, email, phone, password, address } = data
-
        
         let obj = {};
        
