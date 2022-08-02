@@ -39,17 +39,14 @@ Router.delete("/products/:productId" ,productController.deletProductById)
 
 // ************************************************************************************************************************//
 
+//*******************cartController */
+
 //------ Create Cart-------------------------------------------
 Router.post("/users/:userId/cart",mid.jwtValidation, cartController.createCart)
 
 //------ Delete cart By Id-------------------------------------------
-// Router.delete("/users/:userId/cart",mid.jwtValidation, cartController.deleteCartBYId)
+Router.delete("/users/:userId/cart",cartController.deleteCartBYId)
 
-//*******************cartController */
-
-// ------createcart-------------------------------------
-
-Router.post("/users/:userId/cart",mid.jwtValidation,cartController.createCart)
 
 
 
