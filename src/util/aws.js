@@ -1,68 +1,34 @@
-// const aws = require("aws-sdk")
+const aws = require("aws-sdk")
 
-const { isValid } = require("../validations/validation")
-
-// const aws1 = function () {
-//     aws.config.update({
-//         accessKeyId: "AKIAY3L35MCRVFM24Q7U",
-//         secretAccessKey: "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",
-//         region: "ap-south-1"
-//     })
-// }
-
-//     let uploadFile = async (file) => {
-//         return new Promise(function (resolve, reject) {
-//             // this function will upload file to aws and return the link
-//             let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
-
-//             var uploadParams = {
-//                 ACL: "public-read",
-//                 Bucket: "classroom-training-bucket",  //HERE
-//                 Key: "abc/" + file.originalname, //HERE 
-//                 Body: file.buffer
-//             }
-
-//             s3.upload(uploadParams, function (err, data) {
-//                 if (err) {
-//                     return reject({ "error": err })
-//                 }
-//                 // console.log("file uploaded succesfully")
-//                 return resolve(data.Location)
-//             })
-//         })
-//     }
+    aws.config.update({
+        accessKeyId: "AKIAY3L35MCRVFM24Q7U",
+        secretAccessKey: "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",
+        region: "ap-south-1"
+    })
 
 
-// module.exports={uploadFile, aws1}
+    let uploadFile = async (file) => {
+        return new Promise(function (resolve, reject) {
+            // this function will upload file to aws and return the link
+            let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
 
-avalilableSizes = avalilableSizes.split(',').map(x => x.trim().toUpperCase())
+            var uploadParams = {
+                ACL: "public-read",
+                Bucket: "classroom-training-bucket",  //HERE
+                Key: "abc/" + file.originalname, //HERE 
+                Body: file.buffer
+            }
 
-if (avalilableSizes.map(x => isValidSize(x)).filter(x => x === false).length !== 0)
-return resizeBy.status(400).send({ status:false, msg: "Size should be Among  S, XS, M, X, L, XXL, XL"})
-
-data.avalilableSizes = avalilableSizes
-
-
-
-const isValidSize = (Size) => {
-    let correctSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-    return (correctSize.includes(Size))
-}
-
-//  Price 
-if (priceGreaterThan || priceLessThan) {
-    filter.price = {}
-
-    if (priceGreaterThan) {
-        priceGreaterThan = Number(priceGreaterThan)
-        filter.price.$gt = priceGreaterThan
+            s3.upload(uploadParams, function (err, data) {
+                if (err) {
+                    return reject({ "error": err })
+                }
+                // console.log("file uploaded succesfully")
+                return resolve(data.Location)
+            })
+        })
     }
-    if (priceLessThan) {
-        priceLessThan = Number(priceLessThan)
-        filter.price.$lt = priceLessThan
-    }
-}
-//  ===================================================================== //
 
-if ((priceGreaterThan && priceLessThan) && (priceGreaterThan > priceLessThan))
-                return res.status(404).send({ status: false, message: "Invalid price range" })
+
+module.exports = {uploadFile}
+

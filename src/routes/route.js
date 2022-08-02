@@ -1,6 +1,7 @@
 const express = require("express")
 const userController = require("../controllers/userController")
 const productController = require("../controllers/productController")
+const cartController = require("../controllers/cartController")
 const Router = express.Router()
 const mid = require("../Middleware/Auth")
 
@@ -35,6 +36,22 @@ Router.put("/products/:productId" ,productController.updateProductById)
 
 //------ Delete Product By Id-------------------------------------------
 Router.delete("/products/:productId" ,productController.deletProductById)
+
+// ************************************************************************************************************************//
+
+//------ Create Cart-------------------------------------------
+Router.post("/users/:userId/cart",mid.jwtValidation, cartController.createCart)
+
+//------ Delete cart By Id-------------------------------------------
+// Router.delete("/users/:userId/cart",mid.jwtValidation, cartController.deleteCartBYId)
+
+//*******************cartController */
+
+// ------createcart-------------------------------------
+
+Router.post("/users/:userId/cart",mid.jwtValidation,cartController.createCart)
+
+
 
 
 //************ checking your end point valid or not */

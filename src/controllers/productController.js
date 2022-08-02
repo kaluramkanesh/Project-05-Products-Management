@@ -1,55 +1,20 @@
 const productModel = require("../Models/productModel")
 const valid = require("../validations/validation")
-const aws = require("aws-sdk")
+const aws = require("../util/aws")
 
 
-aws.config.update({
-    accessKeyId: "AKIAY3L35MCRVFM24Q7U",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
 
-let uploadFile = async (file) => {
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
-        let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
 
-        var uploadParams = {
-            ACL: "public-read",
-            Bucket: "classroom-training-bucket",  //HERE
-            Key: "abc/" + file.originalname, //HERE 
-            Body: file.buffer
-        }
-
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            // console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
-    })
-}
-
-/*********************************Start's Create Product  Function *****************************************/
+/************Start's Create Product  Function **************/
 
 const createProduct = async function (req, res) {
     try {
         let data = req.body
         let { title, description, price, currencyId, currencyFormat, availableSizes, style, installments } = data
 
-        //******for product image inserting */
-        let files = req.files
-
-        if (!files || files.length == 0) return res.status(400).send({
-            status: false, message: "no cover image found"
-        })
-        let productImage = await uploadFile(files[0])
-        data.productImage = productImage
-
 
         // ----------check if body is empty
-        if (Object.keys(data).length === 0) {
+        if (Object.keys(data).length == 0 && req.files.length == 0) {
             return res.status(400).send({
                 status: false,
                 message: "Body should not be empty please provide some data for create product"
@@ -127,12 +92,15 @@ const createProduct = async function (req, res) {
             })
         }
 
-        if (!valid.isValid(productImage)) {
-            return res.status(400).send({
-                status: false,
-                message: " product image required"
-            }) //** cheack
-        }
+        //****for product image inserting */
+        let files = req.files
+
+        if (!files || files.length == 0) return res.status(400).send({
+            status: false, message: "product image is required and also insert product Image"
+        })
+        let productImage = await aws.uploadFile(files[0])
+        data.productImage = productImage
+
 
         if (!valid.isValid(availableSizes)) {
             return res.status(400).send({
@@ -184,10 +152,10 @@ const createProduct = async function (req, res) {
     }
 }
 
-/*********************************End Create Product  Function *****************************************/
+/************End Create Product  Function **************/
 
 
-/************************************Start's Get Product By Query Function****************************/
+/*************Start's Get Product By Query Function*********/
 
 const getProduct = async function (req, res) {
     try {
@@ -241,7 +209,7 @@ const getProduct = async function (req, res) {
             }
             if (priceSort == -1) {
                 const products = await productModel.find(filter).sort({ price: -1 })
-                if (!products.length) return res.status(404).send({
+                if (products.length == 0) return res.status(404).send({
                     status: false,
                     message: 'No products found'
                 })
@@ -265,10 +233,10 @@ const getProduct = async function (req, res) {
     }
 }
 
-/****************************************End Get Product By Query Function************************************/
+/*************End Get Product By Query Function*************/
 
 
-/*********************************Start's Get Product ById Function *****************************************/
+/************Start's Get Product ById Function **************/
 
 const getproductbyId = async function (req, res) {
     try {
@@ -303,10 +271,10 @@ const getproductbyId = async function (req, res) {
     }
 }
 
-/*********************************End Get Product ById Function *****************************************/
+/************End Get Product ById Function **************/
 
 
-/*********************************Start's Update Product ById Function *****************************************/
+/************Start's Update Product ById Function **************/
 
 
 const updateProductById = async function (req, res) {
@@ -322,12 +290,12 @@ const updateProductById = async function (req, res) {
             return res.status(404).send({
                 status: false,
                 message: "productId not find"
-            }) 
+            })
         }
 
         let { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
 
-        if (Object.keys(data).length == 0) {
+        if (Object.keys(data).length == 0 && req.files.length == 0) {
             return res.status(400).send({
                 status: false,
                 message: "please put atleast one key for updating"
@@ -416,20 +384,14 @@ const updateProductById = async function (req, res) {
             obj["currencyFormat"] = currencyFormat.trim().split(" ").filter(x => x).join(" ")
         }
 
-        // if (productImage) {
-            // if (Object.keys(productImage).length ==0) {
-            //     return res.status(400).send({
-            //         status: false,
-            //         message: "it is a file format"
-            //     })
-            // }
-            let files = req.files
-            if (!files || files.length == 0) return res.status(400).send({
-                status: false, message: "no cover image found"
-            })
-            let productImage = await uploadFile(files[0])
-            data.productImage = productImage
-        // }
+        //  Update productImage
+        let files = req.files
+        if (!files || files.length == 0) return res.status(400).send({
+            status: false, message: "Product Image not found"
+        })
+        let productImage = await aws.uploadFile(files[0])
+        obj.productImage = productImage
+
 
         if (style) {
             if (!valid.isValid(style)) {
@@ -489,10 +451,10 @@ const updateProductById = async function (req, res) {
 }
 
 
-/*********************************End Update Product ById Function *****************************************/
+/************End Update Product ById Function **************/
 
 
-/*********************************Start's Delete Product ById Function *****************************************/
+/************Start's Delete Product ById Function **************/
 
 const deletProductById = async function (req, res) {
 
@@ -525,7 +487,6 @@ const deletProductById = async function (req, res) {
     }
 }
 
-/*********************************Start's Delete Product ById Function *****************************************/
+/************Start's Delete Product ById Function **************/
 
 module.exports = { createProduct, getProduct, getproductbyId, updateProductById, deletProductById }
-

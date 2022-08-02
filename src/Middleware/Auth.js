@@ -40,7 +40,7 @@ const jwtValidation = async function (req, res, next) {
         if (!validator.isValidObjectId(userId)) {
             return res.status(400).send({
                 status: false,
-                message: "userId is invalid"
+                message: "params's userId is invalid "
             })
         }
 
