@@ -192,7 +192,7 @@ const updateCart = async function (req, res) {
         if (cartData.items.length == 0) {
             return res.status(400).send({
                 status: false,
-                message: "There is no present product id in cart model "
+                msg: "this item you trying to remove is does't exist in your cart"
             })
         }
 
@@ -205,18 +205,18 @@ const updateCart = async function (req, res) {
 
         let productData = await productModel.findOne({ _id: productId })
 
+        if (!productData) { 
+            return res.status(404).send({ 
+                status: false, 
+                message: "Product not found with this product Id" 
+            }) 
+        }
+
         if (productData.isDeleted == true) {
             return res.status(400).send({
                 status: false,
                 message: "this product Id is deleted in DB"
             })
-        }
-
-        if (!productData) { 
-            return res.status(404).send({ 
-                status: false, 
-                message: "Product no found with product Id" 
-            }) 
         }
 
         if (!valid.removeProduct(removeProduct) && removeProduct !== 1) {
@@ -231,8 +231,10 @@ const updateCart = async function (req, res) {
             for (let i = 0; i < items.length; i++) {
                 if (items[i].productId == productId) {
                     
-                    cartData.totalPrice = cartData.totalPrice - productData.price * items[i].quantity
                     items.splice(i, 1)
+
+                    cartData.totalPrice = cartData.totalPrice - productData.price * items[i].quantity
+
                     cartData.totalItems = cartData.totalItems - 1
                 }
             }
@@ -244,12 +246,6 @@ const updateCart = async function (req, res) {
             })
         }
 
-        if (cartData.items.length == 0) {
-            return res.status(400).send({
-                status: false,
-                msg: "this item you trying to remove is does't exist in your cart"
-            })
-        }
         for (let i = 0; i < items.length; i++) {
             if (items[i].productId == productId) {
 
