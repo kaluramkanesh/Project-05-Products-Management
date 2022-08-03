@@ -1,5 +1,4 @@
 const cartModel = require("../Models/cartModel")
-const userModel = require("../Models/userModel")
 const valid = require("../validations/validation")
 const productModel = require("../Models/productModel")
 
@@ -174,7 +173,6 @@ const updateCart = async function (req, res) {
                 msg: "Product Id field is required"
             })
         }
-
 
         if (!valid.isValidObjectId(cartId)) {
             return res.status(400).send({
