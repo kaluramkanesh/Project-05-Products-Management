@@ -65,7 +65,7 @@ const isValidSize = (value) => {
 
 module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
      phoneValidationRegex, passwordValidationRegex,regCurrency,
-     regPincode,titleValidationRegex,priceValidationRegex, isValidSize}
+     regPincode,titleValidationRegex,priceValidationRegex, isValidSize,regCurrencyId}
 
 // ^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$
 

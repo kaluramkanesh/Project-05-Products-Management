@@ -37,15 +37,20 @@ Router.put("/products/:productId" ,productController.updateProductById)
 //------ Delete Product By Id-------------------------------------------
 Router.delete("/products/:productId" ,productController.deletProductById)
 
-// ************************************************************************************************************************//
 
+
+/*--------------------------Update Cart Api's-------------------------*/
+Router.put("/users/:userId/cart",cartController.updateCart)
 //*******************cartController */
 
 //------ Create Cart-------------------------------------------
 Router.post("/users/:userId/cart",mid.jwtValidation, cartController.createCart)
 
 //------ Delete cart By Id-------------------------------------------
-Router.delete("/users/:userId/cart",cartController.deleteCartBYId)
+Router.delete("/users/:userId/cart",mid.jwtValidation,cartController.deleteCartBYId)
+
+// ------------Get cart ----------------------------------------
+Router.get("/users/:userId/cart",mid.jwtValidation,cartController.getCartById)
 
 
 
