@@ -115,13 +115,24 @@ const updateCart = async function (req, res) {
 
         if (!productId) { return res.status(400).send({ status: false, msg: "Product Id field is required" }) }
 
-        if (!removeProduct) { return res.status(400).send({ status: false, msg: "removeProduct field is required" }) }
+        if (!valid.removeProduct(removeProduct) && removeProduct !== 1) { return res.status(400).send({ status: false, msg: "removeProduct field is required remove product will containt only 0 or 1 or " }) }
+
+
+        if (removeProduct != 0 && removeProduct != 1) { return res.status(400).send({ status: false, msg: "remove product will containt only 0 or 1" }) }
+
+        //  if (!removeProduct) { return res.status(400).send({ status: false, msg: "removeProduct field is required" }) }
+
 
         if (!valid.isValidObjectId(cartId)) { return res.status(400).send({ status: false, msg: "Please provide valid cart Id" }) }
 
         if (!valid.isValidObjectId(productId)) { return res.status(400).send({ status: false, msg: "Please provide valid Product Id" }) }
 
-        let cartData = await cartModel.findOne({ _id: cartId, userId: userId })
+        let cartData = await cartModel.findOne({ $or: [{ _id: cartId }, { userId: userId }] })
+
+        // console.log(cartData.items[0].productId.toString())
+        if (cartData.items.length == 0) { return res.status(400).send({ status: false, msg: "There is no present  product id in cart model " }) }
+
+        // if (!(cartData.items[0].productId.toString() == productId)) { return res.status(404).send({ status: false, msg: "Product Id is not found in cart model" }) }
 
         if (!cartData) { return res.status(400).send({ status: false, msg: "Cart does not axist" }) }
 
@@ -129,37 +140,47 @@ const updateCart = async function (req, res) {
 
         let productData = await productModel.findOne({ _id: productId, isDeleted: false })
 
+        console.log(productData.price)
+
         if (!productData) { return res.status(404).send({ status: false, msg: "Product no found with product Id" }) }
 
-        let price = productData.price
-
-        let quantity = cartData.items.filter(x => x.productId.toString() === productId[0].quantity)
-
-
-        if (removeProduct != 0 && removeProduct != 1) { return res.status(400).send({ status: false, msg: "remove product will cantaint only 0 or 1" }) }
-
+        let items = cartData.items
         if (removeProduct == 0) {
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].productId == productId) {
+                    cartData.totalPrice = cartData.totalPrice - productData.price * items[i].quantity
+                    items.splice(i, 1)
+                    cartData.totalItems = cartData.totalItems - 1
 
-            let deleteProductData = await cartModel.findByIdAndUpdate({ "items.productId": productId, _id: cartId }, { $pull: { items: { productId: productId } }, $inc: { totalPrice: -price * quantity, totalItems: -1 } }, { new: true })
-
-            return res.status(200).send({ status: true, message: "Cart Data updated successfully", data: deleteProductData })
-        }
-        if (removeProduct == 1) {
-
-            if (quantity > 1) {
-
-                let reduceProduct = await cartModel.findOneAndUpdate({ "items.productId": productId, cartId: cartId },
-                    { $inc: { "items.$.quantity": -1, totalPrice: -price } }, { new: true })
-
-                return res.status(200).send({ status: true, messsage: "product removed successfully", data: reduceProduct })
+                }
             }
-            else {
-                const deleteProduct = await cartModel.findOneAndUpdate({ "items.productId": productId, cartId: cartId },
-                    { $pull: { items: { productId: productId } }, $inc: { totalItems: -1, totalPrice: -price } }, { new: true })
-
-                return res.status(200).send({ status: true, messsage: "item removed successfully", data: deleteProduct })
+            cartData.save()
+            return res.status(200).send({ status: true, message: "success", data: cartData })
+        } else {
+            if (cartData.items.length == 0) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "this item you trying to remove is does't exist in your cart"
+                })
             }
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].productId == productId) {
+                    cartData.totalPrice = cartData.totalPrice - productData.price
+                    let quantity = items[i].quantity
+                    quantity = quantity - 1
+                    items[i].quantity = quantity
+                    if (items[i].quantity == 0) {
+                        items.splice(i, 1)
+                        cartData.totalItems = cartData.totalItems - 1
+                    }
+                }
+            }
+
+            cartData.save()
+            return res.status(200).send({ status: true, message: "success", data: cartData })
+
         }
+
 
     }
     catch (Err) {
@@ -202,5 +223,4 @@ const deleteCartBYId = async function (req, res) {
     }
 }
 
-
-module.exports = { createCart,updateCart, deleteCartBYId }
+module.exports = { createCart, updateCart, deleteCartBYId }
