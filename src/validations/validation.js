@@ -31,7 +31,7 @@ const phoneValidationRegex = function (value) {
     return /^[6789]\w{9}$/.test(value)
 }
 
-const regCurrencyId = function (value){
+const regCurrencyId = function (value) {
     return /^[I]{1}[N]{1}[R]{1}$/.text(value)
 }
 
@@ -40,20 +40,20 @@ const passwordValidationRegex = function (value) {
 }
 
 // -----------------product regex
-const titleValidationRegex = function (value){
+const titleValidationRegex = function (value) {
     return /^[A-Za-z0-9_*-]/.test(value)
 }
 
-const priceValidationRegex = function (value){
+const priceValidationRegex = function (value) {
     // return /^[+-]?([0-9]+(\.[0-9]+)?|\.[0-9]+)$/.test(value)
     return /^\d{0,8}[.]?\d{1,4}$/.test(value)
 }
 
-const regPincode = function (value){
+const regPincode = function (value) {
     return /^[1-9][0-9]{5}$/.test(value)
 }
 
-const regCurrency = function(value){
+const regCurrency = function (value) {
     return /^[₹]{1}$/.test(value)
 }
 
@@ -62,14 +62,22 @@ const isValidSize = (value) => {
     return (correctSize.includes(value))
 }
 
+const removeProduct = function(value) {
+    if (value == 0) {
+        return true
+    }
 
-module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
-     phoneValidationRegex, passwordValidationRegex,regCurrency,
-     regPincode,titleValidationRegex,priceValidationRegex, isValidSize,regCurrencyId}
+}
+
+module.exports = {
+    isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
+    phoneValidationRegex, passwordValidationRegex, regCurrency,
+    regPincode, titleValidationRegex, priceValidationRegex, isValidSize, regCurrencyId, removeProduct
+}
 
 // ^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$
 
-// /^\d*\.?\d*$/                              
+// /^\d*\.?\d*$/
 
 // /\d+\.?\d*/
 
