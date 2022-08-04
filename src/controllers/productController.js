@@ -3,8 +3,6 @@ const valid = require("../validations/validation")
 const aws = require("../util/aws")
 
 
-
-
 /************Start's Create Product  Function **************/
 
 const createProduct = async function (req, res) {
@@ -393,7 +391,7 @@ const updateProductById = async function (req, res) {
         obj.productImage = productImage
 
 
-        if (style) {
+        if (style) { 
             if (!valid.isValid(style)) {
                 return res.status(400).send({
                     status: false,
