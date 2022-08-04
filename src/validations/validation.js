@@ -62,16 +62,18 @@ const isValidSize = (value) => {
     return (correctSize.includes(value))
 }
 
-const removeProduct = function(value) {
+const removeProduct = function (value) {
     if (value == 0) {
         return true
     }
 }
 
 
-module.exports = { isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
-     phoneValidationRegex, passwordValidationRegex,regCurrency, removeProduct,
-     regPincode,titleValidationRegex,priceValidationRegex, isValidSize,regCurrencyId}
+module.exports = {
+    isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
+    phoneValidationRegex, passwordValidationRegex, regCurrency, removeProduct,
+    regPincode, titleValidationRegex, priceValidationRegex, isValidSize, regCurrencyId
+}
 
 // ^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$
 

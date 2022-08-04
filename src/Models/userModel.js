@@ -30,15 +30,15 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        min:8,
-        max:15
+        min: 8,
+        max: 15
     }, // encrypted password
     address: {
         shipping: {
             street: {
                 type: String,
                 // required: true,
-                trim:true
+                trim: true
             },
             city: {
                 type: String,
@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema({
             },
             city: {
                 type: String,
-                 required: true,
+                required: true,
                 //  trim:true
             },
             pincode: {

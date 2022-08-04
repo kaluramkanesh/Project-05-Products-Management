@@ -1,13 +1,13 @@
 const mongoose = require("mongoose")
 
 const productSchema = new mongoose.Schema({
-    
+
     title: {
         type: String,
         required: true,
         unique: true,
-        trim : true,
-        lowercase : true
+        trim: true,
+        lowercase: true
     },
 
     description: {
@@ -52,7 +52,7 @@ const productSchema = new mongoose.Schema({
 
     availableSizes: {
         type: [String],
-         trim: true
+        trim: true
     },
 
     installments: {
@@ -68,7 +68,7 @@ const productSchema = new mongoose.Schema({
     isDeleted: {
         type: Boolean,
         default: false
-    }   
-},{ timestimes: true })
+    }
+}, { timestimes: true })
 
-module.exports= mongoose.model("product", productSchema ) 
+module.exports = mongoose.model("product", productSchema) 

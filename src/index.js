@@ -9,20 +9,20 @@ const app = express()
 app.use(bodyParser.json())
 
 app.use(multer({
-    fileFilter : (req, file, cb) => {
-        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg"){
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
             cb(null, true);
-    
-        }else { 
+
+        } else {
             cb(null, false)
             return cb(new Error("BAD REQUEST"))
-        } 
+        }
     }
 }).any());
 
-app.use(function (e, req, res, next){ 
+app.use(function (e, req, res, next) {
     if (e.message == "BAD REQUEST")
-    return res.status(400).send({ status:false, message: "profileImage should be Only .png, .jpg and .jpeg format allowed!"})
+        return res.status(400).send({ status: false, message: "profileImage should be Only .png, .jpg and .jpeg format allowed!" })
     next()
 })
 

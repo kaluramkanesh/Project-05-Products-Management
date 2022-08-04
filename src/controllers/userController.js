@@ -356,13 +356,12 @@ const updateUser = async function (req, res) {
         let obj = {};
 
 
-        if (Object.keys(data).length == 0 ) {
+        if (Object.keys(data).length == 0 && req.files.length == 0) {
             return res.status(400).send({
                 status: false,
                 msg: "For updating please put atleast one key"
             })
         }
-        console.log(data, req.files)
 
         if (!valid.isValidObjectId(userId)) {
             return res.status(400).send({
@@ -432,7 +431,6 @@ const updateUser = async function (req, res) {
         }
 
         let files = req.files
-
         if (!files || files.length == 0) return res.status(400).send({
             status: false,
             message: "user profile Image not found"
