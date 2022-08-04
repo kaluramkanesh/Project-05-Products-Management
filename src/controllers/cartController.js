@@ -54,13 +54,13 @@ const createCart = async function (req, res) {
         // }
 
         if (cartData) {
-            if (!cartId) {
-                return res.status(400).send({ message: "cart id is requires" })
-            }
+            // if (!cartId) {
+            //     return res.status(400).send({ message: "cart id is requires" })
+            // }
 
-            if (cartId != cartData._id) {
-                return res.status(404).send({ message: "cart not found" })
-            }
+            // if (cartId != cartData._id) {
+            //     return res.status(404).send({ message: "cart not found" })
+            // }
 
             let item = cartData.items
 
@@ -205,6 +205,7 @@ const updateCart = async function (req, res) {
 
 
         let items = cartData.items
+
         if (removeProduct == 0) {
             for (let i = 0; i < items.length; i++) {
                 if (items[i].productId == productId) {
@@ -269,7 +270,7 @@ const deleteCartBYId = async function (req, res) {
 
 
         const updateCartDetails = await cartModel.findOneAndUpdate({ userId: userId }, { items: [], totalPrice: 0, totalItems: 0 })
-        res.status(200).send({ status: true, Message: 'sucessfully deleted' })
+        // res.status(200).send({ status: true, Message: 'sucessfully deleted' })
 
         console.log(updateCartDetails, "3")
 
