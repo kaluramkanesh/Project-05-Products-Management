@@ -7,7 +7,7 @@ const productModel = require("../Models/productModel")
 const createCart = async function (req, res) {
     try {
         let data = req.body
-        let userIdParams = req.params.userId
+        const userIdParams = req.params.userId
 
         let { cartId, productId } = data
 
@@ -139,10 +139,10 @@ const getCartById = async function (req, res) {
 
     try {
 
-        let userId = req.params.userId
+        const userId = req.params.userId
         let cart = await cartModel.findOne({ userId: userId })
 
-        console.log(cart.items[0].productId)
+        // console.log(cart.items[0].productId)
 
         if (cart.userId != userId) {
             return res.status(400).send({ status: false, message: "with this userId cart does not exist" })
@@ -166,7 +166,7 @@ const updateCart = async function (req, res) {
     try {
         let data = req.body
 
-        let userId = req.params.userId
+        const userId = req.params.userId
 
         let { cartId, productId, removeProduct } = data
 
@@ -294,7 +294,7 @@ const updateCart = async function (req, res) {
 const deleteCartBYId = async function (req, res) {
 
     try {
-        let userId = req.params.userId
+        const userId = req.params.userId
 
         if (!valid.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: "Invalid userId" });

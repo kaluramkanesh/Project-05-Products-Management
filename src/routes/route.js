@@ -2,6 +2,7 @@ const express = require("express")
 const userController = require("../controllers/userController")
 const productController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
+const orderController = require("../controllers/orderController")
 const Router = express.Router()
 const mid = require("../Middleware/Auth")
 
@@ -16,7 +17,7 @@ Router.post("/login", userController.userLogin);
 Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserById)
 
 /*------------------------Update User Api's---------------------------------*/
-Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
+Router.put("/user/:userId/profile", userController.updateUser)
 
 
 
@@ -51,6 +52,10 @@ Router.put("/users/:userId/cart", mid.jwtValidation, cartController.updateCart)
 
 //------ Delete cart By Id-------------------------------------------
 Router.delete("/users/:userId/cart", mid.jwtValidation, cartController.deleteCartBYId)
+
+
+
+Router.post("/users/:userId/orders", mid.jwtValidation, orderController.createOrder)
 
 
 

@@ -9,7 +9,7 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
 
-    item: [{
+    items: [{
         productId: {
             type: ObjectId,
             ref: "product",
@@ -27,7 +27,7 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
 
-    totalItem: {
+    totalItems: {
         type: Number,
         required: true
     },
