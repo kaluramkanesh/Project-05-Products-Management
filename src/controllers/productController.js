@@ -238,7 +238,7 @@ const getProduct = async function (req, res) {
 
 const getproductbyId = async function (req, res) {
     try {
-        let productId = req.params.productId
+        const productId = req.params.productId
 
         if (!valid.isValidObjectId(productId)) {
             return res.status(400).send({
@@ -279,7 +279,7 @@ const updateProductById = async function (req, res) {
     try {
 
         let data = req.body
-        let productId = req.params.productId
+        const productId = req.params.productId
 
         let obj = {}
 
@@ -458,7 +458,7 @@ const deletProductById = async function (req, res) {
 
     try {
 
-        let productId = req.params.productId;
+        const productId = req.params.productId;
 
         if (!valid.isValidObjectId(productId)) {
             return res.status(400).send({
