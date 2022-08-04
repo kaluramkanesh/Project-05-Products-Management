@@ -337,7 +337,7 @@ Send [form-data](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
   isDeleted: {boolean, default: false},
   createdAt: {timestamp},
   updatedAt: {timestamp},
-}
+} 
 ```
 
 
