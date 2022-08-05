@@ -2,6 +2,7 @@ const express = require("express")
 const userController = require("../controllers/userController")
 const productController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
+const orderController=require("../controllers/orderController")
 const Router = express.Router()
 const mid = require("../Middleware/Auth")
 
@@ -49,7 +50,7 @@ Router.post("/users/:userId/cart",mid.jwtValidation, cartController.createCart)
 //------ Delete cart By Id-------------------------------------------
 Router.delete("/users/:userId/cart",cartController.deleteCartBYId)
 
-
+Router.put("/users/:userId/orders",orderController.updateOrder)
 
 
 
