@@ -1,7 +1,9 @@
-const orderModel = require('../Models/orderModel')
-const cartModel = require('../Models/cartModel')
-const valid = require('../validations/validation')
+const orderModel = require("../Models/orderSchema")
+const cartModel = require("../Models/cartModel")
+const valid = require("../validations/validation")
 
+
+/*************************************Start's Create Order Api's Function******************************************/
 const createOrder = async function (req, res) {
     try {
         let data = req.body
@@ -85,7 +87,11 @@ const createOrder = async function (req, res) {
 }
 
 
-//********************update order */
+/*************************************End Create Order Api's Function******************************************/
+
+
+/*************************************Start's Update Order Api's Function******************************************/
+
 
 const updateOrder = async function (req, res) {
     try {
@@ -101,7 +107,8 @@ const updateOrder = async function (req, res) {
         if (!valid.isValidObjectId(orderId)) { return res.status(400).send({ status: false, message: "😢Invalid Order Id Please give correct order id " }) }
 
 
-        if (!["completed", "canceled"].includes(status)) {
+        if (!["pending", "completed", "canceled"].includes(status)) {
+
             return res.status(400).send({
                 status: false,
                 message: "Status should be only ['completed','canceled']"
@@ -124,6 +131,7 @@ const updateOrder = async function (req, res) {
             })
         }
         if (dbOrder.status == "canceled") {
+
             await cartModel.findOneAndUpdate({ userId: userId }, { items: [], totalItems: 0, totalPrice: 0 })
             return res.status(400).send({
                 status: false,
@@ -145,10 +153,16 @@ const updateOrder = async function (req, res) {
 
         return res.status(200).send({ status: false, message: " order succesfully updated" ,data :belongToUser })
 
+
     } catch (err) {
         console.log(err)
         res.status(500).send({ status: false, error: err.message })
     }
 }
 
+
 module.exports = { createOrder, updateOrder }
+
+/*************************************End Update Order Api's Function******************************************/
+
+

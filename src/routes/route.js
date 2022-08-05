@@ -2,7 +2,7 @@ const express = require("express")
 const userController = require("../controllers/userController")
 const productController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
-const orderController = require("../controllers/orderController")
+const orderController=require("../controllers/orderController")
 const Router = express.Router()
 const mid = require("../Middleware/Auth")
 
@@ -58,7 +58,7 @@ Router.delete("/users/:userId/cart", mid.jwtValidation, mid.authorization, cartC
 Router.post("/users/:userId/orders", mid.jwtValidation, mid.authorization, orderController.createOrder)
 Router.put("/users/:userId/orders", mid.jwtValidation, mid.authorization, orderController.updateOrder)
 
-
+Router.put("/users/:userId/orders",mid.jwtValidation,orderController.updateOrder)
 
 
 
