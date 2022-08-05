@@ -1,6 +1,5 @@
 const orderModel = require('../Models/orderModel')
 const cartModel = require('../Models/cartModel')
-const userModel = require('../Models/userModel')
 const valid = require('../validations/validation')
 
 const createOrder = async function (req, res) {
@@ -63,7 +62,7 @@ const createOrder = async function (req, res) {
         let sl = arr.slice(len, len.length)
         obj["totalQuantity"] = sl.join("")
 
-        console.log(sl.join(""))
+        // console.log(sl.join(""))
 
         // let arr1 = arr.splice(-1,1).join("")
         //  obj["totalQuantity"] = arr1
@@ -121,7 +120,7 @@ const updateOrder = async function (req, res) {
                 message: "order already completed"
             })
         }
-        if(dbOrder.status == "canceled"){
+        if(dbOrder.status == "canceled"){  
             return res.status(400).send({
                 status: false,
                 message: "order already canceled"
