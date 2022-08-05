@@ -247,11 +247,12 @@ const getproductbyId = async function (req, res) {
             })
         }
 
-        let checkProductId = await productModel.findById({ _id: productId })
-        if (!checkProductId) {
+        let checkProductId = await productModel.findById({ _id: productId, isDeleted : false })
+
+        if (!checkProductId && checkProductId.isDeleted == true) {
             return res.status(404).send({
                 status: false,
-                message: "no data availabe for this Id"
+                message: " data not found for this Id or have deleted"
             })
         }
 

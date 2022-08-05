@@ -215,11 +215,11 @@ const updateCart = async function (req, res) {
 
         let productData = await productModel.findOne({ _id: productId })
 
-        if (!productData) { 
-            return res.status(404).send({ 
-                status: false, 
-                message: "Product not found with this product Id" 
-            }) 
+        if (!productData) {
+            return res.status(404).send({
+                status: false,
+                message: "Product not found with this product Id"
+            })
         }
 
         if (productData.isDeleted == true) {
@@ -241,7 +241,7 @@ const updateCart = async function (req, res) {
         if (removeProduct == 0) {
             for (let i = 0; i < items.length; i++) {
                 if (items[i].productId == productId) {
-                    
+
                     items.splice(i, 1)
 
                     cartData.totalPrice = cartData.totalPrice - productData.price * items[i].quantity
@@ -265,7 +265,7 @@ const updateCart = async function (req, res) {
                 let quantity = items[i].quantity
                 quantity = quantity - 1
                 items[i].quantity = quantity
-                
+
                 if (items[i].quantity == 0) {
                     items.splice(i, 1)
                     cartData.totalItems = cartData.totalItems - 1

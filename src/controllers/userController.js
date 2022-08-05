@@ -176,9 +176,8 @@ const createUsers = async function (req, res) {
                         msg: "pincode field is mandatory..."
                     });
                 }
-                console.log(pincode)
+
                 if (shipping.pincode) {
-                    console.log(pincode)
 
                     if (!valid.regPincode(pincode)) return res.status(400).send({ status: false, message: "pincode is not in valid format" })
                     data["addresss.shipping.pincode"] = pincode
@@ -298,7 +297,6 @@ const userLogin = async function (req, res) {
             })
         }
         let compared = await bcrypt.compare(password, user.password)
-        // console.log(compared)
 
         if (!compared) {
             return res.status(400).send({
@@ -358,13 +356,12 @@ const updateUser = async function (req, res) {
         let obj = {};
 
 
-        if (Object.keys(data).length == 0 ) {
+        if (Object.keys(data).length == 0 && req.files.length == 0) {
             return res.status(400).send({
                 status: false,
                 msg: "For updating please put atleast one key"
             })
         }
-        console.log(data, req.files)
 
         if (!valid.isValidObjectId(userId)) {
             return res.status(400).send({
@@ -433,16 +430,13 @@ const updateUser = async function (req, res) {
             obj["password"] = hashedPass.trim().split(" ").filter(word => word).join("")
         }
 
-        //  Upload profileImage
         let files = req.files
-
         if (!files || files.length == 0) return res.status(400).send({
             status: false,
             message: "user profile Image not found"
         })
         profileImage = await aws.uploadFile(files[0])
         obj.profileImage = profileImage
-
 
         if (phone) {
             if (!valid.phoneValidationRegex(phone)) {
@@ -466,19 +460,18 @@ const updateUser = async function (req, res) {
             const { shipping, billing } = addresss
 
             if (address.shipping) {
+
                 const { street, city, pincode } = shipping
+
                 if (shipping.street) {
                     if (!valid.isValid(street)) {
                         return res.status(400).send({ status: false, message: "street is not valid" })
                     }
                     obj["addresss.shipping.street"] = street
-
                 }
-                // console.log(obj)
                 if (shipping.city) {
                     if (!valid.isValid(city)) return res.status(400).send({ status: false, message: "city is not valid" })
                     if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
-
                     obj["addresss.shipping.city"] = city
                 }
                 if (shipping.pincode) {
@@ -489,12 +482,13 @@ const updateUser = async function (req, res) {
             }
 
             if (addresss.billing) {
+
                 const { street, city, pincode } = billing
+
                 if (billing.street) {
                     if (!valid.isValid(street)) return res.status(400).send({ status: false, message: "street is not valid" })
                     obj["addresss.billing.street"] = street
                 }
-
                 if (billing.city) {
                     if (!valid.isValid(city)) return res.status(400).send({ status: false, message: "city is not valid" })
                     if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
@@ -506,7 +500,6 @@ const updateUser = async function (req, res) {
                     obj["addresss.billing.pincode"] = pincode
                 }
             }
-
             obj["address"] = addresss
         }
 
@@ -519,7 +512,6 @@ const updateUser = async function (req, res) {
         })
     }
 
-}
-
+} 
 
 module.exports = { userLogin, createUsers, getUserById, updateUser }

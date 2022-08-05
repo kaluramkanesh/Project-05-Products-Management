@@ -14,27 +14,27 @@ Router.post("/register", userController.createUsers)
 Router.post("/login", userController.userLogin);
 
 /*------------------------Get User Api's---------------------------------*/
-Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserById)
+Router.get("/user/:userId/profile", mid.jwtValidation, mid.authorization, userController.getUserById)
 
 /*------------------------Update User Api's---------------------------------*/
-Router.put("/user/:userId/profile", userController.updateUser)
+Router.put("/user/:userId/profile", mid.jwtValidation, mid.authorization, userController.updateUser)
 
 
 
 //------ Create Product-------------------------------------------
-Router.post("/products" ,productController.createProduct)
+Router.post("/products", productController.createProduct)
 
 //------ Get Product-------------------------------------------
-Router.get("/products" ,productController.getProduct)
+Router.get("/products", productController.getProduct)
 
 //------ Get Product By Id-------------------------------------------
-Router.get("/products/:productId" ,productController.getproductbyId)
+Router.get("/products/:productId", productController.getproductbyId)
 
 //------ Update Product By Id-------------------------------------------
-Router.put("/products/:productId" ,productController.updateProductById)
+Router.put("/products/:productId", productController.updateProductById)
 
 //------ Delete Product By Id-------------------------------------------
-Router.delete("/products/:productId" ,productController.deletProductById)
+Router.delete("/products/:productId", productController.deletProductById)
 
 
 
@@ -42,22 +42,23 @@ Router.delete("/products/:productId" ,productController.deletProductById)
 //*******************cartController */
 
 //------ Create Cart-------------------------------------------
-Router.post("/users/:userId/cart", mid.jwtValidation, cartController.createCart)
+Router.post("/users/:userId/cart", mid.jwtValidation, mid.authorization, cartController.createCart)
 
 //--------------------------get Cart Api's-------------------------*/
-Router.get("/users/:userId/cart", mid.jwtValidation, cartController.getCartById)
+Router.get("/users/:userId/cart", mid.jwtValidation, mid.authorization, cartController.getCartById)
 
 //--------------------------Update Cart Api's-------------------------*/
-Router.put("/users/:userId/cart", mid.jwtValidation, cartController.updateCart)
+Router.put("/users/:userId/cart", mid.jwtValidation, mid.authorization, cartController.updateCart)
 
 //------ Delete cart By Id-------------------------------------------
-Router.delete("/users/:userId/cart", mid.jwtValidation, cartController.deleteCartBYId)
+Router.delete("/users/:userId/cart", mid.jwtValidation, mid.authorization, cartController.deleteCartBYId)
 
 
 
-Router.post("/users/:userId/orders", mid.jwtValidation, orderController.createOrder)
+Router.post("/users/:userId/orders", mid.jwtValidation, mid.authorization, orderController.createOrder)
+Router.put("/users/:userId/orders", mid.jwtValidation, mid.authorization, orderController.updateOrder)
 
-Router.put("/users/:userId/orders",mid.jwtValidation,orderController.updateOrder)
+
 
 
 

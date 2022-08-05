@@ -12,7 +12,7 @@ const jwtValidation = async function (req, res, next) {
         let token = req.headers["authorization"]
 
         if (!token) {
-            return res.status(401).send({
+            return res.status(400).send({
                 status: false,
                 message: "token is not present"
             })
@@ -23,16 +23,30 @@ const jwtValidation = async function (req, res, next) {
         if (token) {
             jwt.verify(token, "project-5", (err, decoded) => {
                 if (err) {
-                    return res.status(403).send({
+                    return res.status(401).send({
                         status: false,
-                        message: "token is invalid"
+                        message: "Authentication Failed"
                     })
                 }
                 else {
                     req.token = decoded
+                    next()
                 }
             })
         }
+    }
+    catch (err) {
+        return res.status(500).send({
+            status: false,
+            message: err.message
+        })
+    }
+}
+
+//******************authorization */
+
+const authorization = async function (req, res, next) {
+    try {
 
         let userLoggedIn = req.token.userId
         let userId = req.params.userId
@@ -63,3 +77,4 @@ const jwtValidation = async function (req, res, next) {
 
 
 module.exports.jwtValidation = jwtValidation
+module.exports.authorization = authorization
