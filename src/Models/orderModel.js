@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Schema.Types.ObjectId
+
 const orderSchema = new mongoose.Schema({
 
     userId: {
@@ -7,7 +8,8 @@ const orderSchema = new mongoose.Schema({
         ref: "user",
         required: true
     },
-    item: [{
+
+    items: [{
         productId: {
             type: ObjectId,
             ref: "product",
@@ -24,10 +26,12 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    totalItem: {
+
+    totalItems: {
         type: Number,
         required: true
     },
+
     totalQuantity: {
         type: Number,
         required: true
@@ -45,7 +49,11 @@ const orderSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
-    isDeleted: { type: Boolean, default: false },
+
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
 
 
 }, { timestamps: true })

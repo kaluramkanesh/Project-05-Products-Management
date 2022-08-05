@@ -17,14 +17,12 @@ Router.post("/login", userController.userLogin);
 Router.get("/user/:userId/profile", mid.jwtValidation, userController.getUserById)
 
 /*------------------------Update User Api's---------------------------------*/
-Router.put("/user/:userId/profile",mid.jwtValidation, userController.updateUser)
+Router.put("/user/:userId/profile", userController.updateUser)
 
 
 
 //------ Create Product-------------------------------------------
 Router.post("/products" ,productController.createProduct)
-
-// Router.get("/products",productController.getProductByQuery)
 
 //------ Get Product-------------------------------------------
 Router.get("/products" ,productController.getProduct)
@@ -40,15 +38,24 @@ Router.delete("/products/:productId" ,productController.deletProductById)
 
 
 
-/*--------------------------Update Cart Api's-------------------------*/
-Router.put("/users/:userId/cart",mid.jwtValidation,cartController.updateCart)
+
 //*******************cartController */
 
 //------ Create Cart-------------------------------------------
-Router.post("/users/:userId/cart",mid.jwtValidation, cartController.createCart)
+Router.post("/users/:userId/cart", mid.jwtValidation, cartController.createCart)
+
+//--------------------------get Cart Api's-------------------------*/
+Router.get("/users/:userId/cart", mid.jwtValidation, cartController.getCartById)
+
+//--------------------------Update Cart Api's-------------------------*/
+Router.put("/users/:userId/cart", mid.jwtValidation, cartController.updateCart)
 
 //------ Delete cart By Id-------------------------------------------
-Router.delete("/users/:userId/cart",cartController.deleteCartBYId)
+Router.delete("/users/:userId/cart", mid.jwtValidation, cartController.deleteCartBYId)
+
+
+
+Router.post("/users/:userId/orders", mid.jwtValidation, orderController.createOrder)
 
 Router.put("/users/:userId/orders",orderController.updateOrder)
 

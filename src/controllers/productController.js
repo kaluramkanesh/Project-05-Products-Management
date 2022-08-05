@@ -3,8 +3,6 @@ const valid = require("../validations/validation")
 const aws = require("../util/aws")
 
 
-
-
 /************Start's Create Product  Function **************/
 
 const createProduct = async function (req, res) {
@@ -240,7 +238,7 @@ const getProduct = async function (req, res) {
 
 const getproductbyId = async function (req, res) {
     try {
-        let productId = req.params.productId
+        const productId = req.params.productId
 
         if (!valid.isValidObjectId(productId)) {
             return res.status(400).send({
@@ -281,7 +279,7 @@ const updateProductById = async function (req, res) {
     try {
 
         let data = req.body
-        let productId = req.params.productId
+        const productId = req.params.productId
 
         let obj = {}
 
@@ -393,7 +391,7 @@ const updateProductById = async function (req, res) {
         obj.productImage = productImage
 
 
-        if (style) {
+        if (style) { 
             if (!valid.isValid(style)) {
                 return res.status(400).send({
                     status: false,
@@ -460,7 +458,7 @@ const deletProductById = async function (req, res) {
 
     try {
 
-        let productId = req.params.productId;
+        const productId = req.params.productId;
 
         if (!valid.isValidObjectId(productId)) {
             return res.status(400).send({

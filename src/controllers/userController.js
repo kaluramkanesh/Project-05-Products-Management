@@ -5,8 +5,7 @@ const bcrypt = require("bcrypt")
 const aws = require("../util/aws")
 
 
-
-
+//************create api of users */
 const createUsers = async function (req, res) {
     try {
 
@@ -34,17 +33,17 @@ const createUsers = async function (req, res) {
         }
 
         //<-------These validations for Mandatory fields--------->//
-       
+
         if (!valid.isValid(fname)) {
             return res.status(400).send({ status: false, message: "fname is required and should not be empty string" })
         }
-    
+
         //validate name
         if (!valid.nameValidationRegex(fname)) {
             return res.status(400).send({ status: false, message: `fname contain only alphabets` })
 
         }
-    
+
         if (!valid.isValid(lname)) {
             return res.status(400).send({
                 status: false,
@@ -60,7 +59,7 @@ const createUsers = async function (req, res) {
             })
 
         }
-        
+
         if (!valid.isValid(email)) {
             return res.status(400).send({
                 status: false,
@@ -110,11 +109,11 @@ const createUsers = async function (req, res) {
 
         //password validation
         if (!valid.passwordValidationRegex(password)) {
-            return res.status(400).send({ 
+            return res.status(400).send({
                 status: false,
                 message: "password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter"
-             })
-        }  
+            })
+        }
 
         if (!valid.isValid(address)) {
             return res.status(400).send({
@@ -122,7 +121,6 @@ const createUsers = async function (req, res) {
                 msg: "address field is mandatory"
             });
         }
-
 
         if (address == "") return res.status(400).send({ status: false, message: "Don't leave address Empty" })
         if (data.address) {
@@ -134,21 +132,18 @@ const createUsers = async function (req, res) {
             let addresss = JSON.parse(address)
 
             const { shipping, billing } = addresss
-            // console.log(shipping, billing)
-            
 
-            // console.log(shipping)
-            if (!valid.isValid(shipping)){
+            if (!valid.isValid(shipping)) {
                 return res.status(400).send({
                     status: false,
                     msg: "shipping field is mandatory..."
                 });
             }
-            
+
             if (shipping) {
                 const { street, city, pincode } = shipping
-                
-                if (!valid.isValid(street)){ 
+
+                if (!valid.isValid(street)) {
                     console.log(street)
                     return res.status(400).send({
                         status: false,
@@ -162,20 +157,20 @@ const createUsers = async function (req, res) {
                     }
                     data["addresss.shipping.street"] = street
                 }
-                if (!valid.isValid(city)){ 
+                if (!valid.isValid(city)) {
                     return res.status(400).send({
                         status: false,
-                        msg: "city field is mandatory..."
+                        msg: "city field is mandatory"
                     });
                 }
-                
+
                 if (shipping.city) {
-                    
+
                     if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
 
                     data["addresss.shipping.city"] = city
                 }
-                if (!valid.isValid(pincode)){ 
+                if (!valid.isValid(pincode)) {
                     return res.status(400).send({
                         status: false,
                         msg: "pincode field is mandatory..."
@@ -184,13 +179,13 @@ const createUsers = async function (req, res) {
                 console.log(pincode)
                 if (shipping.pincode) {
                     console.log(pincode)
-                    
+
                     if (!valid.regPincode(pincode)) return res.status(400).send({ status: false, message: "pincode is not in valid format" })
                     data["addresss.shipping.pincode"] = pincode
                 }
             }
 
-            if (!valid.isValid(billing)){
+            if (!valid.isValid(billing)) {
                 return res.status(400).send({
                     status: false,
                     msg: "billing field is mandatory..."
@@ -198,7 +193,7 @@ const createUsers = async function (req, res) {
             }
             if (billing) {
                 const { street, city, pincode } = billing
-                if (!valid.isValid(street)){ 
+                if (!valid.isValid(street)) {
                     console.log(street)
                     return res.status(400).send({
                         status: false,
@@ -211,7 +206,7 @@ const createUsers = async function (req, res) {
                     data["addresss.billing.street"] = street
                 }
 
-                if (!valid.isValid(city)){ 
+                if (!valid.isValid(city)) {
                     return res.status(400).send({
                         status: false,
                         msg: "city field is mandatory..."
@@ -219,12 +214,12 @@ const createUsers = async function (req, res) {
                 }
 
                 if (billing.city) {
-                   
+
                     if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
                     data["addresss.billing.city"] = city
                 }
 
-                if (!valid.isValid(pincode)){ 
+                if (!valid.isValid(pincode)) {
                     return res.status(400).send({
                         status: false,
                         msg: "pincode field is mandatory..."
@@ -232,7 +227,7 @@ const createUsers = async function (req, res) {
                 }
 
                 if (billing.pincode) {
-                   
+
                     if (!valid.regPincode(pincode)) return res.status(400).send({ status: false, message: "pincode is not in valid format" })
                     data["addresss.billing.pincode"] = pincode
                 }
@@ -240,7 +235,6 @@ const createUsers = async function (req, res) {
             data["address"] = addresss
         }
 
-        // console.log(address)
         const salt = await bcrypt.genSalt(10);
         const hashedPass = await bcrypt.hash(password, salt)
         data.password = hashedPass;
@@ -360,11 +354,11 @@ const updateUser = async function (req, res) {
         let userId = req.params.userId.trim()
         let data = req.body
         let { fname, lname, email, phone, password, address } = data
-       
-        let obj = {};
-       
 
-        if (Object.keys(data).length == 0 && req.files.length == 0) {
+        let obj = {};
+
+
+        if (Object.keys(data).length == 0 ) {
             return res.status(400).send({
                 status: false,
                 msg: "For updating please put atleast one key"
@@ -392,7 +386,7 @@ const updateUser = async function (req, res) {
                     message: `fname contain only alphabets`
                 })
             }
-            obj["fname"] = fname.trim().split(" ").filter(word=>word).join(" ")
+            obj["fname"] = fname.trim().split(" ").filter(word => word).join(" ")
         }
 
         if (lname) {
@@ -408,8 +402,8 @@ const updateUser = async function (req, res) {
                     msg: `lname is not valid`,
                 })
             }
-            obj["lnmae"] = lname.trim().split(" ").filter(word=>word).join(" ")
-        } 
+            obj["lnmae"] = lname.trim().split(" ").filter(word => word).join(" ")
+        }
 
         if (email) {
             if (!valid.isValid(email)) {
@@ -426,38 +420,40 @@ const updateUser = async function (req, res) {
             }
             obj["email"] = email
         }
-        
+
         if (password) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPass = await bcrypt.hash(password, salt)
             if (!valid.passwordValidationRegex(password)) {
                 return res.status(400).send({
                     status: false,
                     message: `password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter`
                 })
             }
-            obj["password"] = password.trim().split(" ").filter(word=>word).join("")
+            obj["password"] = hashedPass.trim().split(" ").filter(word => word).join("")
         }
-        
+
         //  Upload profileImage
-            let files = req.files
-            console.log(data, req.files)
-            if (!files || files.length == 0) return res.status(400).send({
-                status: false,
-                message: "user profile Image not found"
-            })
-            profileImage = await aws.uploadFile(files[0])
-            obj.profileImage = profileImage
+        let files = req.files
+
+        if (!files || files.length == 0) return res.status(400).send({
+            status: false,
+            message: "user profile Image not found"
+        })
+        profileImage = await aws.uploadFile(files[0])
+        obj.profileImage = profileImage
 
 
-        if(phone){
-        if (!valid.phoneValidationRegex(phone)) {
-            return res.status(400).send({
-                status: false,
-                msg: "Please Enter valid Phone No. which is starts from 6,7,8,9"
-            })
+        if (phone) {
+            if (!valid.phoneValidationRegex(phone)) {
+                return res.status(400).send({
+                    status: false,
+                    msg: "Please Enter valid Phone No. which is starts from 6,7,8,9"
+                })
+            }
+            obj["phone"] = phone.trim().split(" ").filter(word => word).join("")
         }
-        obj["phone"] = phone.trim().split(" ").filter(word=>word).join("")
-    }
-        
+
         if (address == "") return res.status(400).send({ status: false, message: "Don't leave address Empty" })
         if (data.address) {
 
@@ -476,7 +472,7 @@ const updateUser = async function (req, res) {
                         return res.status(400).send({ status: false, message: "street is not valid" })
                     }
                     obj["addresss.shipping.street"] = street
-                    
+
                 }
                 // console.log(obj)
                 if (shipping.city) {
@@ -510,7 +506,7 @@ const updateUser = async function (req, res) {
                     obj["addresss.billing.pincode"] = pincode
                 }
             }
-           
+
             obj["address"] = addresss
         }
 
@@ -522,7 +518,7 @@ const updateUser = async function (req, res) {
             msg: Err.message
         })
     }
-  
+
 }
 
 
