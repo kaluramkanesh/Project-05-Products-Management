@@ -57,7 +57,7 @@ Router.delete("/users/:userId/cart", mid.jwtValidation, cartController.deleteCar
 
 Router.post("/users/:userId/orders", mid.jwtValidation, orderController.createOrder)
 
-Router.put("/users/:userId/orders",orderController.updateOrder)
+Router.put("/users/:userId/orders",mid.jwtValidation,orderController.updateOrder)
 
 
 
