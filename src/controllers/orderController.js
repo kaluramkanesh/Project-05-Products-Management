@@ -52,7 +52,6 @@ const createOrder = async function (req, res) {
         for (let i = 0; i < items.length; i++) {
             if (items[i].productId) {
                 arr.push(sum += items[i].quantity)
-
             }
         }
 
@@ -144,7 +143,7 @@ const updateOrder = async function (req, res) {
         let belongToUser = await orderModel.findOneAndUpdate({ _id: orderId, isDeleted: false },
             { status: status }, { new: true })
 
-        return res.status(200).send({ status: false, message: belongToUser })
+        return res.status(200).send({ status: false, message: " order succesfully updated" ,data :belongToUser })
 
     } catch (err) {
         console.log(err)
