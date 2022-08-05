@@ -2,6 +2,8 @@ const orderModel = require('../Models/orderModel')
 const cartModel = require('../Models/cartModel')
 const valid = require('../validations/validation')
 
+
+/*************************************Start's Create Order Api's Function******************************************/
 const createOrder = async function (req, res) {
     try {
         let data = req.body
@@ -84,7 +86,13 @@ const createOrder = async function (req, res) {
         })
     }
 }
-//***************************************************************/
+
+
+/*************************************End Create Order Api's Function******************************************/
+
+
+/*************************************Start's Update Order Api's Function******************************************/
+
 const updateOrder = async function (req, res) {
     try {
 
@@ -106,39 +114,39 @@ const updateOrder = async function (req, res) {
             })
         }
 
-        let dbOrder = await orderModel.findOne({_id:orderId, userId:userId})
-        if(!dbOrder){
+        let dbOrder = await orderModel.findOne({ _id: orderId, userId: userId })
+        if (!dbOrder) {
             return res.status(400).send({
-                status: false, 
+                status: false,
                 message: "order in not present"
             })
         }
 
-        if(dbOrder.status == "completed"){
+        if (dbOrder.status == "completed") {
             return res.status(400).send({
                 status: false,
                 message: "order already completed"
             })
         }
-        if(dbOrder.status == "canceled"){  
+        if (dbOrder.status == "canceled") {
             return res.status(400).send({
                 status: false,
                 message: "order already canceled"
             })
         }
 
-        if(dbOrder.cancellable = false){
+        if (dbOrder.cancellable = false) {
             return res.status(400).send({
                 status: false,
                 message: "you can't cancelled this order"
             })
         }
 
-        await cartModel.findOneAndUpdate({ userId:userId }, {items : [],totalItems:0, totalPrice : 0})
+        await cartModel.findOneAndUpdate({ userId: userId }, { items: [], totalItems: 0, totalPrice: 0 })
 
         let belongToUser = await orderModel.findOneAndUpdate({ _id: orderId, isDeleted: false },
             { status: status }, { new: true })
-            
+
         return res.status(200).send({ status: false, message: belongToUser })
 
     } catch (err) {
@@ -146,5 +154,7 @@ const updateOrder = async function (req, res) {
         res.status(500).send({ status: false, error: err.message })
     }
 }
+
+/*************************************End Update Order Api's Function******************************************/
 
 module.exports = { createOrder, updateOrder }
