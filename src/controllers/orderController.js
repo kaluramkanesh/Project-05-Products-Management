@@ -131,7 +131,6 @@ const updateOrder = async function (req, res) {
             })
         }
         if (dbOrder.status == "canceled") {
-
             await cartModel.findOneAndUpdate({ userId: userId }, { items: [], totalItems: 0, totalPrice: 0 })
             return res.status(400).send({
                 status: false,
