@@ -13,19 +13,15 @@ const createUsers = async function (req, res) {
 
         let { fname, lname, email, phone, password, address } = data
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 75f0bb8bb34f1e2ae901afebbda2748949084f70
         //***********check if the body is empty**************//
 
         if (Object.keys(data).length == 0) {
             return res.status(400).send({
                 status: false,
-                message: "Body should not be Empty please enter some data to create user"
+                message: "Body should  be not Empty please enter some data to create user"
             })
         }
+
 
         //<-------These validations for Mandatory fields--------->//
 
@@ -42,7 +38,7 @@ const createUsers = async function (req, res) {
         if (!valid.isValid(lname)) {
             return res.status(400).send({
                 status: false,
-                message: "lname is required and should not be empty string"
+                msg: "lname field is mandatory"
             });
         }
 
@@ -58,7 +54,7 @@ const createUsers = async function (req, res) {
         if (!valid.isValid(email)) {
             return res.status(400).send({
                 status: false,
-                message: "email field is mandatory"
+                msg: "email field is mandatory"
             });
         }
 
@@ -71,47 +67,14 @@ const createUsers = async function (req, res) {
         if (!valid.emailValidationRegex(email)) {
             return res.status(400).send({
                 status: false,
-                message: "Enter valid email"
+                msg: "Enter valid email"
             })
         }
-
-        let files = req.files
-        if (!files || files.length == 0) return res.status(400).send({
-            status: false, message: "user image is required and also insert user Image"
-        })
-
-        let profileImage = await aws.uploadFile(files[0])
-        data.profileImage = profileImage
-
-
-        if (!valid.isValid(password)) {
-            return res.status(400).send({
-                status: false,
-                message: "password field is mandatory"
-            });
-        }
-
-        //password validation
-        if (!valid.passwordValidationRegex(password)) {
-            return res.status(400).send({
-                status: false,
-                message: "password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter"
-            })
-        }
-
-        let files = req.files
-        if (!files || files.length == 0) return res.status(400).send({
-            status: false,
-            message: "please insert profile Image "
-        })
-
-        let profileImage = await aws.uploadFile(files[0])
-        data.profileImage = profileImage
 
         if (!valid.isValid(phone)) {
             return res.status(400).send({
                 status: false,
-                message: "phone field is mandatory"
+                msg: "phone field is mandatory"
             });
         }
 
@@ -124,15 +87,29 @@ const createUsers = async function (req, res) {
         if (!valid.phoneValidationRegex(phone)) {
             return res.status(400).send({
                 status: false,
-                message: "Please Enter valid Phone No. which is starts from 6,7,8,9"
+                msg: "Please Enter valid Phone No. which is starts from 6,7,8,9"
             })
         }
 
+        if (!valid.isValid(password)) {
+            return res.status(400).send({
+                status: false,
+                msg: "password field is mandatory"
+            });
+        }
+
+        //password validation
+        if (!valid.passwordValidationRegex(password)) {
+            return res.status(400).send({
+                status: false,
+                message: "password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter"
+            })
+        }
 
         if (!valid.isValid(address)) {
             return res.status(400).send({
                 status: false,
-                message: "address field is mandatory"
+                msg: "address field is mandatory"
             });
         }
 
@@ -150,7 +127,7 @@ const createUsers = async function (req, res) {
             if (!valid.isValid(shipping)) {
                 return res.status(400).send({
                     status: false,
-                    message: "shipping field is mandatory..."
+                    msg: "shipping field is mandatory..."
                 });
             }
 
@@ -161,7 +138,7 @@ const createUsers = async function (req, res) {
                     console.log(street)
                     return res.status(400).send({
                         status: false,
-                        message: "street field is mandatory..."
+                        msg: "street field is mandatory..."
                     });
                 }
                 if (shipping.street) {
@@ -174,7 +151,7 @@ const createUsers = async function (req, res) {
                 if (!valid.isValid(city)) {
                     return res.status(400).send({
                         status: false,
-                        message: "city field is mandatory"
+                        msg: "city field is mandatory"
                     });
                 }
 
@@ -187,7 +164,7 @@ const createUsers = async function (req, res) {
                 if (!valid.isValid(pincode)) {
                     return res.status(400).send({
                         status: false,
-                        message: "pincode field is mandatory..."
+                        msg: "pincode field is mandatory..."
                     });
                 }
 
@@ -201,7 +178,7 @@ const createUsers = async function (req, res) {
             if (!valid.isValid(billing)) {
                 return res.status(400).send({
                     status: false,
-                    message: "billing field is mandatory..."
+                    msg: "billing field is mandatory..."
                 });
             }
             if (billing) {
@@ -210,7 +187,7 @@ const createUsers = async function (req, res) {
                     console.log(street)
                     return res.status(400).send({
                         status: false,
-                        message: "street field is mandatory..."
+                        msg: "street field is mandatory..."
                     });
                 }
 
@@ -222,7 +199,7 @@ const createUsers = async function (req, res) {
                 if (!valid.isValid(city)) {
                     return res.status(400).send({
                         status: false,
-                        message: "city field is mandatory..."
+                        msg: "city field is mandatory..."
                     });
                 }
 
@@ -235,7 +212,7 @@ const createUsers = async function (req, res) {
                 if (!valid.isValid(pincode)) {
                     return res.status(400).send({
                         status: false,
-                        message: "pincode field is mandatory..."
+                        msg: "pincode field is mandatory..."
                     });
                 }
 
@@ -307,7 +284,7 @@ const userLogin = async function (req, res) {
         if (!user) {
             return res.status(400).send({
                 status: false,
-                message: "please check your email"
+                msg: "please check your email"
             })
         }
         let compared = await bcrypt.compare(password, user.password)
@@ -327,12 +304,12 @@ const userLogin = async function (req, res) {
 
         )
 
-        return res.status(200).send({ status: true, message: "User login successfull", data: { userId: user._id, token: token } })
+        return res.status(200).send({ status: true, msg: "User login successfull", data: { userId: user._id, token: token } })
     }
     catch (error) {
         return res.status(500).send({
             status: false,
-            message: error.message
+            msg: error.message
         })
     }
 }
@@ -365,23 +342,22 @@ const updateUser = async function (req, res) {
     try {
         let userId = req.params.userId.trim()
         let data = req.body
-        data = JSON.parse(JSON.stringify(data))
-
         let { fname, lname, email, phone, password, address } = data
 
         let obj = {};
 
-        if (Object.keys(data).length == 0 && !req.files) {
+
+        if (Object.keys(data).length == 0 && req.files.length == 0) {
             return res.status(400).send({
                 status: false,
-                message: "for Creating user please put atleast one key"
+                msg: "For updating please put atleast one key"
             })
         }
 
         if (!valid.isValidObjectId(userId)) {
             return res.status(400).send({
                 status: false,
-                message: "User Id incorrect"
+                msg: "User Id incorrect"
             })
         }
 
@@ -389,7 +365,7 @@ const updateUser = async function (req, res) {
             if (!valid.isValid(fname)) {
                 return res.status(400).send({
                     status: false,
-                    message: "fname should be in string format and can't be a any white spaces",
+                    msg: "fname should be in string format and can't be a any white spaces",
                 })
             }
             if (!valid.nameValidationRegex(fname)) {
@@ -405,13 +381,13 @@ const updateUser = async function (req, res) {
             if (!valid.isValid(lname)) {
                 return res.status(400).send({
                     status: false,
-                    message: "lname should be in string format and can't be a any white spaces",
+                    msg: "lname should be in string format and can't be a any white spaces",
                 })
             }
             if (!valid.nameValidationRegex(lname)) {
                 return res.status(400).send({
                     status: false,
-                    message: `lname is not valid`,
+                    msg: `lname is not valid`,
                 })
             }
             obj["lnmae"] = lname.trim().split(" ").filter(word => word).join(" ")
@@ -421,13 +397,13 @@ const updateUser = async function (req, res) {
             if (!valid.isValid(email)) {
                 return res.status(400).send({
                     status: false,
-                    message: "lname should be in string format",
+                    msg: "lname should be in string format",
                 })
             }
             if (!valid.emailValidationRegex(email)) {
                 return res.status(400).send({
                     status: false,
-                    message: "Enter valid Email"
+                    msg: "Enter valid Email"
                 })
             }
             obj["email"] = email
@@ -446,20 +422,18 @@ const updateUser = async function (req, res) {
         }
 
         let files = req.files
-        if (data.hasOwnProperty("profileImage")) {
-            if (!files || files.length == 0) return res.status(400).send({
-                status: false, message: "please insert user image"
-            })
-        }
-        let profileImage = await aws.uploadFile(files[0])
-        obj["profileImage"] = profileImage
-
+        if (!files || files.length == 0) return res.status(400).send({
+            status: false,
+            message: "user profile Image not found"
+        })
+        profileImage = await aws.uploadFile(files[0])
+        obj.profileImage = profileImage
 
         if (phone) {
             if (!valid.phoneValidationRegex(phone)) {
                 return res.status(400).send({
                     status: false,
-                    message: "Please Enter valid Phone No. which is starts from 6,7,8,9"
+                    msg: "Please Enter valid Phone No. which is starts from 6,7,8,9"
                 })
             }
             obj["phone"] = phone.trim().split(" ").filter(word => word).join("")
@@ -525,10 +499,10 @@ const updateUser = async function (req, res) {
     } catch (Err) {
         return res.status(500).send({
             status: false,
-            message: Err.message
+            msg: Err.message
         })
     }
 
-}
+} 
 
 module.exports = { userLogin, createUsers, getUserById, updateUser }
