@@ -291,9 +291,10 @@ const updateProductById = async function (req, res) {
                 message: "productId not find"
             })
         }
+
         let { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
 
-        if (Object.keys(data).length == 0 && req.files !=0) {
+        if (Object.keys(data).length == 0 && req.files.length ==0) {
             return res.status(400).send({
                 status: false,
                 message: "please put atleast one key for updating"
@@ -385,8 +386,6 @@ const updateProductById = async function (req, res) {
         //  Update productImage
 
         let files = req.files
-console.log(files)
-
         if(files){
             if (data.hasOwnProperty("productImage")) {
                 if (!files || files.length == 0) return res.status(400).send({
@@ -394,6 +393,7 @@ console.log(files)
                 })
             }
             let productImage = await aws.uploadFile(files[0])
+            console.log(data)
             obj.productImage = productImage
         }
         

@@ -40,7 +40,7 @@ const createOrder = async function (req, res) {
             })
         }
 
-        let obj = { deletedAt: 0, isDeleted: 0 }
+        let obj = {}
 
         obj["userId"] = userId
         obj["totalPrice"] = cart.totalPrice
@@ -49,6 +49,7 @@ const createOrder = async function (req, res) {
         let items = cart.items
 
         obj["items"] = cart.items
+
         let sum = 0
         let arr = []
         for (let i = 0; i < items.length; i++) {
@@ -56,6 +57,8 @@ const createOrder = async function (req, res) {
                 arr.push(sum += items[i].quantity)
             }
         }
+        // obj["totalQuantity"] = arr.pop()
+        // console.log(arr.pop())
 
         obj["totalQuantity"] = arr.pop()
 
@@ -99,6 +102,7 @@ const updateOrder = async function (req, res) {
         let userId = req.params.userId
 
         let data = req.body
+        // console.log(data)
 
         let { orderId, status } = data
 
@@ -150,7 +154,7 @@ const updateOrder = async function (req, res) {
         let belongToUser = await orderModel.findOneAndUpdate({ _id: orderId, isDeleted: false },
             { status: status }, { new: true })
 
-        return res.status(200).send({ status: false, message: " order succesfully updated" ,data :belongToUser })
+        return res.status(200).send({ status: false, message: " order succesfully updated", data: belongToUser })
 
 
     } catch (err) {
