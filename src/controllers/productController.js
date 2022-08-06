@@ -247,7 +247,7 @@ const getproductbyId = async function (req, res) {
             })
         }
 
-        let checkProductId = await productModel.findById({ _id: productId, isDeleted : false })
+        let checkProductId = await productModel.findById({ _id: productId, isDeleted: false })
 
         if (!checkProductId && checkProductId.isDeleted == true) {
             return res.status(404).send({
@@ -281,7 +281,7 @@ const updateProductById = async function (req, res) {
 
         let data = req.body
         const productId = req.params.productId
-
+        data = JSON.parse(JSON.stringify(data))
         let obj = {}
 
         let checkProductId = await productModel.findById({ _id: productId, isDeleted: false })
@@ -291,10 +291,9 @@ const updateProductById = async function (req, res) {
                 message: "productId not find"
             })
         }
-
         let { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
 
-        if (Object.keys(data).length == 0 && req.files.length == 0) {
+        if (Object.keys(data).length == 0 && req.files !=0) {
             return res.status(400).send({
                 status: false,
                 message: "please put atleast one key for updating"
@@ -384,15 +383,22 @@ const updateProductById = async function (req, res) {
         }
 
         //  Update productImage
+
         let files = req.files
-        if (!files || files.length == 0) return res.status(400).send({
-            status: false, message: "Product Image not found"
-        })
-        let productImage = await aws.uploadFile(files[0])
-        obj.productImage = productImage
+console.log(files)
 
+        if(files){
+            if (data.hasOwnProperty("productImage")) {
+                if (!files || files.length == 0) return res.status(400).send({
+                    status: false, message: "please insert product image"
+                })
+            }
+            let productImage = await aws.uploadFile(files[0])
+            obj.productImage = productImage
+        }
+        
 
-        if (style) { 
+        if (style) {
             if (!valid.isValid(style)) {
                 return res.status(400).send({
                     status: false,
@@ -403,20 +409,18 @@ const updateProductById = async function (req, res) {
         }
 
         if (availableSizes) {
-            if (!valid.isValid(availableSizes)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "style should be in string format and can't be a any white spaces"
-                })
+            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
+            if (Array.isArray(availableSizes)) {
+                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+                let uniqueSizes = [...new Set(availableSizes)]
+                for (let i of uniqueSizes) {
+                    if (enumArr.indexOf(i) == -1) {
+                        return res.status(400).send({ status: false, message: `'${i}' is not a valid size, only these sizes are allowed [S, XS, M, X, L, XXL, XL]` })
+                    }
+                }
+                obj.availableSizes = uniqueSizes
             }
-            obj["availableSizes"] = availableSizes.trim().toUpperCase().split(" ").filter(x => x).join(" ")
         }
-
-        //   obj["availableSizes"] = availableSizes.split(',').map(x => x.trim().toUpperCase())
-        // if (availableSizes.map(x => valid.isValidSize(x)).filter(x => x === false).length !== 0){
-        //     console.log(availableSizes)
-        //     return res.status(400).send({ status:false, msg: "Size should be Among  S, XS, M, X, L, XXL, XL"})
-        // }
 
         if (installments) {
             if (!valid.isValid(installments)) {

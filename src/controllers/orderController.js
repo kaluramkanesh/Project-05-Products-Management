@@ -1,4 +1,4 @@
-const orderModel = require("../Models/orderSchema")
+const orderModel = require("../Models/orderModel")
 const cartModel = require("../Models/cartModel")
 const valid = require("../validations/validation")
 
