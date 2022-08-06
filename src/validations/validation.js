@@ -2,12 +2,10 @@ const mongoose = require("mongoose")
 
 const isValid = function (value) {
     if (typeof (value) == "undefined" || typeof (value) == null) {
-        console.log("1")
         return false
     }
 
     if (typeof (value) == "string" && (value).trim().length == 0) {
-        console.log("2")
         return false
     }
 
@@ -45,7 +43,6 @@ const titleValidationRegex = function (value) {
 }
 
 const priceValidationRegex = function (value) {
-    // return /^[+-]?([0-9]+(\.[0-9]+)?|\.[0-9]+)$/.test(value)
     return /^\d{0,8}[.]?\d{1,4}$/.test(value)
 }
 
@@ -57,11 +54,6 @@ const regCurrency = function (value) {
     return /^[₹]{1}$/.test(value)
 }
 
-const isValidSize = (value) => {
-    let correctSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-    return (correctSize.includes(value))
-}
-
 const removeProduct = function (value) {
     if (value == 0) {
         return true
@@ -70,9 +62,18 @@ const removeProduct = function (value) {
 
 
 module.exports = {
-    isValid, nameValidationRegex, isValidObjectId, emailValidationRegex,
-    phoneValidationRegex, passwordValidationRegex, regCurrency, removeProduct,
-    regPincode, titleValidationRegex, priceValidationRegex, isValidSize, regCurrencyId
+    isValid,
+    nameValidationRegex,
+    isValidObjectId,
+    emailValidationRegex,
+    phoneValidationRegex,
+    passwordValidationRegex,
+    regCurrency,
+    removeProduct,
+    regPincode,
+    titleValidationRegex,
+    priceValidationRegex,
+    regCurrencyId
 }
 
 // ^₹ (([0-9]+\,[0-9]+)|([0-9]+[.]?[0-9]*(?:L|Cr)?))$

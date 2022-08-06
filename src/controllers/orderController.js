@@ -1,4 +1,4 @@
-const orderModel = require("../Models/orderSchema")
+const orderModel = require("../Models/orderModel")
 const cartModel = require("../Models/cartModel")
 const valid = require("../validations/validation")
 
@@ -49,7 +49,7 @@ const createOrder = async function (req, res) {
         let items = cart.items
 
         obj["items"] = cart.items
-       
+
         let sum = 0
         let arr = []
         for (let i = 0; i < items.length; i++) {
@@ -102,6 +102,7 @@ const updateOrder = async function (req, res) {
         let userId = req.params.userId
 
         let data = req.body
+        // console.log(data)
 
         let { orderId, status } = data
 
@@ -153,7 +154,7 @@ const updateOrder = async function (req, res) {
         let belongToUser = await orderModel.findOneAndUpdate({ _id: orderId, isDeleted: false },
             { status: status }, { new: true })
 
-        return res.status(200).send({ status: false, message: " order succesfully updated" ,data :belongToUser })
+        return res.status(200).send({ status: false, message: " order succesfully updated", data: belongToUser })
 
 
     } catch (err) {
