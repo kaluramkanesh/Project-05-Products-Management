@@ -126,12 +126,22 @@ const createProduct = async function (req, res) {
             })
         }
 
-        if (installments != undefined && installments == "" && !isNaN(installments)) {
+        if (installments != undefined && installments == "") {
             return res.status(400).send({
                 status: false,
                 message: "please put Number value in installments"
             })
         }
+
+        if (data.installments) {
+            if (isNaN(installments)) {
+                return res.status(400).send({
+                    status: false,
+                    message: "please put Number not charactor"
+                })
+            }
+        }
+
 
         const productCreated = await productModel.create(data)
         return res.status(201).send({
@@ -394,15 +404,16 @@ const updateProductById = async function (req, res) {
             let productImage = await aws.uploadFile(files[0])
             obj["productImage"] = productImage
         }
-
-        if (style == "") {
-            console.log(style == "")
-            return res.status(400).send({
-                status: false,
-                message: "please put value in style"
-            })
+        
+        if (style) {
+            if (style == "") {
+                return res.status(400).send({
+                    status: false,
+                    message: "please put value in style"
+                })
+            }
+            obj["style"] = style.trim().split(" ").filter(x => x).join(" ")
         }
-        obj["style"] = style.trim().split(" ").filter(x => x).join(" ")
 
         if (availableSizes) {
             availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
@@ -418,11 +429,18 @@ const updateProductById = async function (req, res) {
             }
         }
 
-        if (installments) {
-            if (installments == "" || isNaN(installments)) {
+        if (installments != undefined && installments == "") {
+            return res.status(400).send({
+                status: false,
+                message: "please put Number value in installments"
+            })
+        }
+
+        if (data.installments) {
+            if (isNaN(installments)) {
                 return res.status(400).send({
                     status: false,
-                    message: "please put Number value in installments"
+                    message: "please put Number not charactor"
                 })
             }
             obj["installments"] = installments.trim().split(" ").filter(x => x).join(" ")
