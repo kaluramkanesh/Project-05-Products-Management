@@ -106,9 +106,9 @@ const createProduct = async function (req, res) {
             })
         }
         if (availableSizes) {
-            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
+            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase()) 
             if (availableSizes) {
-                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"] 
                 let uniqueSizes = [...new Set(availableSizes)]
                 for (let i of uniqueSizes) {
                     if (enumArr.indexOf(i) == -1) {
@@ -494,7 +494,7 @@ const deletProductById = async function (req, res) {
         if (!findProduct) {
             return res.status(404).send({
                 status: false,
-                message: " product is already deleted or not found with this Id"
+                message: "product is already deleted or not found with this Id"
             })
         }
 
