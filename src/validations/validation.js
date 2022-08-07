@@ -17,8 +17,13 @@ const isValidObjectId = function (value) {
 
 }
 
+
 const nameValidationRegex = function (value) {
     return /^[a-zA-Z -._\s]*$/.test(value)
+}
+
+const instaValidationRegex = function (value) {
+    return /^[0-9]*$/.test(value)
 }
 
 const emailValidationRegex = function (value) {
@@ -43,7 +48,7 @@ const titleValidationRegex = function (value) {
 }
 
 const priceValidationRegex = function (value) {
-    return /\d+(?:[.,]\d{0,2})?/.test(value)
+    return /^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$/.test(value)
 }
 
 const regPincode = function (value) {
@@ -71,6 +76,7 @@ module.exports = {
     regCurrency,
     removeProduct,
     regPincode,
+    instaValidationRegex,
     titleValidationRegex,
     priceValidationRegex,
     regCurrencyId

@@ -15,7 +15,7 @@ let uploadFile = async (file) => {
         var uploadParams = {
             ACL: "public-read",
             Bucket: "classroom-training-bucket",  //HERE
-            Key: "abc/" + file.originalname, //HERE 
+            Key: "projectGroup44/" + file.originalname, //HERE 
             Body: file.buffer
         }
        
@@ -28,6 +28,7 @@ let uploadFile = async (file) => {
         })
     })
 }
+
 
 
 module.exports = { uploadFile }

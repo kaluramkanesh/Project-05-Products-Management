@@ -92,12 +92,12 @@ const createProduct = async function (req, res) {
 
         //****for product image inserting */
         let files = req.files
-
         if (!files || files.length == 0) return res.status(400).send({
             status: false, message: "product image is required and also insert product Image"
         })
         let productImage = await aws.uploadFile(files[0])
         data.productImage = productImage
+
 
         if (!valid.isValid(availableSizes)) {
             return res.status(400).send({
@@ -107,7 +107,7 @@ const createProduct = async function (req, res) {
         }
         if (availableSizes) {
             availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
-            if (Array.isArray(availableSizes)) {
+            if (availableSizes) {
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set(availableSizes)]
                 for (let i of uniqueSizes) {
@@ -119,17 +119,17 @@ const createProduct = async function (req, res) {
             }
         }
 
-        if (!valid.isValid(style)) {
+        if (style == "") {
             return res.status(400).send({
                 status: false,
-                message: "style is in string format"
+                message: "please put value in style"
             })
         }
 
-        if (!valid.isValid(installments)) {
+        if (installments != undefined && installments == "" && !isNaN(installments)) {
             return res.status(400).send({
                 status: false,
-                message: "installments is in string format"
+                message: "please put Number value in installments"
             })
         }
 
@@ -173,7 +173,7 @@ const getProduct = async function (req, res) {
         }
 
         if (size) {
-            filter.availableSizes = size
+            filter.availableSizes = size.toUpperCase()
         }
 
         const getProducts = await productModel.find(filter)
@@ -244,9 +244,9 @@ const getproductbyId = async function (req, res) {
             })
         }
 
-        let checkProductId = await productModel.findById({ _id: productId, isDeleted: false })
+        let checkProductId = await productModel.findOne({ _id: productId, isDeleted: false })
 
-        if (!checkProductId && checkProductId.isDeleted == true) {
+        if (!checkProductId) {
             return res.status(404).send({
                 status: false,
                 message: " data not found for this Id or have deleted"
@@ -277,26 +277,8 @@ const updateProductById = async function (req, res) {
     try {
 
         let data = req.body
-        const productId = req.params.productId
-        data = JSON.parse(JSON.stringify(data))
-        let obj = {}
-
-        let checkProductId = await productModel.findById({ _id: productId, isDeleted: false })
-        if (!checkProductId) {
-            return res.status(404).send({
-                status: false,
-                message: "productId not find"
-            })
-        }
-
-        let { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
-
-        if (Object.keys(data).length == 0 && req.files.length ==0) {
-            return res.status(400).send({
-                status: false,
-                message: "please put atleast one key for updating"
-            })
-        }
+        const productId = req.params.productId   // JSON.stringify() => method converts a JavaScript object or value to a JSON string
+        data = JSON.parse(JSON.stringify(data))  // JSON.parse() => is the process of converting a JSON object in text format to a Javascript object that can be used inside a program.
 
         if (!valid.isValidObjectId(productId)) {
             return res.status(400).send({
@@ -304,6 +286,25 @@ const updateProductById = async function (req, res) {
                 message: "invalid product Id"
             })
         }
+
+        if (Object.keys(data).length == 0 && !req.files) {
+            return res.status(400).send({
+                status: false,
+                message: "please put atleast one key for updating"
+            })
+        }
+
+        let obj = {}
+
+        let checkProductId = await productModel.findOne({ _id: productId, isDeleted: false })
+        if (!checkProductId) {
+            return res.status(404).send({
+                status: false,
+                message: "productId not found"
+            })
+        }
+
+        let { title, description, price, currencyId, currencyFormat, style, availableSizes, installments } = data
 
         if (title) {
             let checkTitle = await productModel.findOne({ title: title })
@@ -371,7 +372,7 @@ const updateProductById = async function (req, res) {
                     message: "currencyFormat should be in string format and can't be a any white spaces"
                 })
             }
-            if (currencyFormat !== "₹" || currencyFormat === "undifined") {
+            if (currencyFormat !== "₹" || currencyFormat === "undefined") {
                 return res.status(400).send({
                     status: false,
                     msg: "you have to put only one currencyFormat : ₹, or it is already present"
@@ -384,27 +385,28 @@ const updateProductById = async function (req, res) {
 
         let files = req.files
         if (data.hasOwnProperty("productImage")) {
-            if (!files || files.length == 0) return res.status(400).send({
-                status: false, message: "please insert product image"
+            if (!files || files.length == 0)
+                return res.status(400).send({
+                    status: false, message: "please insert product image"
+                })
+        }
+        if (files.length != 0) {
+            let productImage = await aws.uploadFile(files[0])
+            obj["productImage"] = productImage
+        }
+
+        if (style == "") {
+            console.log(style == "")
+            return res.status(400).send({
+                status: false,
+                message: "please put value in style"
             })
         }
-        let productImage = await aws.uploadFile(files[0])
-        obj["productImage"] = productImage
-        
-
-        if (style) {
-            if (!valid.isValid(style)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "style should be in string format and can't be a any white spaces"
-                })
-            }
-            obj["style"] = style.trim().split(" ").filter(x => x).join(" ")
-        }
+        obj["style"] = style.trim().split(" ").filter(x => x).join(" ")
 
         if (availableSizes) {
             availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
-            if (Array.isArray(availableSizes)) {
+            if (availableSizes) {
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set(availableSizes)]
                 for (let i of uniqueSizes) {
@@ -417,16 +419,16 @@ const updateProductById = async function (req, res) {
         }
 
         if (installments) {
-            if (!valid.isValid(installments)) {
+            if (installments == "" || isNaN(installments)) {
                 return res.status(400).send({
                     status: false,
-                    message: "installments should be in string format and can't be a any white spaces"
+                    message: "please put Number value in installments"
                 })
             }
             obj["installments"] = installments.trim().split(" ").filter(x => x).join(" ")
         }
 
-        const updatedProduct = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, { $set: obj }, { new: true })
+        const updatedProduct = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, obj, { new: true })
         if (!updatedProduct) {
             return res.status(404).send({
                 status: false,
@@ -434,7 +436,7 @@ const updateProductById = async function (req, res) {
                 data: updatedProduct
             })
         }
-        // console.log(updatedProduct)
+
         return res.status(400).send({
             status: false,
             message: "successfully updated data",
@@ -443,7 +445,10 @@ const updateProductById = async function (req, res) {
 
     }
     catch (error) {
-        return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({
+            status: false,
+            message: error.message
+        })
     }
 }
 
@@ -476,11 +481,12 @@ const deletProductById = async function (req, res) {
         }
 
         return res.status(200).send({ status: true, message: " successfully deleted" })
-
-
-    } catch (error) {
-
-        return res.status(500).send({ status: false, message: error.message })
+    }
+    catch (error) {
+        return res.status(500).send({
+            status: false,
+            message: error.message
+        })
     }
 }
 

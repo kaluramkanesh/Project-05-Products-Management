@@ -22,17 +22,18 @@ const createUsers = async function (req, res) {
             })
         }
 
-
         //<-------These validations for Mandatory fields--------->//
 
         if (!valid.isValid(fname)) {
-            return res.status(400).send({ status: false, message: "fname is required and should not be empty string" })
+            return res.status(400).send({ status: false, message: "fname field is mandatory" })
         }
 
         //validate name
         if (!valid.nameValidationRegex(fname)) {
-            return res.status(400).send({ status: false, message: `fname contain only alphabets` })
-
+            return res.status(400).send({
+                status: false,
+                message: `fname contain only alphabets`
+            })
         }
 
         if (!valid.isValid(lname)) {
@@ -48,7 +49,6 @@ const createUsers = async function (req, res) {
                 status: false,
                 message: "lname contain only alphabets"
             })
-
         }
 
         if (!valid.isValid(email)) {
@@ -58,11 +58,13 @@ const createUsers = async function (req, res) {
             });
         }
 
-        if (await userModel.findOne({ email: email }))
+        let checkEmail = await userModel.findOne({ email: email })
+        if (checkEmail){
             return res.status(400).send({
                 status: false,
                 message: "Email is already exist in the DB"
             })
+        }
 
         if (!valid.emailValidationRegex(email)) {
             return res.status(400).send({
@@ -71,6 +73,14 @@ const createUsers = async function (req, res) {
             })
         }
 
+        let files = req.files
+        if (!files || files.length == 0) return res.status(400).send({
+            status: false, message: "user image is required and also insert user Image"
+        })
+
+        let profileImage = await aws.uploadFile(files[0])
+        data.profileImage = profileImage
+
         if (!valid.isValid(phone)) {
             return res.status(400).send({
                 status: false,
@@ -78,11 +88,13 @@ const createUsers = async function (req, res) {
             });
         }
 
-        if (await userModel.findOne({ phone: phone }))
+        let checkPhone = await userModel.findOne({ phone: phone })
+        if (checkPhone){
             return res.status(400).send({
                 status: false,
-                message: "Phone is already exist in the DB"
+                message: "phone is already exist in the DB"
             })
+        }
 
         if (!valid.phoneValidationRegex(phone)) {
             return res.status(400).send({
@@ -114,7 +126,7 @@ const createUsers = async function (req, res) {
         }
 
         if (address == "") return res.status(400).send({ status: false, message: "Don't leave address Empty" })
-        if (data.address) {
+        if (address) {
 
             if (!address || Object.keys(address).length === 0) {
                 return res.status(400).send({ status: false, message: "Please enter address and it should be in object!!" })
@@ -269,7 +281,7 @@ const userLogin = async function (req, res) {
         if (!valid.emailValidationRegex(email)) {
             return res.status(400).send({
                 status: false,
-                message: "the email should not be in format"
+                message: "email is not valid , right format should look like : abc123@gmail.com"
             })
         }
         if (!password) {
@@ -280,7 +292,6 @@ const userLogin = async function (req, res) {
         }
 
         let user = await userModel.findOne({ email: email })
-        // console.log(user)
         if (!user) {
             return res.status(400).send({
                 status: false,
@@ -321,6 +332,12 @@ const getUserById = async function (req, res) {
 
         let userId = req.params.userId
         let getUser = await userModel.findOne({ _id: userId })
+        if(!getUser){
+            return res.status(404).send({
+                status: false,
+                message : "no data found with this userid"
+            })
+        }
 
         return res.status(200).send({
             status: true,
@@ -342,12 +359,12 @@ const updateUser = async function (req, res) {
     try {
         let userId = req.params.userId.trim()
         let data = req.body
+        data = JSON.parse(JSON.stringify(data))
         let { fname, lname, email, phone, password, address } = data
 
         let obj = {};
 
-
-        if (Object.keys(data).length == 0 && req.files.length == 0) {
+        if (Object.keys(data).length == 0 && !req.files) {
             return res.status(400).send({
                 status: false,
                 msg: "For updating please put atleast one key"
@@ -422,12 +439,16 @@ const updateUser = async function (req, res) {
         }
 
         let files = req.files
-        if (!files || files.length == 0) return res.status(400).send({
-            status: false,
-            message: "user profile Image not found"
-        })
-        profileImage = await aws.uploadFile(files[0])
-        obj.profileImage = profileImage
+        if (data.hasOwnProperty("profileImage")) {
+            if (!files || files.length == 0)
+                return res.status(400).send({
+                    status: false, message: "please insert profile image"
+                })
+        }
+        if (files.length != 0 ) {
+            let profileImage = await aws.uploadFile(files[0])
+            obj["profileImage"] = profileImage
+        }
 
         if (phone) {
             if (!valid.phoneValidationRegex(phone)) {
@@ -495,7 +516,13 @@ const updateUser = async function (req, res) {
         }
 
         let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { $set: obj }, { new: true })
-        res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
+        if(!updatedUser){
+            return res.status(404).send({
+                status: false,
+                message : "no data found with this userid"
+            })
+        }
+        return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
     } catch (Err) {
         return res.status(500).send({
             status: false,
@@ -503,6 +530,6 @@ const updateUser = async function (req, res) {
         })
     }
 
-} 
+}
 
 module.exports = { userLogin, createUsers, getUserById, updateUser }
