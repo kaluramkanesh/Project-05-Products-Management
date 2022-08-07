@@ -147,7 +147,6 @@ const getCartById = async function (req, res) {
         const userId = req.params.userId
         if(!valid.isValidObjectId(userId)){
             return res.status(400).send({ status: false, message: "invalid userId" })
-
         }
         let cart = await cartModel.findOne({ userId: userId })
         if(!cart){
@@ -320,10 +319,8 @@ const deleteCartBYId = async function (req, res) {
         }
 
         const updateCartDetails = await cartModel.findOneAndUpdate({ userId: existCart.userId }, { items: [], totalItems: 0, totalPrice: 0 }, { new: true })
-
-
+        
         return res.status(204).send({ status: true, message: 'sucessfully deleted', data: updateCartDetails })
-
 
     } catch (error) {
         res.status(500).send({ status: false, error: error.message });
