@@ -8,7 +8,10 @@ const createOrder = async function (req, res) {
     try {
         let data = req.body
         let userId = req.params.userId
+        if(!valid.isValidObjectId(userId)){
+            return res.status(400).send({ status: false, message: "invalid userId" })
 
+        }
         const { cartId } = data
 
         if (Object.keys(data).length == 0) {
@@ -100,6 +103,10 @@ const updateOrder = async function (req, res) {
     try {
 
         let userId = req.params.userId
+        if(!valid.isValidObjectId(userId)){
+            return res.status(400).send({ status: false, message: "invalid userId" })
+
+        }
 
         let data = req.body
         // console.log(data)
