@@ -141,8 +141,7 @@ const getCartById = async function (req, res) {
 
         const userId = req.params.userId
         let cart = await cartModel.findOne({ userId: userId })
-
-        // console.log(cart.items[0].productId)
+        console.log(cart)
 
         if (cart.userId != userId) {
             return res.status(400).send({ status: false, message: "with this userId cart does not exist" })

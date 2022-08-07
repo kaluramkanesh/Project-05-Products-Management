@@ -99,14 +99,12 @@ const createProduct = async function (req, res) {
         let productImage = await aws.uploadFile(files[0])
         data.productImage = productImage
 
-
         if (!valid.isValid(availableSizes)) {
             return res.status(400).send({
                 status: false,
                 message: "please provide atleast one size among [S, XS, M, X, L, XXL, XL]"
             })
         }
-
         if (availableSizes) {
             availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
             if (Array.isArray(availableSizes)) {
@@ -141,7 +139,6 @@ const createProduct = async function (req, res) {
             data: productCreated
         })
     }
-
     catch (err) {
         return res.status(500).send({
             status: false,
@@ -164,13 +161,13 @@ const getProduct = async function (req, res) {
         let { name, size, priceGreaterThan, priceLessThan, priceSort } = body
 
         if (name !== undefined) {
-            const regName = new RegExp(name, "i")
-            filter.title = { $regex: regName }
-        }
+            const regName = new RegExp(name, "i")    // The RegExp object is used for matching text with a pattern.    
+            filter.title = { $regex: regName }       // u (unicode) => Treat pattern as a sequence of Unicode code points..
+        }                                            // i (ignore case) => If u flag is also enabled, use Unicode case folding.
 
         if (priceGreaterThan) {
-            filter.price = { $gt: priceGreaterThan }
-        }
+            filter.price = { $gt: priceGreaterThan }   // $ =>  they identify an object in the same way a name would.         
+        }                                              // The objects they identify include things such as variables, functions, properties, events, and objects.
         if (priceLessThan) {
             filter.price = { $lt: priceLessThan }
         }
@@ -386,16 +383,13 @@ const updateProductById = async function (req, res) {
         //  Update productImage
 
         let files = req.files
-        if(files){
-            if (data.hasOwnProperty("productImage")) {
-                if (!files || files.length == 0) return res.status(400).send({
-                    status: false, message: "please insert product image"
-                })
-            }
-            let productImage = await aws.uploadFile(files[0])
-            console.log(data)
-            obj.productImage = productImage
+        if (data.hasOwnProperty("productImage")) {
+            if (!files || files.length == 0) return res.status(400).send({
+                status: false, message: "please insert product image"
+            })
         }
+        let productImage = await aws.uploadFile(files[0])
+        obj["productImage"] = productImage
         
 
         if (style) {
