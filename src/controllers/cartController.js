@@ -100,7 +100,7 @@ const createCart = async function (req, res) {
                     item[i].quantity += 1
 
                     let quantityAdd = await cartModel.findOneAndUpdate({ userId: userIdParams, }, { items: item, totalPrice: cartData.totalPrice + productCall.price }, { new: true })
-                    return res.status(200).send({
+                    return res.status(201).send({
                         status: true,
                         message: " quantity successfully added",
                         data: quantityAdd
@@ -115,9 +115,9 @@ const createCart = async function (req, res) {
 
             let cartUpdate = await cartModel.findOneAndUpdate({ userId: userIdParams }, variable, { new: true }).select({ "items._id": 0 })
 
-            return res.status(200).send({
+            return res.status(201).send({
                 status: true,
-                message: "successfully product added",
+                message: "successfully cart added",
                 data: cartUpdate
             })
         }
