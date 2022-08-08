@@ -1,5 +1,6 @@
 const cartModel = require("../Models/cartModel")
 const valid = require("../validations/validation")
+const userModel = require("../Models/userModel")
 const productModel = require("../Models/productModel")
 
 /***********************************[ start Create Cart Function ]***************************************/
@@ -8,6 +9,10 @@ const createCart = async function (req, res) {
     try {
         let data = req.body
         const userIdParams = req.params.userId
+        let checkUserId = await userModel.findOne({_id : userIdParams })
+        if(!checkUserId){
+            return res.status(404).send({ status: false, message: "userId not found in DB" })
+        }
 
         let { cartId, productId } = data
 
@@ -140,9 +145,14 @@ const getCartById = async function (req, res) {
     try {
 
         const userId = req.params.userId
+        if(!valid.isValidObjectId(userId)){
+            return res.status(400).send({ status: false, message: "invalid userId" })
+        }
         let cart = await cartModel.findOne({ userId: userId })
+        if(!cart){
+            return res.status(404).send({ status: false, message: "userId not found in DB" })
 
-        // console.log(cart.items[0].productId)
+        }
 
         if (cart.userId != userId) {
             return res.status(400).send({ status: false, message: "with this userId cart does not exist" })
@@ -167,6 +177,9 @@ const updateCart = async function (req, res) {
         let data = req.body
 
         const userId = req.params.userId
+        if(!valid.isValidObjectId(userId)){
+            return res.status(400).send({ status: false, message: "invalid userId" })
+        }
 
         let { cartId, productId, removeProduct } = data
 
@@ -306,10 +319,8 @@ const deleteCartBYId = async function (req, res) {
         }
 
         const updateCartDetails = await cartModel.findOneAndUpdate({ userId: existCart.userId }, { items: [], totalItems: 0, totalPrice: 0 }, { new: true })
-
-
-        res.status(204).send({ status: true, message: 'sucessfully deleted', data: updateCartDetails })
-
+        
+        return res.status(204).send({ status: true, message: 'sucessfully deleted', data: updateCartDetails })
 
     } catch (error) {
         res.status(500).send({ status: false, error: error.message });
