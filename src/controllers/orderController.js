@@ -75,11 +75,12 @@ const createOrder = async function (req, res) {
         // let arr1 = arr.splice(-1,1).join("")
         //  obj["totalQuantity"] = arr1
 
-        let orderCreated = await orderModel.create(obj)
+        await orderModel.create(obj)
+        let orderCreated = await orderModel.findOneAndUpdate({userId: userId}).select({ "items._id": 0 ,deletedAt: 0, isDeleted: 0})
         return res.status(201).send({
             status: true,
             message: "Success",
-            data: orderCreated 
+            data: orderCreated
         })
 
 
@@ -104,16 +105,29 @@ const updateOrder = async function (req, res) {
 
         let userId = req.params.userId
         if (!valid.isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, message: "invalid userId" })
+            return res.status(400).send({ 
+                status: false, 
+                message: "invalid userId" 
+            })
         }
 
         let data = req.body
 
         let { orderId, status } = data
 
-        if (!orderId) { return res.status(400).send({ status: false, message: "Order Id is required field in params please give it" }) }
+        if (!orderId) {
+            return res.status(400).send({
+                status: false,
+                message: "Order Id is required field in params please give it"
+            })
+        }
 
-        if (!valid.isValidObjectId(orderId)) { return res.status(400).send({ status: false, message: "😢Invalid Order Id Please give correct order id " }) }
+        if (!valid.isValidObjectId(orderId)) { 
+            return res.status(400).send({ 
+                status: false, 
+                message: "😢Invalid Order Id Please give correct order id " 
+            }) 
+        }
 
         if (!["pending", "completed", "canceled"].includes(status)) {
 
@@ -124,6 +138,7 @@ const updateOrder = async function (req, res) {
         }
 
         let dbOrder = await orderModel.findOne({ _id: orderId, userId: userId })
+
         if (!dbOrder) {
             return res.status(400).send({
                 status: false,
@@ -156,7 +171,7 @@ const updateOrder = async function (req, res) {
         await cartModel.findOneAndUpdate({ userId: userId }, { items: [], totalItems: 0, totalPrice: 0 })
 
         let belongToUser = await orderModel.findOneAndUpdate({ _id: orderId, isDeleted: false },
-            { status: status, deletedAt: 0, isDeleted: 0 }, { new: true })
+            { status: status }, { new: true }).select({"items._id": 0, deletedAt: 0, isDeleted: 0})
 
         return res.status(200).send({ status: true, message: "Success", data: belongToUser })
 

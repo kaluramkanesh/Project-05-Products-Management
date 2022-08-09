@@ -61,7 +61,9 @@ const createCart = async function (req, res) {
                 totalItems: 1
             }
 
-            let cartCreated = await cartModel.create(cartDataAdd)
+            await cartModel.create(cartDataAdd)
+            let cartCreated = await cartModel.findOneAndUpdate({userId:userIdParams}).select({ "items._id": 0 })
+            
             return res.status(201).send({
                 status: true,
                 message: "Success",
@@ -218,6 +220,13 @@ const updateCart = async function (req, res) {
                 msg: "this item you trying to remove is does't exist in your cart"
             })
         }
+        
+        if(productId != cartData.items.productId){
+            return res.status(400).send({
+                status: false,
+                message: "productId not present in the cart"
+            })
+        }
 
         if (!cartData) {
             return res.status(400).send({
@@ -257,7 +266,7 @@ const updateCart = async function (req, res) {
 
                     items.splice(i, 1)
 
-                    cartData.totalPrice = cartData.totalPrice - productData.price
+                    cartData.totalPrice = cartData.totalPrice - productData.price * items[i].quantity
 
                     cartData.totalItems = cartData.totalItems - 1
                 }
