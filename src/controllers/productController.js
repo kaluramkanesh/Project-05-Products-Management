@@ -8,7 +8,8 @@ const aws = require("../util/aws")
 const createProduct = async function (req, res) {
     try {
         let data = req.body
-        let { title, description, price, currencyId, currencyFormat, availableSizes, style, installments } = data
+        let { title, description, price, currencyId, availableSizes, style, installments } = data
+        console.log(data)
 
 
         // ----------check if body is empty
@@ -77,18 +78,23 @@ const createProduct = async function (req, res) {
             })
         }
 
-        if (!valid.isValid(currencyFormat)) {
-            return res.status(400).send({
-                status: false,
-                message: " currency format required "
-            }) //**check
-        }
-        if (currencyFormat !== "₹" || currencyFormat === "undifined") {
-            return res.status(400).send({
-                status: false,
-                msg: "you have to put only one currencyFormat : ₹, or it is already present"
-            })
-        }
+        let currencyFormat = "₹"
+        data.currencyFormat  = currencyFormat
+
+        // if (!valid.isValid(currencyFormat)) {
+        //     return res.status(400).send({
+        //         status: false,
+        //         message: " currency format required "
+        //     }) //**check
+        // }
+
+        // if (currencyFormat !== "₹" || currencyFormat === "undifined") {
+        //     return res.status(400).send({
+        //         status: false,
+        //         msg: "you have to put only one currencyFormat : ₹, or it is already present"
+        //     })
+        // }
+
 
         //****for product image inserting */
         let files = req.files
@@ -145,7 +151,7 @@ const createProduct = async function (req, res) {
 
         const productCreated = await productModel.create(data)
         return res.status(201).send({
-            status: true, message: " product created successfully",
+            status: true, message: "Success",
             data: productCreated
         })
     }
@@ -168,65 +174,66 @@ const getProduct = async function (req, res) {
 
         let filter = { isDeleted: false };
 
-        let { name, size, priceGreaterThan, priceLessThan, priceSort } = body
+        // let { name, size, priceGreaterThan, priceLessThan, priceSort } = body
 
-        if (name !== undefined) {
-            const regName = new RegExp(name, "i")    // The RegExp object is used for matching text with a pattern.    
-            filter.title = { $regex: regName }       // u (unicode) => Treat pattern as a sequence of Unicode code points..
-        }                                            // i (ignore case) => If u flag is also enabled, use Unicode case folding.
+        // if (name !== undefined) {
+        //     const regName = new RegExp(name, "i")    // The RegExp object is used for matching text with a pattern.    
+        //     filter.title = { $regex: regName }       // u (unicode) => Treat pattern as a sequence of Unicode code points..
+        // }                                            // i (ignore case) => If u flag is also enabled, use Unicode case folding.
 
-        if (priceGreaterThan) {
-            filter.price = { $gt: priceGreaterThan }   // $ =>  they identify an object in the same way a name would.         
-        }                                              // The objects they identify include things such as variables, functions, properties, events, and objects.
-        if (priceLessThan) {
-            filter.price = { $lt: priceLessThan }
-        }
+        // if (priceGreaterThan) {
+        //     filter.price = { $gt: priceGreaterThan }   // $ =>  they identify an object in the same way a name would.         
+        // }                                              // The objects they identify include things such as variables, functions, properties, events, and objects.
+        // if (priceLessThan) {
+        //     filter.price = { $lt: priceLessThan }
+        // }
 
-        if (size) {
-            filter.availableSizes = size.toUpperCase()
-        }
+        // if (size) {
+        //     filter.availableSizes = size.toUpperCase()
+        // }
 
         const getProducts = await productModel.find(filter)
-        if (getProducts.length == 0) {
-            return res.status(404).send({
-                status: false,
-                message: "product not found"
-            })
-        }
+        // if (getProducts.length == 0) {
+        //     return res.status(404).send({
+        //         status: false,
+        //         message: "product not found"
+        //     })
+        // }
 
-        if (priceSort) {
-            if (priceSort != 1 && priceSort != -1)
-                return res.status(400).send({
-                    status: false,
-                    message: "this is wrong input in priceSort, put 1 for ascending order and put -1 for descending"
-                })
-            if (priceSort == 1) {
-                const products = await productModel.find(filter).sort({ price: 1 })
-                if (products.length == 0) return res.status(404).send({
-                    status: false,
-                    message: 'No products found'
-                })
-                return res.status(200).send({
-                    status: true,
-                    message: 'Success',
-                    data: products
-                })
-            }
-            if (priceSort == -1) {
-                const products = await productModel.find(filter).sort({ price: -1 })
-                if (products.length == 0) return res.status(404).send({
-                    status: false,
-                    message: 'No products found'
-                })
-                return res.status(200).send({
-                    status: true,
-                    message: 'Success',
-                    data: products
-                })
-            }
-        }
+        // if (priceSort) {
+        //     if (priceSort != 1 && priceSort != -1)
+        //         return res.status(400).send({
+        //             status: false,
+        //             message: "this is wrong input in priceSort, put 1 for ascending order and put -1 for descending"
+        //         })
+        //     if (priceSort == 1) {
+        //         const products = await productModel.find(filter).sort({ price: 1 })
+        //         if (products.length == 0) return res.status(404).send({
+        //             status: false,
+        //             message: 'No products found'
+        //         })
+        //         return res.status(200).send({
+        //             status: true,
+        //             message: 'Success',
+        //             data: products
+        //         })
+        //     }
+        //     if (priceSort == -1) {
+        //         const products = await productModel.find(filter).sort({ price: -1 })
+        //         if (products.length == 0) return res.status(404).send({
+                //     status: false,
+                //     message: 'No products found'
+                // })
+        //         return res.status(200).send({
+        //             status: true,
+        //             message: 'Success',
+        //             data: products
+        //         })
+        //     }
+        // }
         return res.status(200).send({
             status: true,
+            message: "Success",
             Products: getProducts
         })
     }
@@ -265,7 +272,7 @@ const getproductbyId = async function (req, res) {
 
         return res.status(200).send({
             status: true,
-            message: "the product details for given productId",
+            message: "Success",
             data: checkProductId
         })
     }
@@ -455,7 +462,7 @@ const updateProductById = async function (req, res) {
             })
         }
 
-        return res.status(400).send({
+        return res.status(200).send({
             status: false,
             message: "successfully updated data",
             data: updatedProduct

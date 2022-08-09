@@ -50,6 +50,13 @@ const authorization = async function (req, res, next) {
 
         let userLoggedIn = req.token.userId
         let userId = req.params.userId
+        let checkUserId = await userModel.findById({_id : userId})
+        if(!checkUserId){
+            return res.status(400).send({
+                status: false,
+                message: "params userId not present in user DB"
+            })
+        }
 
         if (!validator.isValidObjectId(userId)) {
             return res.status(400).send({

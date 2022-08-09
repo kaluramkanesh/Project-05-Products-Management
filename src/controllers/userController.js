@@ -11,7 +11,7 @@ const createUsers = async function (req, res) {
 
         let data = req.body
 
-        let { fname, lname, email, phone, password, address } = data  // de
+        let { fname, lname, email, phone, password, address } = data
 
         //***********check if the body is empty**************//
 
@@ -331,7 +331,7 @@ const getUserById = async function (req, res) {
     try {
 
         let userId = req.params.userId
-        let getUser = await userModel.findById({ _id: userId  })
+        let getUser = await userModel.findById({ _id: userId })
         if(!getUser){
             return res.status(404).send({
                 status: false,

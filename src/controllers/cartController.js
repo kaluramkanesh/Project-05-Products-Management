@@ -64,7 +64,7 @@ const createCart = async function (req, res) {
             let cartCreated = await cartModel.create(cartDataAdd)
             return res.status(201).send({
                 status: true,
-                message: "cart created successfully",
+                message: "Success",
                 data: cartCreated
             })
         }
@@ -105,9 +105,9 @@ const createCart = async function (req, res) {
                     item[i].quantity += 1
 
                     let quantityAdd = await cartModel.findOneAndUpdate({ userId: userIdParams, }, { items: item, totalPrice: cartData.totalPrice + productCall.price }, { new: true })
-                    return res.status(200).send({
+                    return res.status(201).send({
                         status: true,
-                        message: " quantity successfully added",
+                        message: "Success",
                         data: quantityAdd
                     })
                 }
@@ -120,9 +120,9 @@ const createCart = async function (req, res) {
 
             let cartUpdate = await cartModel.findOneAndUpdate({ userId: userIdParams }, variable, { new: true }).select({ "items._id": 0 })
 
-            return res.status(200).send({
+            return res.status(201).send({
                 status: true,
-                message: "successfully product added",
+                message: "Success",
                 data: cartUpdate
             })
         }
@@ -159,7 +159,7 @@ const getCartById = async function (req, res) {
         }
 
         let createCart = await cartModel.findByIdAndUpdate(cart._id, { new: true }).select({ "items._id": 0 }).populate("items.productId", { title: 1, _id: 1, price: 1, productImage: 1, availableSizes: 1 })
-        return res.status(200).send({ status: true, message: "Product SuccessFully Added", data: createCart })
+        return res.status(200).send({ status: true, message: "Success", data: createCart })
 
     }
     catch (error) {
@@ -257,7 +257,7 @@ const updateCart = async function (req, res) {
 
                     items.splice(i, 1)
 
-                    cartData.totalPrice = cartData.totalPrice - productData.price * items[i].quantity
+                    cartData.totalPrice = cartData.totalPrice - productData.price
 
                     cartData.totalItems = cartData.totalItems - 1
                 }
@@ -265,7 +265,7 @@ const updateCart = async function (req, res) {
             cartData.save() //  the save() method replaces the existing document with the document passed in save() method.
             return res.status(200).send({
                 status: true,
-                message: "success",
+                message: "Success",
                 data: cartData
             })
         }
@@ -287,7 +287,7 @@ const updateCart = async function (req, res) {
             cartData.save() //  the save() method replaces the existing document with the document passed in save() method.
             return res.status(200).send({
                 status: true,
-                message: "success",
+                message: "Success",
                 data: cartData
             })
         }
