@@ -78,8 +78,8 @@ const createOrder = async function (req, res) {
         let orderCreated = await orderModel.create(obj)
         return res.status(201).send({
             status: true,
-            message: "order created",
-            data: { deletedAt: 0, isDeleted: 0, orderCreated }
+            message: "Order placed.",
+            data:  orderCreated 
         })
 
 
@@ -158,7 +158,7 @@ const updateOrder = async function (req, res) {
         let belongToUser = await orderModel.findOneAndUpdate({ _id: orderId, isDeleted: false },
             { status: status }, { new: true })
 
-        return res.status(200).send({ status: false, message: " order succesfully updated", data: belongToUser })
+        return res.status(200).send({ status: true, message: "Success", data: belongToUser })
 
     } catch (err) {
         console.log(err)

@@ -1,6 +1,4 @@
 const jwt = require("jsonwebtoken")
-const mongoose = require("mongoose")
-const userModel = require("../Models/userModel")
 const validator = require("../validations/validation")
 
 

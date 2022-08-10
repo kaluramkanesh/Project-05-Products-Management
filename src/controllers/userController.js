@@ -114,7 +114,7 @@ const createUsers = async function (req, res) {
         if (!valid.passwordValidationRegex(password)) {
             return res.status(400).send({
                 status: false,
-                message: "password shoud be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter"
+                message: "password should be minimum 8 to maximum 15 characters which contain at least one numeric digit, one uppercase and one lowercase letter"
             })
         }
 
@@ -147,7 +147,6 @@ const createUsers = async function (req, res) {
                 const { street, city, pincode } = shipping
 
                 if (!valid.isValid(street)) {
-                    console.log(street)
                     return res.status(400).send({
                         status: false,
                         msg: "street field is mandatory..."
@@ -169,7 +168,11 @@ const createUsers = async function (req, res) {
 
                 if (shipping.city) {
 
-                    if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
+                    if (!valid.nameValidationRegex(city))
+                     return res.status(400).send({ 
+                        status: false,
+                         message: "city name is not in valid format"
+                         })
 
                     data["addresss.shipping.city"] = city
                 }
@@ -196,7 +199,6 @@ const createUsers = async function (req, res) {
             if (billing) {
                 const { street, city, pincode } = billing
                 if (!valid.isValid(street)) {
-                    console.log(street)
                     return res.status(400).send({
                         status: false,
                         msg: "street field is mandatory..."
@@ -217,7 +219,11 @@ const createUsers = async function (req, res) {
 
                 if (billing.city) {
 
-                    if (!valid.nameValidationRegex(city)) return res.status(400).send({ status: false, message: "city name is not in valid format" })
+                    if (!valid.nameValidationRegex(city)) 
+                    return res.status(400).send({
+                         status: false,
+                          message: "city name is not in valid format"
+                         })
                     data["addresss.billing.city"] = city
                 }
 
@@ -315,7 +321,13 @@ const userLogin = async function (req, res) {
 
         )
 
-        return res.status(200).send({ status: true, msg: "User login successfull", data: { userId: user._id, token: token } })
+        return res.status(200).send({ 
+            status: true, 
+            msg: "User login successfull",
+             data: { 
+                userId: user._id,
+                 token: token } 
+            })
     }
     catch (error) {
         return res.status(500).send({
@@ -407,14 +419,14 @@ const updateUser = async function (req, res) {
                     msg: `lname is not valid`,
                 })
             }
-            obj["lnmae"] = lname.trim().split(" ").filter(word => word).join(" ")
+            obj["lname"] = lname.trim().split(" ").filter(word => word).join(" ")
         }
 
         if (email) {
             if (!valid.isValid(email)) {
                 return res.status(400).send({
                     status: false,
-                    msg: "lname should be in string format",
+                    msg: "email should be in string format",
                 })
             }
             if (!valid.emailValidationRegex(email)) {

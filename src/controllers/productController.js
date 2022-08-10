@@ -145,7 +145,7 @@ const createProduct = async function (req, res) {
 
         const productCreated = await productModel.create(data)
         return res.status(201).send({
-            status: true, message: " product created successfully",
+            status: true, message: "Success",
             data: productCreated
         })
     }
@@ -171,7 +171,7 @@ const getProduct = async function (req, res) {
         let { name, size, priceGreaterThan, priceLessThan, priceSort } = body
 
         if (name !== undefined) {
-            const regName = new RegExp(name, "i")    // The RegExp object is used for matching text with a pattern.    
+            const regName = new RegExp(name)    // The RegExp object is used for matching text with a pattern.    
             filter.title = { $regex: regName }       // u (unicode) => Treat pattern as a sequence of Unicode code points..
         }                                            // i (ignore case) => If u flag is also enabled, use Unicode case folding.
 
@@ -227,6 +227,7 @@ const getProduct = async function (req, res) {
         }
         return res.status(200).send({
             status: true,
+            message: 'Success',
             Products: getProducts
         })
     }
@@ -259,13 +260,13 @@ const getproductbyId = async function (req, res) {
         if (!checkProductId) {
             return res.status(404).send({
                 status: false,
-                message: " data not found for this Id or have deleted"
+                message: "data not found for this Id or have deleted"
             })
         }
 
         return res.status(200).send({
             status: true,
-            message: "the product details for given productId",
+            message: "Success",
             data: checkProductId
         })
     }
@@ -353,7 +354,7 @@ const updateProductById = async function (req, res) {
             if (!valid.isValid(price)) {
                 return res.status(400).send({
                     status: false,
-                    message: "description should be in string format and can't be a any white spaces"
+                    message: "price should be in number format and can't be a any white spaces"
                 })
             }
             obj["price"] = price.trim().split(" ").filter(x => x).join(" ")
@@ -455,9 +456,9 @@ const updateProductById = async function (req, res) {
             })
         }
 
-        return res.status(400).send({
-            status: false,
-            message: "successfully updated data",
+        return res.status(200).send({
+            status: true,
+            message: "Success",
             data: updatedProduct
         })
 
