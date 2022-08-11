@@ -54,8 +54,12 @@ Router.put("/users/:userId/cart", mid.jwtValidation, mid.authorization, cartCont
 Router.delete("/users/:userId/cart", mid.jwtValidation, mid.authorization, cartController.deleteCartBYId)
 
 
+//*******************orderController */
 
+//------ Create Order-------------------------------------------
 Router.post("/users/:userId/orders", mid.jwtValidation, mid.authorization, orderController.createOrder)
+
+//------ Update Order -------------------------------------------
 Router.put("/users/:userId/orders", mid.jwtValidation, mid.authorization, orderController.updateOrder)
 
 
@@ -71,5 +75,3 @@ Router.all("/**", function (req, res) {
 })
 
 module.exports = Router
-
-

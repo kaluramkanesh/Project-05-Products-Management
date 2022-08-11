@@ -9,8 +9,6 @@ const createProduct = async function (req, res) {
     try {
         let data = req.body
         let { title, description, price, currencyId, availableSizes, style, installments } = data
-        console.log(data)
-
 
         // ----------check if body is empty
         if (Object.keys(data).length == 0 && req.files.length == 0) {
@@ -79,7 +77,7 @@ const createProduct = async function (req, res) {
         }
 
         let currencyFormat = "₹"
-        data.currencyFormat  = currencyFormat
+        data.currencyFormat = currencyFormat
 
         // if (!valid.isValid(currencyFormat)) {
         //     return res.status(400).send({
@@ -112,9 +110,9 @@ const createProduct = async function (req, res) {
             })
         }
         if (availableSizes) {
-            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase()) 
+            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
             if (availableSizes) {
-                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"] 
+                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set(availableSizes)]
                 for (let i of uniqueSizes) {
                     if (enumArr.indexOf(i) == -1) {
@@ -174,63 +172,63 @@ const getProduct = async function (req, res) {
 
         let filter = { isDeleted: false };
 
-        // let { name, size, priceGreaterThan, priceLessThan, priceSort } = body
+        let { name, size, priceGreaterThan, priceLessThan, priceSort } = body
 
-        // if (name !== undefined) {
-        //     const regName = new RegExp(name, "i")    // The RegExp object is used for matching text with a pattern.    
-        //     filter.title = { $regex: regName }       // u (unicode) => Treat pattern as a sequence of Unicode code points..
-        // }                                            // i (ignore case) => If u flag is also enabled, use Unicode case folding.
+        if (name !== undefined) {
+            const regName = new RegExp(name, "i")    // The RegExp object is used for matching text with a pattern.    
+            filter.title = { $regex: regName }       // u (unicode) => Treat pattern as a sequence of Unicode code points..
+        }                                            // i (ignore case) => If u flag is also enabled, use Unicode case folding.
 
-        // if (priceGreaterThan) {
-        //     filter.price = { $gt: priceGreaterThan }   // $ =>  they identify an object in the same way a name would.         
-        // }                                              // The objects they identify include things such as variables, functions, properties, events, and objects.
-        // if (priceLessThan) {
-        //     filter.price = { $lt: priceLessThan }
-        // }
+        if (priceGreaterThan) {
+            filter.price = { $gt: priceGreaterThan }   // $ =>  they identify an object in the same way a name would.         
+        }                                              // The objects they identify include things such as variables, functions, properties, events, and objects.
+        if (priceLessThan) {
+            filter.price = { $lt: priceLessThan }
+        }
 
-        // if (size) {
-        //     filter.availableSizes = size.toUpperCase()
-        // }
+        if (size) {
+            filter.availableSizes = size.toUpperCase()
+        }
 
         const getProducts = await productModel.find(filter)
-        // if (getProducts.length == 0) {
-        //     return res.status(404).send({
-        //         status: false,
-        //         message: "product not found"
-        //     })
-        // }
+        if (getProducts.length == 0) {
+            return res.status(404).send({
+                status: false,
+                message: "product not found"
+            })
+        }
 
-        // if (priceSort) {
-        //     if (priceSort != 1 && priceSort != -1)
-        //         return res.status(400).send({
-        //             status: false,
-        //             message: "this is wrong input in priceSort, put 1 for ascending order and put -1 for descending"
-        //         })
-        //     if (priceSort == 1) {
-        //         const products = await productModel.find(filter).sort({ price: 1 })
-        //         if (products.length == 0) return res.status(404).send({
-        //             status: false,
-        //             message: 'No products found'
-        //         })
-        //         return res.status(200).send({
-        //             status: true,
-        //             message: 'Success',
-        //             data: products
-        //         })
-        //     }
-        //     if (priceSort == -1) {
-        //         const products = await productModel.find(filter).sort({ price: -1 })
-        //         if (products.length == 0) return res.status(404).send({
-                //     status: false,
-                //     message: 'No products found'
-                // })
-        //         return res.status(200).send({
-        //             status: true,
-        //             message: 'Success',
-        //             data: products
-        //         })
-        //     }
-        // }
+        if (priceSort) {
+            if (priceSort != 1 && priceSort != -1)
+                return res.status(400).send({
+                    status: false,
+                    message: "this is wrong input in priceSort, put 1 for ascending order and put -1 for descending"
+                })
+            if (priceSort == 1) {
+                const products = await productModel.find(filter).sort({ price: 1 })
+                if (products.length == 0) return res.status(404).send({
+                    status: false,
+                    message: 'No products found'
+                })
+                return res.status(200).send({
+                    status: true,
+                    message: 'Success',
+                    data: products
+                })
+            }
+            if (priceSort == -1) {
+                const products = await productModel.find(filter).sort({ price: -1 })
+                if (products.length == 0) return res.status(404).send({
+                    status: false,
+                    message: 'No products found'
+                })
+                return res.status(200).send({
+                    status: true,
+                    message: 'Success',
+                    data: products
+                })
+            }
+        }
         return res.status(200).send({
             status: true,
             message: "Success",
@@ -411,7 +409,7 @@ const updateProductById = async function (req, res) {
             let productImage = await aws.uploadFile(files[0])
             obj["productImage"] = productImage
         }
-        
+
         if (style) {
             if (style == "") {
                 return res.status(400).send({

@@ -16,15 +16,15 @@ const createCart = async function (req, res) {
 
         let { cartId, productId } = data
 
-        if (!productId || !valid.isValidObjectId(productId)) {
-            return res.status(400).send({ status: false, message: "Enter valid ProductId" })
-        }
-
         if (Object.keys(data).length == 0) {
             return res.status(400).send({
                 status: false,
                 message: "Body should be not Empty please enter some data to create cart"
             })
+        }
+
+        if (!productId || !valid.isValidObjectId(productId)) {
+            return res.status(400).send({ status: false, message: "invalid ProductId" })
         }
 
         if (!valid.isValidObjectId(userIdParams)) {
@@ -34,21 +34,14 @@ const createCart = async function (req, res) {
             })
         }
 
-        if (!valid.isValidObjectId(productId)) {
-            return res.status(400).send({
-                status: false,
-                message: "invalid ProductId"
-            })
-        }
-
         let cartData = await cartModel.findOne({ userId: userIdParams })
 
-        let productCall = await productModel.findOne({ _id: productId })
+        let productCall = await productModel.findOne({ _id: productId , isDeleted : false})
 
-        if (productCall.isDeleted == true) {
+        if (!productCall) {
             return res.status(400).send({
                 status: false,
-                message: "this product Id is deleted in DB"
+                message: "this product Id is deleted or not present in DB"
             })
         }
 
@@ -62,7 +55,7 @@ const createCart = async function (req, res) {
             }
 
             await cartModel.create(cartDataAdd)
-            let cartCreated = await cartModel.findOneAndUpdate({userId:userIdParams}).select({ "items._id": 0 })
+            let cartCreated = await cartModel.findOneAndUpdate({ userId: userIdParams }).select({ "items._id": 0 })
             
             return res.status(201).send({
                 status: true,
@@ -220,7 +213,7 @@ const updateCart = async function (req, res) {
                 msg: "this item you trying to remove is does't exist in your cart"
             })
         }
-        
+
         if(productId != cartData.items.productId){
             return res.status(400).send({
                 status: false,

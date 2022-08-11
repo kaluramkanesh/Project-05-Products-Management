@@ -59,7 +59,7 @@ const createUsers = async function (req, res) {
         }
 
         let checkEmail = await userModel.findOne({ email: email })
-        if (checkEmail){
+        if (checkEmail) {
             return res.status(400).send({
                 status: false,
                 message: "Email is already exist in the DB"
@@ -89,7 +89,7 @@ const createUsers = async function (req, res) {
         }
 
         let checkPhone = await userModel.findOne({ phone: phone })
-        if (checkPhone){
+        if (checkPhone) {
             return res.status(400).send({
                 status: false,
                 message: "phone is already exist in the DB"
@@ -147,7 +147,6 @@ const createUsers = async function (req, res) {
                 const { street, city, pincode } = shipping
 
                 if (!valid.isValid(street)) {
-                    console.log(street)
                     return res.status(400).send({
                         status: false,
                         msg: "street field is mandatory..."
@@ -196,7 +195,6 @@ const createUsers = async function (req, res) {
             if (billing) {
                 const { street, city, pincode } = billing
                 if (!valid.isValid(street)) {
-                    console.log(street)
                     return res.status(400).send({
                         status: false,
                         msg: "street field is mandatory..."
@@ -332,10 +330,10 @@ const getUserById = async function (req, res) {
 
         let userId = req.params.userId
         let getUser = await userModel.findById({ _id: userId })
-        if(!getUser){
+        if (!getUser) {
             return res.status(404).send({
                 status: false,
-                message : "no data found with this userid"
+                message: "no data found with this userid"
             })
         }
 
@@ -359,7 +357,9 @@ const updateUser = async function (req, res) {
     try {
         let userId = req.params.userId.trim()
         let data = req.body
+
         data = JSON.parse(JSON.stringify(data))
+        
         let { fname, lname, email, phone, password, address } = data
 
         let obj = {};
@@ -445,7 +445,7 @@ const updateUser = async function (req, res) {
                     status: false, message: "please insert profile image"
                 })
         }
-        if (files.length != 0 ) {
+        if (files.length != 0) {
             let profileImage = await aws.uploadFile(files[0])
             obj["profileImage"] = profileImage
         }
@@ -516,10 +516,10 @@ const updateUser = async function (req, res) {
         }
 
         let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { $set: obj }, { new: true })
-        if(!updatedUser){
+        if (!updatedUser) {
             return res.status(404).send({
                 status: false,
-                message : "no data found with this userid"
+                message: "no data found with this userid"
             })
         }
         return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
