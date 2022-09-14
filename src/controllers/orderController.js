@@ -79,7 +79,7 @@ const createOrder = async function (req, res) {
         return res.status(201).send({
             status: true,
             message: "Order placed.",
-            data:  orderCreated 
+            data: orderCreated
         })
 
 

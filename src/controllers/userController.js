@@ -59,7 +59,7 @@ const createUsers = async function (req, res) {
         }
 
         let checkEmail = await userModel.findOne({ email: email })
-        if (checkEmail){
+        if (checkEmail) {
             return res.status(400).send({
                 status: false,
                 message: "Email is already exist in the DB"
@@ -89,7 +89,7 @@ const createUsers = async function (req, res) {
         }
 
         let checkPhone = await userModel.findOne({ phone: phone })
-        if (checkPhone){
+        if (checkPhone) {
             return res.status(400).send({
                 status: false,
                 message: "phone is already exist in the DB"
@@ -169,10 +169,10 @@ const createUsers = async function (req, res) {
                 if (shipping.city) {
 
                     if (!valid.nameValidationRegex(city))
-                     return res.status(400).send({ 
-                        status: false,
-                         message: "city name is not in valid format"
-                         })
+                        return res.status(400).send({
+                            status: false,
+                            message: "city name is not in valid format"
+                        })
 
                     data["addresss.shipping.city"] = city
                 }
@@ -219,11 +219,11 @@ const createUsers = async function (req, res) {
 
                 if (billing.city) {
 
-                    if (!valid.nameValidationRegex(city)) 
-                    return res.status(400).send({
-                         status: false,
-                          message: "city name is not in valid format"
-                         })
+                    if (!valid.nameValidationRegex(city))
+                        return res.status(400).send({
+                            status: false,
+                            message: "city name is not in valid format"
+                        })
                     data["addresss.billing.city"] = city
                 }
 
@@ -321,13 +321,14 @@ const userLogin = async function (req, res) {
 
         )
 
-        return res.status(200).send({ 
-            status: true, 
+        return res.status(200).send({
+            status: true,
             msg: "User login successfull",
-             data: { 
+            data: {
                 userId: user._id,
-                 token: token } 
-            })
+                token: token
+            }
+        })
     }
     catch (error) {
         return res.status(500).send({
@@ -343,11 +344,11 @@ const getUserById = async function (req, res) {
     try {
 
         let userId = req.params.userId
-        let getUser = await userModel.findById({ _id: userId  })
-        if(!getUser){
+        let getUser = await userModel.findById({ _id: userId })
+        if (!getUser) {
             return res.status(404).send({
                 status: false,
-                message : "no data found with this userid"
+                message: "no data found with this userid"
             })
         }
 
@@ -457,7 +458,7 @@ const updateUser = async function (req, res) {
                     status: false, message: "please insert profile image"
                 })
         }
-        if (files.length != 0 ) {
+        if (files.length != 0) {
             let profileImage = await aws.uploadFile(files[0])
             obj["profileImage"] = profileImage
         }
@@ -528,10 +529,10 @@ const updateUser = async function (req, res) {
         }
 
         let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { $set: obj }, { new: true })
-        if(!updatedUser){
+        if (!updatedUser) {
             return res.status(404).send({
                 status: false,
-                message : "no data found with this userid"
+                message: "no data found with this userid"
             })
         }
         return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })

@@ -106,9 +106,9 @@ const createProduct = async function (req, res) {
             })
         }
         if (availableSizes) {
-            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase()) 
+            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
             if (availableSizes) {
-                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"] 
+                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set(availableSizes)]
                 for (let i of uniqueSizes) {
                     if (enumArr.indexOf(i) == -1) {
@@ -405,7 +405,7 @@ const updateProductById = async function (req, res) {
             let productImage = await aws.uploadFile(files[0])
             obj["productImage"] = productImage
         }
-        
+
         if (style) {
             if (style == "") {
                 return res.status(400).send({
