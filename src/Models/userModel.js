@@ -17,10 +17,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    profileImage: {
-        type: String,
-        required: true
-    }, // s3 link
+    // profileImage: {
+    //     type: String,
+    //     required: true
+    // }, // s3 link
     phone: {
         type: Number,
         required: true,

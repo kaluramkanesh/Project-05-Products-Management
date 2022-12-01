@@ -73,13 +73,13 @@ const createUsers = async function (req, res) {
             })
         }
 
-        let files = req.files
-        if (!files || files.length == 0) return res.status(400).send({
-            status: false, message: "user image is required and also insert user Image"
-        })
+        // let files = req.files
+        // if (!files || files.length == 0) return res.status(400).send({
+        //     status: false, message: "user image is required and also insert user Image"
+        // })
 
-        let profileImage = await aws.uploadFile(files[0])
-        data.profileImage = profileImage
+        // let profileImage = await aws.uploadFile(files[0])
+        // data.profileImage = profileImage
 
         if (!valid.isValid(phone)) {
             return res.status(400).send({
